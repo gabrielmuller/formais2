@@ -21,10 +21,10 @@ transition(b, q2, q2).
 transition(a, q1, q0).
 transition(a, q2, q0).
 
-path(From, String, To) :-
+path(From, List, To) :-
     state(From),
     state(To),
-    [H|T] = String,
+    [H|T] = List,
     char(H),
 
     transition(H, From, Next),
@@ -44,6 +44,12 @@ accept_list_size(List, Size) :-
     length(List, Size),
     accept_list(List).
 
-% accept_list([a, a, a]). false
-% accept_list([a, b, b]). true
+strings_of_size(Strings, Size) :-
+    findall(String, 
+    (accept_list_size(List, Size),
+    atomic_list_concat(List, '', Atom),
+    atom_string(Atom, String)),
+    L),
+    sort(L, Strings).
 
+% ?- strings_of_size(String, 5).
