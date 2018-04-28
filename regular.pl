@@ -3,8 +3,6 @@
 state(q0).
 state(q1).
 state(q2).
-state(q3).
-state(q4).
 
 accept_state(q2).
 
