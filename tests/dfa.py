@@ -7,12 +7,11 @@ def test_dfa(dfa, accept, reject):
 
 def test_all():
     transitions = {
-        ("start", 'a') : "one a",
-        ("one a", 'a') : "two a",
-        ("start", 'b') : "start",
-        ("one a", 'b') : "start",
-        ("two a", 'b') : "start"
-        }
+            "start" : {'a' : "one a", 'b' : "start"},
+            "one a" : {'a' : "two a", 'b' : "start"},
+            "two a" : {'b' : "start"}
+            }
+
 
     no_aaa = DFA(transitions, "start", {"start", "one a", "two a"})
 
@@ -20,3 +19,9 @@ def test_all():
             ["", "a", "aa", "baa", "aabbaa", "bababaab"],
             ["aaaba", "bbbbaaab", "abaaa", "baaa", "aaa"] 
             )
+    three = {"aab", "aba", "abb", "baa", "bab", "bba", "bbb"}
+    assert no_aaa.words_of_size(3) == three
+
+    print ("Todos testes DFA estão ok")
+
+
