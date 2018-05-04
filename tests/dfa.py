@@ -21,7 +21,3 @@ def test_all():
             )
     three = {"aab", "aba", "abb", "baa", "bab", "bba", "bbb"}
     assert no_aaa.words_of_size(3) == three
-
-    print ("Todos testes DFA estão ok")
-
-
