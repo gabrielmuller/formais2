@@ -1,6 +1,7 @@
-all:
+all: test
+
+run:
 	python3 main.py
-i:
-	python3 -i main.py
-db:
-	python3 -m pdb main.py
+
+test:
+	python3 -m unittest discover tests

@@ -1,3 +1,4 @@
+from misc import set_to_str
 class NFA:
     def __init__(self, transitions, initial, accepting):
         self.initial = initial
