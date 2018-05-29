@@ -2,7 +2,7 @@ class DFA:
     def __init__(self, transitions, initial, accepting):
         self.initial = initial
 
-        # dicionário de dicioná
+        # dicionário de dicionários
         self.transitions = transitions
 
         self.accepting = accepting

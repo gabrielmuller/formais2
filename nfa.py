@@ -29,7 +29,7 @@ class NFA:
         transitions = {}
 
         while states_to_add:
-            # conjunto de estados a adicionar como unico estado
+            # conjunto de estados a adicionar como único estado
             states = states_to_add.pop()
 
             # para conjunto de estados, mapeia caracter para
@@ -38,7 +38,7 @@ class NFA:
 
             accept = False
             for state in states:
-                # eh estado de aceitacao se algum estado for
+                # é estado de aceitação se algum estado for
                 if state in self.accepting:
                     accept = True
 
@@ -60,17 +60,17 @@ class NFA:
                     for char, state_set in char_to_set.items()}
             str_states = set_to_str(states)
 
-            # primeira transicao eh inicial
+            # primeira transicao é inicial
             if not transitions:
                 initial = str_states
 
-            # se houver um estado de aceitacao, aceita
+            # se houver um estado de aceitação, aceita
             if accept:
                 accepting.add(str_states)
 
             transitions[str_states] = char_to_state
                     
-            # marca estado como ja especificado
+            # marca estado como já especificado
             states_added.append(states)
 
         return DFA(transitions, initial, accepting)

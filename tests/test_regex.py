@@ -40,6 +40,8 @@ class TestRegex(unittest.TestCase):
 
         self.abaca.thread()
 
+        self.abaca.simone()
+
     def test_is_operator(self):
         self.assertTrue(self.ab.root.is_operator())
         self.assertFalse(self.ab.root.left.is_operator())

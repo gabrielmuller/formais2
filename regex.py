@@ -1,3 +1,9 @@
+from dfa import DFA
+
+# Alias para claridade
+DOWN = False
+UP = True
+
 class Node:
     def __init__(self, value):
         self.value = value
@@ -21,19 +27,67 @@ class Node:
         r = self.right.in_order() if self.right else []
         return l + [self] + r
 
+class Move:
+    # 'move' é um nodo associado a uma direção (subida ou descida)
+    def __init__(self, node, direction):
+        self.node = node
+        self.dir = direction
+
+    # retorna folhas alcançadas a partir desse move
+    def simone_leaves(self):
+        leaves = set()
+        moves = {self}
+        first = True
+
+        while moves:
+            next_moves = set()
+
+            for move in moves:
+                if move.node == '&':
+                    continue
+                if move.node.is_operator():
+                    func = Regex.semantics[move.dir][move.node.value]
+                    next_moves = next_moves.union(func(move.node))
+                else:
+                    if first:
+                        func = Regex.leaf_up
+                        next_moves = next_moves.union(func(move.node))
+                    else:
+                        leaves.add(move)
+
+            moves = next_moves
+            first = False
+
+        #return set(map(lambda l: l.node, leaves))
+        return leaves
+
+# semântica de subida do '|', a mais complicada
+def or_up_semantics(node):
+    while node.is_operator():
+        node = node.right
+
+    return {Move(node.right, UP)}
+
 class Regex:
+
     # Semântica dos operadores
+    # Operadores são mapeados a um conjunto de moves
     down = \
-    {'|': 'or',
-    '.': lambda node: {node.left},
-    '?': 'interro',
-    '*': 'kleene'}
+    {'|': lambda node: {Move(node.left, DOWN), Move(node.right, DOWN)},
+    '.': lambda node: {Move(node.left, DOWN)},
+    '?': lambda node: {Move(node.left, DOWN), Move(node.right, UP)},
+    '*': lambda node: {Move(node.left, DOWN), Move(node.right, UP)}}
 
     up = \
-    {'|': 'or',
-    '.': lambda node: {node.right},
-    '?': 'interro',
-    '*': 'kleene'}
+    {'|': or_up_semantics,
+    '.': lambda node: {Move(node.right, DOWN)},
+    '?': lambda node: {Move(node.right, UP)},
+    '*': lambda node: {Move(node.left, DOWN), Move(node.right, UP)}}
+
+    semantics = {DOWN: down, UP: up}
+
+    leaf_up = lambda node: {Move(node.right, UP)}
+
 
     # faz parse da string para criar a árvore de Simone
     # por enquanto apenas teste
@@ -57,6 +111,53 @@ class Regex:
     def in_order(self):
         return self.root.in_order()
 
-        
     def simone(self):
-        return
+        self.index = 0
+        self.comp_to_state = {}
+        self.initial = ''
+        self.final = set()
+        transitions = {}
+
+        # fila de conjuntos de move para computar transições
+        self.queue = [{Move(self.root, DOWN)}]
+        while self.queue:
+            moves = self.queue.pop()
+            (leaves, state) = self.moves_to_state(moves)
+            leaves = set(leaves)
+
+            # dict para separar atual composição em caracteres
+            char_to_comp = {leaf.node.value: set() for leaf in leaves}
+            for char in char_to_comp:
+                char_to_comp[char] = \
+                        {leaf for leaf in leaves if leaf.node.value == char}
+
+            for char in char_to_comp:
+                (leaves, next_state) = self.moves_to_state(char_to_comp[char])
+                if state not in transitions:
+                    transitions[state] = {}
+                transitions[state][char] = next_state
+
+        print(transitions)
+
+    # a partir de um conjunto de moves, retorna a composição (folhas)
+    # e o estado associado
+    def moves_to_state(self, moves):
+        leaves = set()
+        for move in moves:
+            leaves = leaves.union(move.simone_leaves())
+
+        # set imutável é hashable, para usar em dict
+        nodes = frozenset(map(lambda leaf: leaf.node, leaves))
+
+        state = ''
+        if nodes in self.comp_to_state:
+            state = self.comp_to_state[nodes]
+        else:
+            state = 'q' + str(self.index)
+            if not self.initial:
+                self.initial = state
+            self.index += 1
+            self.comp_to_state[nodes] = state
+            self.queue.append(leaves)
+
+        return (leaves, state)
