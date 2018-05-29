@@ -6,6 +6,7 @@ class NFA:
         self.transitions = transitions
         self.accepting = accepting
 
+    # provavelmente não vai ser usado assim
     def accepts(self, word):
         states = {self.initial}
         for char in word:
