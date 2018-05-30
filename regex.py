@@ -35,6 +35,9 @@ class Move:
 
     # retorna folhas alcançadas a partir desse move
     def simone_leaves(self):
+        if self.node == '&':
+            return set()
+
         leaves = set()
         moves = {self}
         first = True
@@ -44,6 +47,7 @@ class Move:
 
             for move in moves:
                 if move.node == '&':
+                    leaves.add(move)
                     continue
                 if move.node.is_operator():
                     func = Regex.semantics[move.dir][move.node.value]
@@ -123,9 +127,8 @@ class Regex:
         while self.queue:
             moves = self.queue.pop()
             (leaves, state) = self.moves_to_state(moves)
-            leaves = set(leaves)
 
-            # dict para separar atual composição em caracteres
+            # dict para separar atual composição por caracter
             char_to_comp = {leaf.node.value: set() for leaf in leaves}
             for char in char_to_comp:
                 char_to_comp[char] = \
@@ -137,27 +140,49 @@ class Regex:
                     transitions[state] = {}
                 transitions[state][char] = next_state
 
+        print(self.final)
         print(transitions)
 
     # a partir de um conjunto de moves, retorna a composição (folhas)
     # e o estado associado
     def moves_to_state(self, moves):
+        # leaves é a união da composição de cada move
         leaves = set()
         for move in moves:
             leaves = leaves.union(move.simone_leaves())
 
+        # nodos dos moves para identificar o estado
         # set imutável é hashable, para usar em dict
         nodes = frozenset(map(lambda leaf: leaf.node, leaves))
 
         state = ''
+
+        # se o estado já existe, retorna o mesmo
+        # senão cria o estado
         if nodes in self.comp_to_state:
             state = self.comp_to_state[nodes]
         else:
+            # estado qi
             state = 'q' + str(self.index)
+
+            # estado é inicial se ainda não há estado inicial
             if not self.initial:
                 self.initial = state
+
+            # é final se '&' faz parte da composição
+            if '&' in nodes:
+                self.final.add(state)
+
             self.index += 1
             self.comp_to_state[nodes] = state
+
+            # coloca composição de moves na fila para
+            # criar as transições
             self.queue.append(leaves)
+
+        # '&' já foi tratado, pode ser retirado
+        empty = {leaf for leaf in leaves if leaf.node == '&'}
+        for leaf in empty:
+            leaves.remove(leaf)
 
         return (leaves, state)
