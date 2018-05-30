@@ -74,3 +74,55 @@ class NFA:
             states_added.append(states)
 
         return DFA(transitions, initial, accepting)
+
+    """
+        Conversão de GR para AF
+    """
+    @staticmethod
+    def from_rg(rg):
+        productions = rg.productions
+
+        transitions = {}
+        initial = rg.initial
+
+        """
+            F = {A}
+        """
+        new_accepting_state = "A"
+        if new_accepting_state in productions:
+            new_accepting_state = "A'"
+        accepting = {new_accepting_state}
+        
+        """
+            F = {A, S} se S -> & in P
+        """
+        if "&" in productions[initial]: 
+            accepting.add(initial)
+
+        for state in productions:
+            # Adiciona estado
+            if state not in transitions:
+                transitions[state] = {}
+
+            for production in productions[state]:
+                if production == "&":
+                    continue
+                """
+                    Se B->a in P adiciona (B,a)=A
+                    Se B->aC in P adiciona (B,a)=C
+                """
+                if len(production) == 1:
+                    transitions[state][production] = \
+                        new_accepting_state
+                else:
+                    transitions[state][production[0]] = \
+                        production[1]
+
+        return NFA(transitions, initial, accepting)
+
+
+
+
+
+
+
