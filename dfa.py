@@ -1,3 +1,5 @@
+from itertools import combinations
+
 class DFA:
     def __init__(self, transitions, initial, accepting):
         self.initial = initial
@@ -36,17 +38,15 @@ class DFA:
     """
     def remove_state(self, removed):
         # Remover estado
-        del self.transitions[removed]
+        if removed in self.transitions.keys():
+            del self.transitions[removed]
 
         # Remover transições para o estado removido
         # TODO: melhorar. Talvez falhe em alguns casos
         transitions_to_remove = {}
         for state in self.transitions.keys():
-            print("state",state)
             for key, next_state in self.transitions[state].items():
-                print("key", key, ", next", next_state)
                 if next_state == removed:
-                    print(next_state)
                     transitions_to_remove[state] = key
 
         for state,symbol in transitions_to_remove.items():
@@ -85,10 +85,73 @@ class DFA:
             self.remove_state(dead)
 
     """
+        Tornar estados únicos
+        Algoritmo: Myhill-Nerode Theorem
+    """
+    def merge_nondistinguishable(self):
+        #TODO: resultado não determinístico (às vezes dá certo)
+        F = self.accepting.copy()
+        sigma = self.transitions
+
+        nondistinguishable = set()
+        marked = set()
+
+        """
+            Step 1 - pares de estados
+        """
+        for pair in combinations(self.transitions.keys(), 2):
+            nondistinguishable.add(pair)
+
+        """
+            Step 2 - marcar (Qi, Qj) onde Qi in F e Qj not in F 
+            ou vice versa
+        """
+        for pair in nondistinguishable:
+            if (pair[0] in F and pair[1] not in F) \
+                or (pair[1] in F and pair[0] not in F):
+                marked.add(pair)
+
+        """
+            Step 3 - se existe  par (Qi, Qj) não marcado, marque
+            se {sigma(Qi,A), sigma(Qj,A)} está marcado
+            para algum símbolo do alfabeto
+        """
+        # b e a u t i f u l
+        while(1):
+            can_mark = False
+            for pair in nondistinguishable - marked:
+               for key0 in sigma[pair[0]].keys():
+                    for key1 in sigma[pair[1]].keys():
+                        if key0 == key1:
+                            if (sigma[pair[0]][key0], \
+                                sigma[pair[1]][key0]) in marked:
+                                marked.add(pair)
+                                can_mark = True
+            if not can_mark:
+                break
+
+        """
+            Step 4 - Combinar pares não marcados (Qi, Qj) e 
+            transformá-los em único estado no DFA
+        """
+        nondistinguishable -= marked
+        for state_a, state_b in nondistinguishable:
+            if state_b == self.initial or \
+                state_a not in self.transitions.keys():
+                temp = state_a
+                state_a = state_b
+                state_b = state_a
+            for state in self.transitions.keys():
+                for key, next_state in self.transitions[state].items():
+                    if next_state == state_b:
+                        self.transitions[state][key] = state_a
+            self.remove_state(state_b)
+
+    """
         Minimização de AF
     """
     def minimize(self):
         self.remove_unreachable()
         self.remove_dead()
-        #self.merge_nondistinguishable()
+        self.merge_nondistinguishable()
 
