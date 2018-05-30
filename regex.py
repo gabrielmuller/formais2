@@ -119,7 +119,7 @@ class Regex:
         self.index = 0
         self.comp_to_state = {}
         self.initial = ''
-        self.final = set()
+        self.accepting = set()
         transitions = {}
 
         # fila de conjuntos de move para computar transições
@@ -140,8 +140,7 @@ class Regex:
                     transitions[state] = {}
                 transitions[state][char] = next_state
 
-        print(self.final)
-        print(transitions)
+        return DFA(transitions, self.initial, self.accepting)
 
     # a partir de um conjunto de moves, retorna a composição (folhas)
     # e o estado associado
@@ -169,9 +168,9 @@ class Regex:
             if not self.initial:
                 self.initial = state
 
-            # é final se '&' faz parte da composição
+            # é accepting se '&' faz parte da composição
             if '&' in nodes:
-                self.final.add(state)
+                self.accepting.add(state)
 
             self.index += 1
             self.comp_to_state[nodes] = state

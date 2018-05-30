@@ -37,10 +37,7 @@ class TestRegex(unittest.TestCase):
         r.left.left = n
 
         self.abaca.root = r
-
         self.abaca.thread()
-
-        self.abaca.simone()
 
     def test_is_operator(self):
         self.assertTrue(self.ab.root.is_operator())
@@ -57,6 +54,19 @@ class TestRegex(unittest.TestCase):
         vals = map(lambda node: node.value, nodes)
         string = ''.join(vals)
         self.assertEqual(string, "cl.arb")
+
+    def test_simone(self):
+        dfa_abaca = self.abaca.simone()
+        dfa_ab = self.ab.simone()
+        self.assertTrue(dfa_abaca.accepts("abaca"))
+        self.assertTrue(dfa_abaca.accepts("abacababaca"))
+        self.assertFalse(dfa_abaca.accepts("abacababacab"))
+        self.assertFalse(dfa_abaca.accepts("cababacab"))
+
+        self.assertTrue(dfa_ab.accepts("ab"))
+        self.assertFalse(dfa_ab.accepts(""))
+        self.assertFalse(dfa_ab.accepts("a"))
+        self.assertFalse(dfa_ab.accepts("b"))
 
 
 if __name__ == "__main__":
