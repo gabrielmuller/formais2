@@ -1,31 +1,10 @@
 from dfa import DFA
+from parser import *
 
 # Alias para claridade
 DOWN = False
 UP = True
 
-class Node:
-    def __init__(self, value):
-        self.value = value
-        self.right = None
-        self.left = None
-
-        # filho da direita está acima?
-        self.up = False
-
-    # Nodo é um operador?
-    def is_operator(self):
-        return self.value in Regex.up
-
-    # costura esse nodo com um nodo acima
-    def thread(self, up_node):
-        self.up = True
-        self.right = up_node
-
-    def in_order(self):
-        l = self.left.in_order() if self.left else []
-        r = self.right.in_order() if self.right else []
-        return l + [self] + r
 
 class Move:
     # 'move' é um nodo associado a uma direção (subida ou descida)
@@ -62,7 +41,6 @@ class Move:
             moves = next_moves
             first = False
 
-        #return set(map(lambda l: l.node, leaves))
         return leaves
 
 # semântica de subida do '|', a mais complicada
@@ -75,17 +53,20 @@ def or_up_semantics(node):
 class Regex:
 
     # Semântica dos operadores
-    # Operadores são mapeados a um conjunto de moves
+    # Operadores são mapeados a lambdas que 
+    # têm como entrada um node e saída um conjunto de moves
     down = \
     {'|': lambda node: {Move(node.left, DOWN), Move(node.right, DOWN)},
     '.': lambda node: {Move(node.left, DOWN)},
     '?': lambda node: {Move(node.left, DOWN), Move(node.right, UP)},
+    '+': lambda node: {Move(node.left, DOWN)},
     '*': lambda node: {Move(node.left, DOWN), Move(node.right, UP)}}
 
     up = \
     {'|': or_up_semantics,
     '.': lambda node: {Move(node.right, DOWN)},
     '?': lambda node: {Move(node.right, UP)},
+    '+': lambda node: {Move(node.left, DOWN), Move(node.right, UP)},
     '*': lambda node: {Move(node.left, DOWN), Move(node.right, UP)}}
 
     semantics = {DOWN: down, UP: up}
@@ -94,9 +75,11 @@ class Regex:
 
 
     # faz parse da string para criar a árvore de Simone
-    # por enquanto apenas teste
     def __init__(self, regex_str):
-        return
+        self.regex_str = regex_str
+        self.root = parse(regex_str)
+        #self.thread()
+        #self.dfa = self.simone()
 
     # costura toda árvore
     def thread(self):
@@ -118,29 +101,27 @@ class Regex:
     def simone(self):
         self.index = 0
         self.comp_to_state = {}
-        self.initial = ''
         self.accepting = set()
-        transitions = {}
+        self.transitions = {}
+        self.initial = self.moves_to_state({Move(self.root, DOWN)})
 
-        # fila de conjuntos de move para computar transições
-        self.queue = [{Move(self.root, DOWN)}]
-        while self.queue:
-            moves = self.queue.pop()
-            (leaves, state) = self.moves_to_state(moves)
+        return DFA(self.transitions, self.initial, self.accepting)
 
-            # dict para separar atual composição por caracter
-            char_to_comp = {leaf.node.value: set() for leaf in leaves}
-            for char in char_to_comp:
-                char_to_comp[char] = \
-                        {leaf for leaf in leaves if leaf.node.value == char}
+    # cria transições a partir de um estado e seus moves
+    def compute_transitions(self, leaves, state):
 
-            for char in char_to_comp:
-                (leaves, next_state) = self.moves_to_state(char_to_comp[char])
-                if state not in transitions:
-                    transitions[state] = {}
-                transitions[state][char] = next_state
+        # dict para separar atual composição por caracter
+        char_to_comp = {leaf.node.value: set() for leaf in leaves}
+        for char in char_to_comp:
+            char_to_comp[char] = \
+                    {leaf for leaf in leaves if leaf.node.value == char}
 
-        return DFA(transitions, self.initial, self.accepting)
+        for char in char_to_comp:
+            next_state = self.moves_to_state(char_to_comp[char])
+            if next_state != '-':
+                if state not in self.transitions:
+                    self.transitions[state] = {}
+                self.transitions[state][char] = next_state
 
     # a partir de um conjunto de moves, retorna a composição (folhas)
     # e o estado associado
@@ -156,17 +137,16 @@ class Regex:
 
         state = ''
 
+        if not nodes:
+            return (leaves, '-')
         # se o estado já existe, retorna o mesmo
         # senão cria o estado
         if nodes in self.comp_to_state:
             state = self.comp_to_state[nodes]
+            # print('\n'+state + ' já existe!')
         else:
             # estado qi
             state = 'q' + str(self.index)
-
-            # estado é inicial se ainda não há estado inicial
-            if not self.initial:
-                self.initial = state
 
             # é accepting se '&' faz parte da composição
             if '&' in nodes:
@@ -174,14 +154,17 @@ class Regex:
 
             self.index += 1
             self.comp_to_state[nodes] = state
+            # print('\n&' if '&' in nodes else '')
+            # print(state)
+            # print([n.value for n in nodes if type(n) is Node])
+
+            # '&' já foi tratado, pode ser retirado
+            empty = {leaf for leaf in leaves if leaf.node == '&'}
+            for leaf in empty:
+                leaves.remove(leaf)
 
             # coloca composição de moves na fila para
             # criar as transições
-            self.queue.append(leaves)
+            self.compute_transitions(leaves, state)
 
-        # '&' já foi tratado, pode ser retirado
-        empty = {leaf for leaf in leaves if leaf.node == '&'}
-        for leaf in empty:
-            leaves.remove(leaf)
-
-        return (leaves, state)
+        return state
