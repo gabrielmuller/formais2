@@ -140,7 +140,7 @@ class DFA:
                 state_a not in self.transitions.keys():
                 temp = state_a
                 state_a = state_b
-                state_b = state_a
+                state_b = temp
             for state in self.transitions.keys():
                 for key, next_state in self.transitions[state].items():
                     if next_state == state_b:
