@@ -42,8 +42,15 @@ class RegularGrammar():
                 # Adiciona não terminal
                 productions[state] = set()
             for vt in transitions:
-                # Adiciona produção
-                productions[state].add(vt+transitions[vt])
+                # Adiciona produções (NFA)
+                if type(transitions[vt]) is set:
+                    for i in transitions[vt]:
+                        productions[state].add(vt+i)
+
+                # Adiciona produção (DFA)
+                if type(transitions[vt]) is str:
+                    productions[state].add(vt+transitions[vt])
+
                 """
                     Se C in F, adicione B->a
                 """
@@ -64,12 +71,65 @@ class RegularGrammar():
         return RegularGrammar(initial, productions)
 
     def to_string(self):
+        string = ""
+        first = True
         for vn in self.productions:
+            if not first:
+                string+="\n"
             prod = vn+"-> "
             for ld in self.productions[vn]:
                 prod+=ld
                 prod+=" | "
-            print(prod)
+            string+=prod
+            first = False
+        return string
+
+
+    """
+        Método auxiliar
+        Retorna conjunto de produções da gramática, com
+        não-terminais renomeados com a adição de uma string str
+    """
+    def _rename_productions(self, str):
+        productions = {}
+        for vn, values in self.productions.items():
+            if vn+str not in productions:
+                productions[vn+str] = set()
+            for i in values:
+                if len(i) == 1:
+                    productions[vn+str].add(i)
+                else:
+                    productions[vn+str].add(i+str)
+        return productions
+
+    @staticmethod
+    def union(grammar_a, grammar_b):
+        """
+            1 - Adicionar produções com não-terminais renomeados
+            para evitar não-terminais diferentes com mesmo
+            nome
+        """
+        a = grammar_a._rename_productions("1")
+        b = grammar_b._rename_productions("2")
+        productions = {**a, **b}
+
+        """
+            2 - Criar novo não-terminal inicial e replicar as
+            produções dos iniciais das Gramáticas A e B
+            no novo inicial
+        """
+        initial = "S"
+        productions[initial] = set()
+
+        for production in productions[grammar_a.initial+"1"]:
+            productions[initial].add(production)
+        for production in productions[grammar_b.initial+"2"]:
+            productions[initial].add(production)
+
+        return RegularGrammar(initial, productions)
+        
+
+
 
 
 
