@@ -107,24 +107,11 @@ class Regex:
 
         return DFA(self.transitions, self.initial, self.accepting)
 
-    # cria transições a partir de um estado e seus moves
-    def compute_transitions(self, leaves, state):
-
-        # dict para separar atual composição por caracter
-        char_to_comp = {leaf.node.value: set() for leaf in leaves}
-        for char in char_to_comp:
-            char_to_comp[char] = \
-                    {leaf for leaf in leaves if leaf.node.value == char}
-
-        for char in char_to_comp:
-            next_state = self.moves_to_state(char_to_comp[char])
-            if next_state != '-':
-                if state not in self.transitions:
-                    self.transitions[state] = {}
-                self.transitions[state][char] = next_state
-
-    # a partir de um conjunto de moves, retorna a composição (folhas)
-    # e o estado associado
+    # a partir de um conjunto de moves (composição),
+    # retorna o estado associado.
+    # se o estado não existir é criado um novo estado.
+    # a função se chama até que não hajam mais estados
+    # a criar.
     def moves_to_state(self, moves):
         # leaves é a união da composição de cada move
         leaves = set()
@@ -140,31 +127,42 @@ class Regex:
         if not nodes:
             return (leaves, '-')
         # se o estado já existe, retorna o mesmo
-        # senão cria o estado
         if nodes in self.comp_to_state:
             state = self.comp_to_state[nodes]
-            # print('\n'+state + ' já existe!')
-        else:
-            # estado qi
-            state = 'q' + str(self.index)
+            return state
 
-            # é accepting se '&' faz parte da composição
-            if '&' in nodes:
-                self.accepting.add(state)
+        # senão cria o estado
 
-            self.index += 1
-            self.comp_to_state[nodes] = state
-            # print('\n&' if '&' in nodes else '')
-            # print(state)
-            # print([n.value for n in nodes if type(n) is Node])
+        # estado qi
+        state = 'q' + str(self.index)
 
-            # '&' já foi tratado, pode ser retirado
-            empty = {leaf for leaf in leaves if leaf.node == '&'}
-            for leaf in empty:
-                leaves.remove(leaf)
+        # é accepting se '&' faz parte da composição
+        if '&' in nodes:
+            self.accepting.add(state)
 
-            # coloca composição de moves na fila para
-            # criar as transições
-            self.compute_transitions(leaves, state)
+        self.index += 1
+        self.comp_to_state[nodes] = state
+        # print('\n&' if '&' in nodes else '')
+        # print(state)
+        # print([n.value for n in nodes if type(n) is Node])
+
+        # '&' já foi tratado, pode ser retirado
+        empty = {leaf for leaf in leaves if leaf.node == '&'}
+        for leaf in empty:
+            leaves.remove(leaf)
+
+        # dict para separar atual composição por caracter
+        char_to_comp = {leaf.node.value: set() for leaf in leaves}
+        for char in char_to_comp:
+            char_to_comp[char] = \
+                    {leaf for leaf in leaves if leaf.node.value == char}
+
+        for char in char_to_comp:
+            next_state = self.moves_to_state(char_to_comp[char])
+            if next_state != '-':
+                if state not in self.transitions:
+                    self.transitions[state] = {}
+                self.transitions[state][char] = next_state
 
         return state
+
