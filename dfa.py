@@ -33,6 +33,24 @@ class DFA:
         valid = lambda i : i[1] in self.accepting
         return {i[0] for i in filter(valid, words)}
 
+    def alphabet(self):
+        alphabet = set()
+        for state in self.transitions.keys():
+            for vt in self.transitions[state].keys():
+                alphabet.add(vt)
+        return alphabet
+
+    """
+        Torna AFD Completo, i.e., todo estado tem transição
+        definida para cada símbolo do alfabeto
+    """
+    def complete(self):
+        self.transitions["ERRO"] = {}
+        for state in self.transitions.keys():
+            for symbol in self.alphabet():
+                if symbol not in self.transitions[state]:
+                    self.transitions[state][symbol] = "ERRO"
+
     """
         Remover estado
     """
@@ -154,4 +172,16 @@ class DFA:
         self.remove_unreachable()
         self.remove_dead()
         self.merge_nondistinguishable()
+
+    """
+        Transforma o AFD no autômato que reconhece o complemento
+        da linguagem do AFD original
+    """
+    def complement(self):
+        self.complete()
+        for state in self.transitions.keys():
+            if state in self.accepting:
+                self.accepting.remove(state)
+            else:
+                self.accepting.add(state)
 
