@@ -70,21 +70,6 @@ class RegularGrammar():
 
         return RegularGrammar(initial, productions)
 
-    def to_string(self):
-        string = ""
-        first = True
-        for vn in self.productions:
-            if not first:
-                string+="\n"
-            prod = vn+"-> "
-            for ld in self.productions[vn]:
-                prod+=ld
-                prod+=" | "
-            string+=prod
-            first = False
-        return string
-
-
     """
         Método auxiliar
         Retorna conjunto de produções da gramática, com
@@ -106,28 +91,27 @@ class RegularGrammar():
         União de duas GR
         Retorna uma GR nova
     """
-    @staticmethod
-    def union(grammar_a, grammar_b):
+    def union(self, other):
         """
             1 - Adicionar produções com não-terminais renomeados
             para evitar não-terminais diferentes com mesmo
             nome
         """
-        a = grammar_a._rename_productions("1")
-        b = grammar_b._rename_productions("2")
+        a = self._rename_productions("1")
+        b = other._rename_productions("2")
         productions = {**a, **b}
 
         """
             2 - Criar novo não-terminal inicial e replicar as
-            produções dos iniciais das Gramáticas A e B
+            produções dos iniciais de G1(self) e G2(other)
             no novo inicial
         """
         initial = "S"
         productions[initial] = set()
 
-        for production in productions[grammar_a.initial+"1"]:
+        for production in productions[self.initial+"1"]:
             productions[initial].add(production)
-        for production in productions[grammar_b.initial+"2"]:
+        for production in productions[other.initial+"2"]:
             productions[initial].add(production)
 
         return RegularGrammar(initial, productions)
@@ -136,27 +120,26 @@ class RegularGrammar():
         Concatenação de duas GR
         Retorna uma GR nova
     """
-    @staticmethod
-    def concatenation(grammar_a, grammar_b):
+    def concatenation(self, other):
         """
             1 - Adicionar produções com não-terminais renomeados
             para evitar não-terminais diferentes com mesmo
             nome
         """
-        a = grammar_a._rename_productions("1")
-        b = grammar_b._rename_productions("2")
+        a = self._rename_productions("1")
+        b = other._rename_productions("2")
         productions = {**a, **b}
 
         """
             Símbolos iniciais S1 e S2
         """
-        initial1 = grammar_a.initial+"1"
-        initial2 = grammar_b.initial+"2"
+        initial1 = self.initial+"1"
+        initial2 = other.initial+"2"
 
         """
-            2 - Para toda regra A->a em GR B, 
+            2 - Para toda regra A->a em G2, 
             substitui por A->aS2 onde S2 é o símbolo inicial
-            de GR B renomeado
+            de G2 renomeado
         """
         for vn, values in a.items(): 
             for i in values:
@@ -165,7 +148,7 @@ class RegularGrammar():
                     productions[vn].add(i+initial2)
 
         """
-            3 - Se "S1->&" pertence as produções de GR A,
+            3 - Se "S1->&" pertence as produções de G1,
             replica as produções de S2 em S1.
         """
         if "&" in a[initial1]:
@@ -173,7 +156,7 @@ class RegularGrammar():
                 productions[initial1].add(production)
 
         """
-            4 - Se "S2->&" pertence às produções de GR B, 
+            4 - Se "S2->&" pertence às produções de G2, 
             retira a produção da GR final e adiciona a produção
             "S1->&" (onde S1 é o estado inicial da GR final)
         """
@@ -187,13 +170,12 @@ class RegularGrammar():
         Fechamento de uma GR
         Retorna uma GR nova
     """
-    @staticmethod
-    def kleene_closure(grammar):
+    def kleene_closure(self):
         """
             1 - Remover &
         """
-        productions = grammar.productions
-        initial = grammar.initial
+        productions = self.productions
+        initial = self.initial
         productions[initial].remove("&")
 
         """
@@ -212,10 +194,26 @@ class RegularGrammar():
         """
         initial += "'"
         productions[initial] = {"&"}
-        for production in productions[grammar.initial]:
+        for production in productions[self.initial]:
             productions[initial].add(production)
        
         return RegularGrammar(initial, productions)
+
+
+    def to_string(self):
+        string = ""
+        first = True
+        for vn in self.productions:
+            if not first:
+                string+="\n"
+            prod = vn+"-> "
+            for ld in self.productions[vn]:
+                prod+=ld
+                prod+=" | "
+            string+=prod
+            first = False
+        return string
+
 
 
 
