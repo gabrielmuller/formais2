@@ -173,6 +173,48 @@ class DFA:
         self.remove_dead()
         self.merge_nondistinguishable()
 
+
+    def rename_states(self, str):
+        new_transitions = {}
+        for state in self.transitions.keys():
+            new_transitions[state+str] = self.transitions[state]
+        
+        for state, state_transitions in new_transitions.items():
+            for vt, next_state in state_transitions.items():
+                new_transitions[state][vt] = next_state+str
+
+        self.initial = self.initial+str
+        self.accepting = {x+str for x in self.accepting}
+        self.transitions = new_transitions.copy()
+
+    """
+        União entre dois autômatos
+        Retorna novo autômato
+    """
+    def union(self, other):
+        self.complete()
+        other.complete()
+
+        self.rename_states("1")
+        other.rename_states("2")
+
+        new_initial = "S"
+        new_transitions = {}
+        new_accepting = set()
+
+        if self.initial in self.accepting or \
+            other.initial in other.accepting:
+            new_accepting.add(new_initial)
+
+        new_transitions = {**self.transitions, **other.transitions}
+        new_transitions[new_initial] = { \
+            **self.transitions[self.initial], \
+            **other.transitions[other.initial]}
+
+        new_accepting |= self.accepting | other.accepting
+
+        return DFA(new_transitions, new_initial, new_accepting)
+
     """
         Transforma o AFD no autômato que reconhece o complemento
         da linguagem do AFD original
