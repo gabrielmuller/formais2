@@ -130,20 +130,6 @@ class NFA:
         self.accepting = copy.deepcopy(accepting)
         #return NFA(transitions, initial, accepting)
 
-    """ 
-        Torna AFD Completo, i.e., todo estado tem transição
-        definida para cada símbolo do alfabeto
-    """
-    # TESTED OK
-    def complete(self):
-        if not self.is_dfa(): 
-            self.determinize()
-        self.transitions["ERRO"] = {}
-        for state in self.transitions.keys():
-            for symbol in self.alphabet():
-                if symbol not in self.transitions[state]:
-                    self.transitions[state][symbol] = {"ERRO"}
-
     """
         Remover estado
     """
@@ -320,6 +306,34 @@ class NFA:
         self.accepting = new_accepting
         self.transitions = new_transitions.copy()
 
+    """ 
+        Torna AFD Completo, i.e., todo estado tem transição
+        definida para cada símbolo do alfabeto
+    """
+    # TESTED OK
+    def complete(self):
+        if not self.is_dfa(): 
+            self.determinize()
+        self.transitions["ERRO"] = {}
+        for state in self.transitions.keys():
+            for symbol in self.alphabet():
+                if symbol not in self.transitions[state]:
+                    self.transitions[state][symbol] = {"ERRO"}
+
+    """     
+        Complemento
+        Transforma o AFD no autômato que reconhece o complemento
+        da linguagem do AFD original
+    """
+    # TESTED OK
+    def complement(self):
+        self.complete()
+        for state in self.transitions.keys():
+            if state in self.accepting:
+                self.accepting.remove(state)
+            else:
+                self.accepting.add(state)
+
     """
         União
         Retorna novo autômato
@@ -367,30 +381,21 @@ class NFA:
         Diferença
         Retorna AFD que reconhece a diferença entre duas linguagens
         regulares representadas por AFDs
-        L2-L1 = L1 ^ (~L2)
-    """
-    def difference(self, other):
-        return 1
-
-    """     
-        Complemento
-        Transforma o AFD no autômato que reconhece o complemento
-        da linguagem do AFD original
+        L1-L2 = L1 ^ (~L2)
     """
     # TESTED OK
-    def complement(self):
-        self.complete()
-        for state in self.transitions.keys():
-            if state in self.accepting:
-                self.accepting.remove(state)
-            else:
-                self.accepting.add(state)
+    def difference(self, other):
+        m1 = copy.deepcopy(self)
+        m2 = copy.deepcopy(other)
+        m2.complement()
+
+        return m1.intersection(m2)
 
     """
         Intersecção
         L1 ^ L2 = ~(~L1 v ~L2)
     """
-    # TESTING
+    # TESTED OK
     def intersection(self, other):
         m1 = copy.deepcopy(self)
         m2 = copy.deepcopy(other)

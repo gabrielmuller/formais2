@@ -39,7 +39,7 @@ class TestFA(unittest.TestCase):
         self.ends_in_aa_accept = ["babaa", "baa", "aaaa",
                 "aa", "bababaa", "aabaa"]
         self.ends_in_aa_reject = ["baba", "aba", "aaba",
-                "baaaaba", "bbbb", "aaab"]
+                "baaaaba", "bbbb", "aaab", "", "a"]
 
     def check_strings(self, fa, accept, reject):
         for word in accept:
@@ -132,7 +132,37 @@ class TestFA(unittest.TestCase):
         self.check_strings(renamed_2, self.ends_in_aa_accept,
             self.ends_in_aa_reject)
         print("Ran test_rename")
+
+    def test_intersection(self):
+        # Intersecção de dois DFA incompletos
+        inter_1 = self.no_aaa.intersection(self.no_bbb)
+        inter_1_accepts = ["a", "b", "aa", "bb", "ab", "ba",
+            "aab", "bba", "aaba", "bbab", ""]
+        inter_1_rejects = list(set().union(self.no_aaa_reject,
+            self.no_bbb_reject))
+        inter_1_rejects.append("aaabbb")
+        inter_1_rejects.append("bbaabbbaaa")
+        self.check_strings(inter_1, inter_1_accepts,
+            inter_1_rejects)
+
+        # Intersecção de DFA e NFA incompletos
+        inter_2 = self.no_aaa.intersection(self.ends_in_aa)
+        inter_2_accepts = ["aa", "baa", "abaa", "bbaa", "aabaa"]
+        inter_2_rejects = list(set().union(self.no_aaa_reject,
+            self.ends_in_aa_reject))
+        self.check_strings(inter_2, inter_2_accepts,
+            inter_2_rejects)
         
+        print("Ran test_intersection")
+
+    def test_difference(self):
+        diff_1 = self.no_aaa.difference(self.ends_in_aa)
+        diff_1_accepts = ["a", "", "aab", "aaba", "ba", "aba"]
+        diff_1_rejects = list(set().union(self.no_aaa_reject,
+            self.ends_in_aa_accept))
+        self.check_strings(diff_1, diff_1_accepts,
+            diff_1_rejects)
+        print("Ran test_difference")
 
 if __name__ == "__main__":
     unittest.main()
