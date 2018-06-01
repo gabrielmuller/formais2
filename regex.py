@@ -45,10 +45,14 @@ class Move:
 
 # semântica de subida do '|', a mais complicada
 def or_up_semantics(node):
-    while node.is_operator():
+    while type(node) is Node and node.is_operator():
         node = node.right
 
-    return {Move(node.right, UP)}
+
+    if type(node) is Node:
+        return {Move(node.right, UP)}
+    else:
+        return {Move(node, UP)}
 
 class Regex:
 
@@ -77,9 +81,11 @@ class Regex:
     # faz parse da string para criar a árvore de Simone
     def __init__(self, regex_str):
         self.regex_str = regex_str
-        self.root = parse(regex_str)
-        #self.thread()
-        #self.dfa = self.simone()
+        self.root = None
+        if regex_str:
+            self.root = parse(regex_str)
+            self.thread()
+        self.dfa = self.simone()
 
     # costura toda árvore
     def thread(self):
@@ -99,6 +105,15 @@ class Regex:
         return self.root.in_order()
 
     def simone(self):
+        # se não há raiz
+        if not self.root:
+            return DFA({}, "q0", {})
+
+        # se raiz é terminal
+        if not self.root.is_operator():
+            return DFA({"q0": {self.root.value: "q1"}}, "q0", {"q1"})
+
+
         self.index = 0
         self.comp_to_state = {}
         self.accepting = set()

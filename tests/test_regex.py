@@ -12,7 +12,7 @@ class TestRegex(unittest.TestCase):
         self.tree.left.left = Node('c')
 
         # 'ab' apenas
-        self.ab = Regex('teste')
+        self.ab = Regex('')
 
         self.ab.root = Node('.')
         self.ab.root.left = Node('a')
@@ -21,7 +21,7 @@ class TestRegex(unittest.TestCase):
         self.ab.thread()
 
         # (ab | ac)* a
-        self.abaca = Regex('test')
+        self.abaca = Regex('')
 
         n = Node('|')
         n.left = Node('.')
@@ -73,10 +73,19 @@ class TestRegex(unittest.TestCase):
     '''
 
     def test_parse_simone(self):
+        p = Regex("a")
+        l = p.dfa
+        self.assertTrue(l.accepts("a"))
+        self.assertFalse(l.accepts(""))
+        self.assertFalse(l.accepts("aa"))
+
+        e = Regex("")
+        f = e.dfa
+        self.assertFalse(f.accepts(""))
+        self.assertFalse(f.accepts("a"))
+
         r = Regex("ab|cde | f |   g")
-        r.thread()
-        m = r.simone()
-        c = r.comp_to_state
+        m = r.dfa
         self.assertTrue(m.accepts("ab"))
         self.assertTrue(m.accepts("cde"))
         self.assertTrue(m.accepts("f"))
@@ -85,6 +94,48 @@ class TestRegex(unittest.TestCase):
         self.assertFalse(m.accepts("a"))
         self.assertFalse(m.accepts("abcde"))
         self.assertFalse(m.accepts("fg"))
+
+        q = Regex("a*bc* | 1*2")
+        n = q.dfa
+        self.assertTrue(n.accepts("ab"))
+        self.assertTrue(n.accepts("aaaaabcc"))
+        self.assertTrue(n.accepts("bccc"))
+        self.assertTrue(n.accepts("b"))
+        self.assertTrue(n.accepts("111112"))
+        self.assertTrue(n.accepts("2"))
+        self.assertFalse(n.accepts(""))
+        self.assertFalse(n.accepts("b12"))
+        self.assertFalse(n.accepts("aaaccc"))
+        self.assertFalse(n.accepts("111"))
+        self.assertFalse(n.accepts("ab2"))
+
+        s = Regex("a+b*c | d| e?f")
+        o = s.dfa
+        self.assertTrue(o.accepts("aaaabbbc"))
+        self.assertTrue(o.accepts("aaaac"))
+        self.assertTrue(o.accepts("ac"))
+        self.assertTrue(o.accepts("d"))
+        self.assertTrue(o.accepts("ef"))
+        self.assertTrue(o.accepts("f"))
+        self.assertFalse(o.accepts(""))
+        self.assertFalse(o.accepts("bbbc"))
+        self.assertFalse(o.accepts("ab"))
+        self.assertFalse(o.accepts("eef"))
+
+        t = Regex("a (b | c)* (d(e|f))+ | (g | h)?")
+        a = t.dfa
+        self.assertTrue(a.accepts("acbbccbccdedfdfde"))
+        self.assertTrue(a.accepts("acccde"))
+        self.assertTrue(a.accepts("adfdfdf"))
+        self.assertTrue(a.accepts("g"))
+        self.assertTrue(a.accepts("h"))
+        self.assertTrue(a.accepts(""))
+        self.assertFalse(a.accepts("abcbc"))
+        self.assertFalse(a.accepts("bcde"))
+        self.assertFalse(a.accepts("gh"))
+        self.assertFalse(a.accepts("abcdeg"))
+
+
 
 if __name__ == "__main__":
     unittest.main()

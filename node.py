@@ -7,6 +7,8 @@ class Node:
         # filho da direita está acima?
         self.up = False
 
+        self.processed = False
+
     # Nodo é um operador?
     def is_operator(self):
         return self.value in '*.+?|'
