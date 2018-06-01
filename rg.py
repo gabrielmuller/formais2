@@ -26,6 +26,8 @@ class RegularGrammar():
     """
     @staticmethod
     def from_nfa(nfa):
+        nfa.determinize()
+        
         """
             q0 = S
         """
@@ -41,20 +43,14 @@ class RegularGrammar():
             if state not in productions:
                 # Adiciona não terminal
                 productions[state] = set()
-            for vt in transitions:
-                # Adiciona produções (NFA)
-                if type(transitions[vt]) is set:
-                    for i in transitions[vt]:
-                        productions[state].add(vt+i)
-
-                # Adiciona produção (DFA)
-                if type(transitions[vt]) is str:
-                    productions[state].add(vt+transitions[vt])
+            for vt in transitions: 
+                for i in transitions[vt]:
+                    productions[state].add(vt+i)
 
                 """
                     Se C in F, adicione B->a
                 """
-                if transitions[vt] in nfa.accepting:
+                if transitions[vt].issubset(nfa.accepting):
                     productions[state].add(vt)
 
         """
@@ -200,7 +196,8 @@ class RegularGrammar():
         return RegularGrammar(initial, productions)
 
 
-    def to_string(self):
+    def printer(self):
+        print("----")
         string = ""
         first = True
         for vn in self.productions:
@@ -212,7 +209,8 @@ class RegularGrammar():
                 prod+=" | "
             string+=prod
             first = False
-        return string
+        print(string)
+        print("----")
 
 
 

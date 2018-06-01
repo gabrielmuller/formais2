@@ -29,9 +29,18 @@ class TestFA(unittest.TestCase):
         fa = NFA.from_rg(self.no_aaa)
         self.check_strings(fa, self.no_aaa_accept,
             self.no_aaa_reject)
-        print("Ran test_fa")
+        print("Ran test_grammar")
 
+    def test_conversion(self):
+        # Faz GR -> NFA -> GR -> NFA
+        fa = NFA.from_rg(self.no_aaa)
+        
+        gr = RegularGrammar.from_nfa(fa)
 
+        fa = NFA.from_rg(gr)
+        self.check_strings(fa, self.no_aaa_accept,
+           self.no_aaa_reject)
+        print("Ran test_conversion")
 
 if __name__ == "__main__":
     unittest.main()

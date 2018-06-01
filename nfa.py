@@ -128,6 +128,7 @@ class NFA:
         self.transitions = copy.deepcopy(transitions)
         self.initial = copy.deepcopy(initial)
         self.accepting = copy.deepcopy(accepting)
+        self.rename_states(0)
         #return NFA(transitions, initial, accepting)
 
     """
@@ -454,7 +455,7 @@ class NFA:
                 if len(production) == 1:
                     transitions[state][production].add(new_accepting_state)
                 else:
-                    transitions[state][production[0]].add(production[1])
+                    transitions[state][production[0]].add(production[1:])
 
         transitions[new_accepting_state] = {}
         return NFA(transitions, initial, accepting)
