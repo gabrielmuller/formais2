@@ -18,7 +18,7 @@ class TestParser(unittest.TestCase):
         self.assertEqual(inorder.count('RR'), 0)
     
     def test_parse(self):
-        a = parse('wx(y () z)*')
+        a = parse('wx(y .... () ()*()? z)*')
         self.assertEqual(a.value, '.')
         self.assertEqual(a.left.value, '.')
         self.assertEqual(a.left.left.value, 'w')
@@ -27,6 +27,30 @@ class TestParser(unittest.TestCase):
         self.assertEqual(a.right.left.value, '.')
         self.assertEqual(a.right.left.left.value, 'y')
         self.assertEqual(a.right.left.right.value, 'z')
+
+    def test_parse_error(self):
+        with self.assertRaises(SyntaxError):
+            parse('a|*b')
+        with self.assertRaises(SyntaxError):
+            parse('*a')
+        with self.assertRaises(SyntaxError):
+            parse('a | +b')
+        with self.assertRaises(SyntaxError):
+            parse('a||||b')
+        with self.assertRaises(SyntaxError):
+            parse('a||||b')
+        with self.assertRaises(SyntaxError):
+            parse('a|b|')
+        with self.assertRaises(SyntaxError):
+            parse('|a|b')
+        with self.assertRaises(SyntaxError):
+            parse('a(a(bb)))')
+        with self.assertRaises(SyntaxError):
+            parse('a(b))c(')
+        with self.assertRaises(SyntaxWarning):
+            parse('a(aa*(a) *')
+        with self.assertRaises(SyntaxWarning):
+            parse('a(a(a(a( (( (')
 
 if __name__ == "__main__":
     unittest.main()
