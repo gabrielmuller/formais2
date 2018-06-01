@@ -411,7 +411,9 @@ class NFA:
 
     """
         Conversão de GR para AF
+        Retorna AF
     """
+    # TESTED OK
     @staticmethod
     def from_rg(rg):
         productions = rg.productions
@@ -422,9 +424,9 @@ class NFA:
         """
             F = {A}
         """
-        new_accepting_state = "A"
+        new_accepting_state = "X"
         if new_accepting_state in productions:
-            new_accepting_state = "A'"
+            new_accepting_state = "X'"
         accepting = {new_accepting_state}
         
         """
@@ -441,17 +443,20 @@ class NFA:
             for production in productions[state]:
                 if production == "&":
                     continue
+
                 """
                     Se B->a in P adiciona (B,a)=A
                     Se B->aC in P adiciona (B,a)=C
                 """
-                if len(production) == 1:
-                    transitions[state][production] = \
-                        new_accepting_state
-                else:
-                    transitions[state][production[0]] = \
-                        production[1]
+                if production[0] not in transitions[state]:
+                    transitions[state][production[0]] = set()
 
+                if len(production) == 1:
+                    transitions[state][production].add(new_accepting_state)
+                else:
+                    transitions[state][production[0]].add(production[1])
+
+        transitions[new_accepting_state] = {}
         return NFA(transitions, initial, accepting)
 
     #Para debugging
