@@ -133,13 +133,17 @@ class RegularGrammar():
         initial2 = other.initial+"2"
 
         """
-            2 - Para toda regra A->a em G2, 
+            2 - Para toda regra A->a em G1, 
             substitui por A->aS2 onde S2 é o símbolo inicial
             de G2 renomeado
         """
+        add_later = {}
         for vn, values in a.items(): 
             for i in values:
                 if len(i) == 1 and i != "&":
+                    # Se "S2->&", adicionar (depois) A->a 
+                    if "&" in productions[initial2]:
+                        add_later[vn] = i
                     productions[vn].remove(i)
                     productions[vn].add(i+initial2)
 
@@ -153,12 +157,13 @@ class RegularGrammar():
 
         """
             4 - Se "S2->&" pertence às produções de G2, 
-            retira a produção da GR final e adiciona a produção
-            "S1->&" (onde S1 é o estado inicial da GR final)
+            retira a produção da GR final e adiciona
+            produções A->a de G1
         """
         if "&" in productions[initial2]:
-            productions[initial2].pop("&")
-            productions[initial1].add("&")
+            productions[initial2] -= {"&"}
+            for key, value in add_later.items():
+                productions[key].add(value)
         
         return RegularGrammar(initial1, productions)
 
@@ -172,17 +177,22 @@ class RegularGrammar():
         """
         productions = self.productions
         initial = self.initial
-        productions[initial].remove("&")
+        productions[initial].discard("&")
 
         """
             2 - Para toda regra A->a em G, 
-            substitui por A->aS onde S é o símbolo inicial de G
+            adicionar A->aS onde S é o símbolo inicial de G
         """
+        new_productions = {}
         for vn, values in productions.items():
             for i in values:
                 if len(i) == 1 and i != "&":
-                    productions[vn].remove(i)
-                    productions[vn].add(i+initial)
+                    if vn not in new_productions: 
+                        new_productions[vn] = set()
+                    new_productions[vn].add(i+initial)
+
+        for key,value in new_productions.items():
+            productions[key] |= value
 
         """
             3 - Se "S->&" pertence as produções de G,

@@ -49,6 +49,7 @@ class TestFA(unittest.TestCase):
             "A" : {'a' : set(), 'b' : {"S"}},
         }
 
+        # L4 = {(a,b)* ^ #b's /3} DFA Completo
         transitions = {
             "A" : {'a' : {'G'}, 'b' : {'B'}},
             "B" : {'a' : {'F'}, 'b' : {'E'}},
@@ -63,6 +64,7 @@ class TestFA(unittest.TestCase):
         self.b_div_3_accept = ["", "a", "aa", "bbb", "ababb", "babb"]
         self.b_div_3_reject = ["b", "bb", "bbbb", "babbb"]
 
+        # L4 = {(a,b)* ^ no "aa"} DFA Completo
         transitions = {
             "S" : {'a' : {"A"}, 'b' : {"S"}},
             "A" : {'a' : {"B"}, 'b' : {"S"}},
@@ -70,6 +72,7 @@ class TestFA(unittest.TestCase):
         }
         self.no_aa = NFA(transitions, "S", {"S", "A"})
 
+        # L4 = {(0,1)* ^ #0s>=1, #1s<=1} DFA Completo
         transitions = {
             "A" : {'0' : {'B'}, '1' : {'D'}},
             "B" : {'0' : {'A'}, '1' : {'C'}},
