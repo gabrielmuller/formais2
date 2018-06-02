@@ -1,8 +1,9 @@
-from window_ui import Ui_MainWindow
-import copy
 from nfa import NFA
+from parser import *
 from regex import Regex
+from window_ui import Ui_MainWindow
 
+import copy
 from PyQt5.QtWidgets import (
     QMainWindow, QTableWidgetItem, QFileDialog)
 
@@ -10,6 +11,9 @@ class GUI(QMainWindow, Ui_MainWindow):
 
     def __init__(self):
         QMainWindow.__init__(self)
+
+        self.fa = NFA({}, "", {})
+        self.rg = RegularGrammar("",{})
 
         self.setupUi(self)
         #self.resize(600, 400)
@@ -25,17 +29,16 @@ class GUI(QMainWindow, Ui_MainWindow):
         self.actionSalvar.triggered.connect(self.save_fa)
         self.actionAbrir.triggered.connect(self.open_fa)
 
-        self.fa = NFA({}, "", {})
-
-
     def regex_to_fa(self):
         regex_str = self.regex_input.text()
         self.fa = Regex(regex_str).dfa
         self.update_fa_table()
 
     def rg_to_fa(self):
-        # TODO: precisa do parser
-        return 1
+        if (self.rg_text.toPlainText()):
+            self.rg = parse_rg(self.rg_text.toPlainText())
+            self.fa = NFA.from_rg(self.rg)
+            self.update_fa_table()
 
     def determinize(self):
         self.fa.determinize()
