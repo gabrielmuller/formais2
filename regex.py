@@ -86,7 +86,6 @@ class Regex:
             self.root = parse(regex_str)
             self.thread()
         self.dfa = self.simone()
-        print(self.dfa.to_string() + '\n')
         self.dfa.minimize()
 
     # costura toda árvore

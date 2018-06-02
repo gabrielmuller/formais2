@@ -172,8 +172,8 @@ class NFA:
             for state in temp:
                 if state in self.transitions:
                     for symbol in self.transitions[state]:
-                        for state in self.transitions[state][symbol]:
-                            new_states.add(state)
+                        for next_state in self.transitions[state][symbol]:
+                            new_states.add(next_state)
         for unreachable in self.transitions.keys() - reacheable:
             self.remove_state(unreachable)
 
@@ -184,7 +184,7 @@ class NFA:
     def remove_dead(self):
         # TODO: colocar exceção ou coisa assim pra estado inicial
         alive = set()
-        new_states = self.accepting.copy()
+        new_states = self.accepting.copy() if self.accepting else set()
         while not new_states <= alive:
             alive = alive | new_states
             new_states = set()
@@ -201,7 +201,7 @@ class NFA:
     """
     def merge_nondistinguishable(self):
         # TODO: testar se é completo e se não for:
-        #self.complete()
+        self.complete()
 
         F = self.accepting.copy()
         sigma = self.transitions
@@ -316,13 +316,13 @@ class NFA:
     def complete(self):
         if not self.is_dfa(): 
             self.determinize()
-        self.transitions["ERRO"] = {}
+        self.transitions["-"] = {}
         for state in self.transitions.keys():
             for symbol in self.alphabet():
                 if symbol not in self.transitions[state]:
-                    self.transitions[state][symbol] = {"ERRO"}
+                    self.transitions[state][symbol] = {"-"}
                 elif len(self.transitions[state][symbol])==0:
-                    self.transitions[state][symbol].add("ERRO")
+                    self.transitions[state][symbol].add("-")
 
     """     
         Complemento
@@ -505,7 +505,9 @@ class NFA:
         lines = [first_line]
 
         for state, char_to_next in self.transitions.items():
-            line = [state]
+            prefix = '->' if state == self.initial else ''
+            prefix += '*' if state in self.accepting else ''
+            line = [prefix + state]
             for char in alphabet:
                 next_states = {'-'}
                 if char in char_to_next:
