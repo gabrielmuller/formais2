@@ -85,7 +85,9 @@ class Regex:
         if regex_str:
             self.root = parse(regex_str)
             self.thread()
-        self.dfa = self.simone()#.minimize()
+        self.dfa = self.simone()
+        self.dfa.minimize()
+
 
     # costura toda árvore
     def thread(self):

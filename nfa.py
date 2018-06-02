@@ -184,7 +184,7 @@ class NFA:
     def remove_dead(self):
         # TODO: colocar exceção ou coisa assim pra estado inicial
         alive = set()
-        new_states = self.accepting.copy()
+        new_states = self.accepting.copy() if self.accepting else set()
         while not new_states <= alive:
             alive = alive | new_states
             new_states = set()
