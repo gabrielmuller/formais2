@@ -1,6 +1,7 @@
 from itertools import combinations
 from misc import *
 import copy
+import json
 
 class NFA:
     def __init__(self, transitions, initial, accepting):
@@ -70,7 +71,7 @@ class NFA:
         for state in self.transitions.keys():
             for vt in self.transitions[state].keys():
                 alphabet.add(vt)
-        return alphabet
+        return sorted(alphabet)
 
     # TESTED OK
     def determinize(self):
@@ -499,6 +500,36 @@ class NFA:
         nfa.minimize()
         return nfa
 
+    """
+        Salva AF para arquivo JSON
+    """
+    def save(self, path):
+        to_save = {}
+        to_save["initial"] = self.initial
+        to_save["accepting"] = self.accepting
+        to_save["transitions"] = self.transitions
+        json.dump(to_save, open(path, 'w'), cls=SetEncoder)
+
+    """
+        Carrega AF de arquivo JSON
+    """
+    @staticmethod
+    def open(path):
+        data = json.load(open(path, 'r'))
+        initial = data["initial"]
+        accepting = set(data["accepting"])
+        transitions = {}
+
+        for state in data["transitions"].keys():
+            if state not in transitions: transitions[state] = {}
+            for symbol, next_states in data["transitions"][state].items():
+                if symbol not in transitions[state]: 
+                    transitions[state][symbol] = set()
+                for i in next_states:
+                    transitions[state][symbol].add(i)
+        return NFA(transitions, initial, accepting)
+
+
     # retorna FA em uma tabela legível
     def to_string(self):
         alphabet = sorted(list(self.alphabet()))
@@ -529,6 +560,12 @@ class NFA:
             print(special, state, transitions)
             special = "  "
         print("----")
+
+class SetEncoder(json.JSONEncoder):
+    def default(self, obj):
+      if isinstance(obj, set):
+         return list(obj)
+      return json.JSONEncoder.default(self, obj)
 
 
 
