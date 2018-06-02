@@ -55,7 +55,7 @@ class GUI(QMainWindow, Ui_MainWindow):
             self.statusbar.showMessage("Sentença rejeitada")
 
     def update_fa_table(self):
-        alphabet = self.fa.alphabet()
+        alphabet = sorted(self.fa.alphabet())
         states = []
         for state in self.fa.states():
             special = ""

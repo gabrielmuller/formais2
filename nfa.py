@@ -71,7 +71,7 @@ class NFA:
         for state in self.transitions.keys():
             for vt in self.transitions[state].keys():
                 alphabet.add(vt)
-        return sorted(alphabet)
+        return alphabet
 
     # TESTED OK
     def determinize(self):
