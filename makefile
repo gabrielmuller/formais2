@@ -1,4 +1,4 @@
-all: test
+all: test gui
 
 run:
 	python3 main.py
