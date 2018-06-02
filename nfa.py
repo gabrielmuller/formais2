@@ -411,6 +411,39 @@ class NFA:
         return m
 
     """
+        Reverso
+    """
+    def reverse(self):
+        # reverter transições
+        transitions = {}
+        for states, char_to_next in self.transitions.items():
+            for char, next_states  in char_to_next.items():
+                for next_state in next_states:
+                    if next_state not in transitions:
+                        transitions[next_state] = {}
+                    transitions[next_state][char] = states
+
+        # criar novo estado inicial
+        initial = "q0'"
+
+        # criar transições do novo estado inicial
+        transitions[initial] = {}
+
+        for prev_accept in self.accepting:
+            for char, next_states in transitions[prev_accept].items():
+                if char not in transitions[initial]:
+                    transitions[initial][char] = set()
+                transitions[initial][char] = \
+                    transitions[initial][char].union(next_states);
+
+        # definir estados finais
+        accepting = {self.initial}
+        if self.initial in self.accepting:
+            accepting.add(initial)
+
+        return NFA(transitions, initial, accepting)
+
+    """
         Conversão de GR para AF
         Retorna AF
     """

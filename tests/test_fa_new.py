@@ -41,8 +41,8 @@ class TestFA(unittest.TestCase):
         self.ends_in_aa_reject = ["baba", "aba", "aaba",
                 "baaaaba", "bbbb", "aaab", "", "a"]
         self.starts_with_aa = self.ends_in_aa.reverse()
-        self.starts_with_aa_accept = list(map(reverse(s) for s in self.ends_in_aa_accept))
-        self.starts_with_aa_reject = list(map(reverse(s) for s in self.ends_in_aa_reject)
+        self.starts_with_aa_accept = [reversed(s) for s in self.ends_in_aa_accept]
+        self.starts_with_aa_reject = [reversed(s) for s in self.ends_in_aa_reject]
 
     def check_strings(self, fa, accept, reject):
         for word in accept:
