@@ -496,9 +496,7 @@ class NFA:
                     transitions[state][production[0]].add(production[1:])
 
         transitions[new_accepting_state] = {}
-        nfa = NFA(transitions, initial, accepting)
-        nfa.minimize()
-        return nfa
+        return NFA(transitions, initial, accepting)
 
     """
         Salva AF para arquivo JSON

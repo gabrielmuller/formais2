@@ -272,14 +272,14 @@
          <number>10</number>
         </property>
         <item>
-         <widget class="QPushButton" name="pushButton">
+         <widget class="QPushButton" name="open_button">
           <property name="text">
            <string>Abrir...</string>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="pushButton_2">
+         <widget class="QPushButton" name="save_button">
           <property name="text">
            <string>Salvar...</string>
           </property>

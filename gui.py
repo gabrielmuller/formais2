@@ -59,6 +59,8 @@ class GUI(QMainWindow, Ui_MainWindow):
         states = []
         for state in self.fa.states():
             special = ""
+            if state == '-':
+                continue
             if state in self.fa.accepting:
                 special += "*"
             if state in self.fa.initial:
