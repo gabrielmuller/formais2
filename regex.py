@@ -85,7 +85,9 @@ class Regex:
         if regex_str:
             self.root = parse(regex_str)
             self.thread()
-        self.dfa = self.simone()#.minimize()
+        self.dfa = self.simone()
+        print(self.dfa.to_string() + '\n')
+        self.dfa.minimize()
 
     # costura toda árvore
     def thread(self):
@@ -111,7 +113,7 @@ class Regex:
 
         # se raiz é terminal, só uma palavra de um caracter
         if not self.root.is_operator():
-            return NFA({"q0": {self.root.value: {"q1"}}}, "q0", {"q1"})
+            return NFA({"q0": {self.root.value: {"q1"}}, "q1": {}}, "q0", {"q1"})
 
 
         self.index = 0
@@ -150,6 +152,7 @@ class Regex:
 
         # estado qi
         state = 'q' + str(self.index)
+        self.transitions[state] = {}
 
         # é accepting se '&' faz parte da composição
         if '&' in nodes:
@@ -175,8 +178,6 @@ class Regex:
         for char in char_to_comp:
             next_state = self.moves_to_state(char_to_comp[char])
             if next_state != '-':
-                if state not in self.transitions:
-                    self.transitions[state] = {}
                 self.transitions[state][char] = {next_state}
 
         return state
