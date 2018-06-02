@@ -4,6 +4,7 @@ from nfa import NFA
 
 class TestFA(unittest.TestCase):
     def setUp(self):
+        print('Running ' + self._testMethodName)
         # L1 = {(a,b)* ^ no "aaa"} DFA Incompleto
         transitions = {
             "S" : {'a' : {"A"}, 'b' : {"S"}},
@@ -94,25 +95,21 @@ class TestFA(unittest.TestCase):
             self.no_aaa_reject)
         self.check_strings(self.no_bbb, self.no_bbb_accept,
             self.no_bbb_reject)
-        print("Ran test_fa")
 
     def test_reverse(self):
         self.check_strings(self.starts_with_aa, self.starts_with_aa_accept,
             self.starts_with_aa_reject)
-        print("Ran test_reverse")
 
     def test_is_dfa(self):
         self.assertTrue(self.no_aaa.is_dfa())
         self.assertTrue(self.no_bbb.is_dfa())
         self.assertFalse(self.ends_in_aa.is_dfa())
-        print("Ran test_is_dfa")
 
     def test_determinize(self):
         det = copy.deepcopy(self.ends_in_aa)
         det.determinize()
         self.check_strings(det, self.ends_in_aa_accept,
             self.ends_in_aa_reject)
-        print("Ran test_determinize")
 
     def test_complete(self):
         # Completar um DFA
@@ -126,7 +123,6 @@ class TestFA(unittest.TestCase):
         complete_3.complete()
         self.check_strings(complete_3, self.ends_in_aa_accept,
             self.ends_in_aa_reject)
-        print("Ran test_complete")
 
     def test_complement(self):
         complement_1 = copy.deepcopy(self.no_aaa)
@@ -146,7 +142,6 @@ class TestFA(unittest.TestCase):
         self.check_strings(complement_3, 
                 self.ends_in_aa_reject,
                 self.ends_in_aa_accept)
-        print("Ran test_complement")
 
     def test_union(self):
         # União de dois DFA incompletos
@@ -166,7 +161,6 @@ class TestFA(unittest.TestCase):
         self.check_strings(union_2, union_2_accepts,
             union_2_rejects)
         
-        print("Ran test_union")
 
     def test_rename(self):
         renamed_1 = copy.deepcopy(self.no_aaa)
@@ -178,7 +172,6 @@ class TestFA(unittest.TestCase):
         renamed_2.rename_states(0)
         self.check_strings(renamed_2, self.ends_in_aa_accept,
             self.ends_in_aa_reject)
-        print("Ran test_rename")
 
     def test_intersection(self):
         # Intersecção de dois DFA incompletos
@@ -200,7 +193,6 @@ class TestFA(unittest.TestCase):
         self.check_strings(inter_2, inter_2_accepts,
             inter_2_rejects)
         
-        print("Ran test_intersection")
 
     def test_difference(self):
         diff_1 = self.no_aaa.difference(self.ends_in_aa)
@@ -209,13 +201,11 @@ class TestFA(unittest.TestCase):
             self.ends_in_aa_accept))
         self.check_strings(diff_1, diff_1_accepts,
             diff_1_rejects)
-        print("Ran test_difference")
 
     def test_remove_state(self):
         self.no_aaa.remove_state("B")
         self.assertTrue(self.no_aaa.transitions == \
             self.no_aaa_removed_B)
-        print("Ran test_remove_state")
 
     def test_remove_unreachable(self):
         reachable = copy.deepcopy(self.b_div_3.transitions)
@@ -224,7 +214,6 @@ class TestFA(unittest.TestCase):
         self.b_div_3.remove_unreachable()
         self.assertTrue(self.b_div_3.transitions == \
             reachable)
-        print("Ran test_remove_unreachable")
 
     def test_remove_dead(self):
         alive = copy.deepcopy(self.no_aa)
@@ -232,7 +221,6 @@ class TestFA(unittest.TestCase):
         self.no_aa.remove_dead()
         self.assertTrue(self.no_aa.transitions == \
             alive.transitions)
-        print("Ran test_remove_dead")
 
     def test_minimize(self):
         self.check_strings(self.b_div_3, self.b_div_3_accept,
@@ -241,7 +229,6 @@ class TestFA(unittest.TestCase):
         self.check_strings(self.b_div_3, self.b_div_3_accept,
             self.b_div_3_reject)
         #self.only_one_1.minimize() # precisa dar complete()
-        print("Ran test_minimize")
 
 if __name__ == "__main__":
     unittest.main()

@@ -2,6 +2,9 @@ import unittest
 from misc import *
 
 class TestMisc(unittest.TestCase):
+    def setUp(self):
+        print('Running ' + self._testMethodName)
+
     def test_set_to_str(self):
         self.assertEqual(set_to_str({"q0", "q1", "01", "02"}),
             "[01, 02, q0, q1]")

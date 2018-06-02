@@ -7,6 +7,7 @@ from nfa import NFA
 
 class TestFA(unittest.TestCase):
     def setUp(self):
+        print('Running ' + self._testMethodName)
         # L1 = {(a,b)* ^ no "aaa"}
         productions = {
             "S": {"aA", "a", "bT", "b", "&"},
@@ -72,7 +73,6 @@ class TestFA(unittest.TestCase):
         fa = NFA.from_rg(self.bin_3)
         self.check_strings(fa, self.bin_3_accept,
             self.bin_3_reject)
-        print("Ran test_grammar")
 
     def test_conversion(self):
         # Faz GR -> NFA -> GR -> NFA
@@ -83,7 +83,6 @@ class TestFA(unittest.TestCase):
         fa = NFA.from_rg(gr)
         self.check_strings(fa, self.no_aaa_accept,
            self.no_aaa_reject)
-        print("Ran test_conversion")
 
     def test_union(self):
         union = self.b_div_3.union(self.even_a)
