@@ -1,3 +1,4 @@
+from itertools import combinations
 from misc import set_to_str
 import copy
 
@@ -6,6 +7,9 @@ class NFA:
         self.initial = initial
         self.transitions = transitions
         self.accepting = accepting
+
+    def states(self):
+        return self.transitions.keys()
 
     # TESTED OK
     def is_dfa(self):
@@ -134,25 +138,30 @@ class NFA:
     """
         Remover estado
     """
+    # TESTED OK
     def remove_state(self, removed):
+        # Evitar remover estado inicial
+        # TODO: colocar exceção ou coisa assim
+        if removed is self.initial:
+            return
         # Remover estado
         if removed in self.transitions.keys():
             del self.transitions[removed]
 
-        # Remover transições para o estado removido
-        # TODO: melhorar. Talvez falhe em alguns casos
         transitions_to_remove = {}
         for state in self.transitions.keys():
-            for key, next_state in self.transitions[state].items():
-                if next_state == removed:
+            for key, next_states in self.transitions[state].items():
+                if any(removed == next_state \
+                    for next_state in next_states):
                     transitions_to_remove[state] = key
 
         for state,symbol in transitions_to_remove.items():
-            del self.transitions[state][symbol]
+            self.transitions[state][symbol] -= {removed}
 
     """
         Remover estados inacessíveis
     """
+    # TESTED OK
     def remove_unreachable(self):
         reacheable = set()
         new_states = {self.initial}
@@ -162,14 +171,17 @@ class NFA:
             new_states = set()
             for state in temp:
                 for symbol in self.transitions[state]:
-                    new_states.add(self.transitions.get(state).get(symbol))
+                    for state in self.transitions[state][symbol]:
+                        new_states.add(state)
         for unreachable in self.transitions.keys() - reacheable:
             self.remove_state(unreachable)
 
     """
         Remover estados mortos
     """
+    # TESTED OK
     def remove_dead(self):
+        # TODO: colocar exceção ou coisa assim pra estado inicial
         alive = set()
         new_states = self.accepting.copy()
         while not new_states <= alive:
@@ -177,7 +189,7 @@ class NFA:
             new_states = set()
             for state in self.transitions.keys():
                 for next_state in self.transitions[state].values():
-                    if(next_state in alive):
+                    if(next_state.issubset(alive)):
                         new_states.add(state)
         for dead in self.transitions.keys() - alive:
             self.remove_state(dead)
@@ -187,6 +199,9 @@ class NFA:
         Algoritmo: Myhill-Nerode Theorem
     """
     def merge_nondistinguishable(self):
+        # TODO: testar se é completo e se não for:
+        #self.complete()
+
         F = self.accepting.copy()
         sigma = self.transitions
 
@@ -217,11 +232,13 @@ class NFA:
         while(1):
             can_mark = False
             for pair in nondistinguishable - marked:
-               for key0 in sigma[pair[0]].keys():
+                for key0 in sigma[pair[0]].keys():
                     for key1 in sigma[pair[1]].keys():
                         if key0 == key1:
-                            if (sigma[pair[0]][key0], \
-                                sigma[pair[1]][key0]) in marked:
+                            if (next(iter(sigma[pair[0]][key0])), \
+                                next(iter(sigma[pair[1]][key0]))) in marked \
+                                or (next(iter(sigma[pair[1]][key0])), \
+                                    next(iter(sigma[pair[0]][key0]))) in marked:
                                 marked.add(pair)
                                 can_mark = True
             if not can_mark:
@@ -232,36 +249,19 @@ class NFA:
             transformá-los em único estado no AF
         """
         nondistinguishable -= marked
-        print(nondistinguishable)
-        print(self.transitions)
         for state_a, state_b in nondistinguishable:
-            self.merge(state_a,state_b)          
-
-    def merge(self, state_a, state_b):
-        print("--- start remove", state_a, state_b)
-
-        removed = state_b
-        kept = state_a
-
-        if removed == self.initial or \
-            kept not in self.transitions.keys():
-            removed = state_a
-            kept = state_b
-
-        print("kept",kept, "removed", removed)
-        print("antes0", self.transitions.get("B", ""))
-
-        for state in self.transitions.keys():
-            for key, next_state in self.transitions[state].items():
-                if next_state == removed:
-                    self.transitions[state][key] = kept
-
-        print("antes", self.transitions.get("B", ""))
-
-        self.remove_state(removed)
-
-        print("depois", self.transitions.get("B", ""))
-        print("state kept", kept)
+            remove = state_b
+            keep = state_a
+            if remove == self.initial or \
+                keep not in self.transitions.keys():
+                remove = state_a
+                keep = state_b      
+            for state in self.transitions.keys():
+                for key, next_state in self.transitions[state].items():
+                    if {remove}.issubset(next_state):
+                        self.transitions[state][key] -= {remove}
+                        self.transitions[state][key] |= {keep}
+            self.remove_state(remove)
 
     """
         Minimização de AF
@@ -320,6 +320,8 @@ class NFA:
             for symbol in self.alphabet():
                 if symbol not in self.transitions[state]:
                     self.transitions[state][symbol] = {"ERRO"}
+                elif len(self.transitions[state][symbol])==0:
+                    self.transitions[state][symbol].add("ERRO")
 
     """     
         Complemento
@@ -413,6 +415,7 @@ class NFA:
     """
         Reverso
     """
+    # TESTED OK
     def reverse(self):
         # reverter transições
         transitions = {}

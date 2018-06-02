@@ -44,6 +44,42 @@ class TestFA(unittest.TestCase):
         self.starts_with_aa_accept = [reversed(s) for s in self.ends_in_aa_accept]
         self.starts_with_aa_reject = [reversed(s) for s in self.ends_in_aa_reject]
 
+        self.no_aaa_removed_B = {
+            "S" : {'a' : {"A"}, 'b' : {"S"}},
+            "A" : {'a' : set(), 'b' : {"S"}},
+        }
+
+        transitions = {
+            "A" : {'a' : {'G'}, 'b' : {'B'}},
+            "B" : {'a' : {'F'}, 'b' : {'E'}},
+            "C" : {'a' : {'C'}, 'b' : {'G'}},
+            "D" : {'a' : {'A'}, 'b' : {'H'}},
+            "E" : {'a' : {'E'}, 'b' : {'A'}},
+            "F" : {'a' : {'B'}, 'b' : {'C'}},
+            "G" : {'a' : {'G'}, 'b' : {'F'}},
+            "H" : {'a' : {'H'}, 'b' : {'D'}},
+        }
+        self.b_div_3 = NFA(transitions, "A", {"A","D","G"})
+        self.b_div_3_accept = ["", "a", "aa", "bbb", "ababb", "babb"]
+        self.b_div_3_reject = ["b", "bb", "bbbb", "babbb"]
+
+        transitions = {
+            "S" : {'a' : {"A"}, 'b' : {"S"}},
+            "A" : {'a' : {"B"}, 'b' : {"S"}},
+            "B" : {'a' : {"B"}, 'b' : {"B"}},
+        }
+        self.no_aa = NFA(transitions, "S", {"S", "A"})
+
+        transitions = {
+            "A" : {'0' : {'B'}, '1' : {'D'}},
+            "B" : {'0' : {'A'}, '1' : {'C'}},
+            "C" : {'0' : {'E'}, '1' : {'F'}},
+            "D" : {'0' : {'E'}, '1' : {'F'}},
+            "E" : {'0' : {'E'}, '1' : {'F'}},
+            "F" : {'0' : {'F'}, '1' : {'F'}},
+        }
+        self.only_one_1 = NFA(transitions, "A", {"C", "D", "E"})
+        
     def check_strings(self, fa, accept, reject):
         for word in accept:
             self.assertTrue(fa.accepts(word))
@@ -171,6 +207,38 @@ class TestFA(unittest.TestCase):
         self.check_strings(diff_1, diff_1_accepts,
             diff_1_rejects)
         print("Ran test_difference")
+
+    def test_remove_state(self):
+        self.no_aaa.remove_state("B")
+        self.assertTrue(self.no_aaa.transitions == \
+            self.no_aaa_removed_B)
+        print("Ran test_remove_state")
+
+    def test_remove_unreachable(self):
+        reachable = copy.deepcopy(self.b_div_3.transitions)
+        del reachable["D"]
+        del reachable["H"]
+        self.b_div_3.remove_unreachable()
+        self.assertTrue(self.b_div_3.transitions == \
+            reachable)
+        print("Ran test_remove_unreachable")
+
+    def test_remove_dead(self):
+        alive = copy.deepcopy(self.no_aa)
+        alive.remove_state("B")
+        self.no_aa.remove_dead()
+        self.assertTrue(self.no_aa.transitions == \
+            alive.transitions)
+        print("Ran test_remove_dead")
+
+    def test_minimize(self):
+        self.check_strings(self.b_div_3, self.b_div_3_accept,
+            self.b_div_3_reject)
+        self.b_div_3.minimize()
+        self.check_strings(self.b_div_3, self.b_div_3_accept,
+            self.b_div_3_reject)
+        #self.only_one_1.minimize() # precisa dar complete()
+        print("Ran test_minimize")
 
 if __name__ == "__main__":
     unittest.main()
