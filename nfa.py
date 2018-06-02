@@ -1,5 +1,5 @@
 from itertools import combinations
-from misc import set_to_str
+from misc import *
 import copy
 
 class NFA:
@@ -170,9 +170,10 @@ class NFA:
             temp = new_states.copy()
             new_states = set()
             for state in temp:
-                for symbol in self.transitions[state]:
-                    for state in self.transitions[state][symbol]:
-                        new_states.add(state)
+                if state in self.transitions:
+                    for symbol in self.transitions[state]:
+                        for state in self.transitions[state][symbol]:
+                            new_states.add(state)
         for unreachable in self.transitions.keys() - reacheable:
             self.remove_state(unreachable)
 
@@ -496,6 +497,24 @@ class NFA:
         transitions[new_accepting_state] = {}
         return NFA(transitions, initial, accepting)
 
+
+    # retorna FA em uma tabela legível
+    def to_string(self):
+        alphabet = sorted(list(self.alphabet()))
+        first_line = [' '] + alphabet
+        lines = [first_line]
+
+        for state, char_to_next in self.transitions.items():
+            line = [state]
+            for char in alphabet:
+                next_states = {'-'}
+                if char in char_to_next:
+                    next_states = char_to_next[char]
+                line.append(', '.join(next_states)) 
+            lines.append(line)
+
+        return matrix_to_table(lines)
+                    
     #Para debugging
     def printer(self):
         print("----")
