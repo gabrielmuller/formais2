@@ -1,5 +1,6 @@
 import unittest
 from parser import *
+from nfa import NFA
 
 class TestParser(unittest.TestCase):
     def setUp(self):
@@ -31,7 +32,59 @@ class TestParser(unittest.TestCase):
         self.assertEqual(a.right.left.left.value, 'y')
         self.assertEqual(a.right.left.right.value, 'z')
 
-    def test_parse_error(self):
+    def test_parse_rg(self):
+        a = NFA.from_rg(parse_rg("S -> aS | bB \n B -> cS | f"))
+        self.assertTrue(a.accepts('aaaaabcaaaabf'))
+        self.assertTrue(a.accepts('bf'))
+        self.assertTrue(a.accepts('bcaaaabf'))
+        self.assertTrue(a.accepts('abcabcabcabf'))
+        self.assertFalse(a.accepts('bcf'))
+        self.assertFalse(a.accepts('aaaacf'))
+        self.assertFalse(a.accepts(''))
+
+        a = NFA.from_rg(parse_rg("S -> a | cB | & \n B -> f"))
+        self.assertTrue(a.accepts('a'))
+        self.assertTrue(a.accepts('cf'))
+        self.assertTrue(a.accepts(''))
+        self.assertFalse(a.accepts('c'))
+        self.assertFalse(a.accepts('f'))
+        self.assertFalse(a.accepts('acf'))
+
+        a = NFA.from_rg(parse_rg("S -> fZ \n Z -> zZ | yZ | z"))
+        self.assertTrue(a.accepts('fyz'))
+        self.assertTrue(a.accepts('fz'))
+        self.assertTrue(a.accepts('fzzyyzz'))
+        self.assertFalse(a.accepts('z'))
+        self.assertFalse(a.accepts('fzzzy'))
+        self.assertFalse(a.accepts(''))
+
+    def test_parse_rg_error(self):
+        with self.assertRaises(SyntaxError):
+            a = NFA.from_rg(parse_rg("S -> aS | bB \n B -> cS | f \n SA -> u"))
+        with self.assertRaises(SyntaxError):
+            a = NFA.from_rg(parse_rg("S -> | aS | a"))
+        with self.assertRaises(SyntaxError):
+            a = NFA.from_rg(parse_rg("S -> aS | a |"))
+        with self.assertRaises(SyntaxError):
+            a = NFA.from_rg(parse_rg("B -> aA \n S -> aS | | a"))
+        with self.assertRaises(SyntaxError):
+            a = NFA.from_rg(parse_rg("S > aA | a"))
+        with self.assertRaises(SyntaxError):
+            a = NFA.from_rg(parse_rg("S > aA | a"))
+        with self.assertRaises(SyntaxError):
+            a = NFA.from_rg(parse_rg("s -> aA | a"))
+        with self.assertRaises(SyntaxError):
+            a = NFA.from_rg(parse_rg("S -> AA | a"))
+        with self.assertRaises(SyntaxError):
+            a = NFA.from_rg(parse_rg("S -> aa | a"))
+        with self.assertRaises(SyntaxError):
+            a = NFA.from_rg(parse_rg("S -> aA | A"))
+        with self.assertRaises(SyntaxError):
+            a = NFA.from_rg(parse_rg("S -> aA | a \n A -> a | &"))
+        with self.assertRaises(SyntaxError):
+            a = NFA.from_rg(parse_rg("S -> aA | a \n A -> a | a&"))
+
+    def test_parse_regex_error(self):
         with self.assertRaises(SyntaxError):
             parse('a|*b')
         with self.assertRaises(SyntaxError):

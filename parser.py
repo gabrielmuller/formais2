@@ -1,4 +1,5 @@
 from node import Node
+from rg import RegularGrammar
 from collections import deque
 
 # retira espaços e outros caracteres inúteis,
@@ -138,3 +139,69 @@ def parse(string):
     nodes = [Node(char) for char in string]
     return parse_parenthesis(nodes)
 
+# retorna gramática regular a partir de string
+def parse_rg(string):
+    string = string.replace(' ', '')
+    initial = string[0]
+    productions = {}
+    lines = string.split('\n')
+
+    
+    for line in lines:
+        i = line.find('->')
+        left = line[:i]
+        right = line[i+2:]
+
+        check_left(left, line)
+        check_right(right, line)
+
+        rights = right.split('|')
+
+        productions[left] = set()
+        for r in rights:
+            check_r(r, left == initial)
+            productions[left].add(r)
+
+    return RegularGrammar(initial, productions)
+
+# checagem de erros em GR
+
+def check_left(left, line):
+    if len(left) != 1:
+        raise SyntaxError(\
+            "Lado esquerdo inválido em " + line)
+    if not left.isupper():
+        raise SyntaxError(\
+            "Símbolo não-terminal " + left + " deve ser maiúsculo.")
+def check_right(right, line):
+    if not right:
+        raise SyntaxError(\
+            "Lado direito não encontrado na linha " + line)
+    if '|' == right[0]:
+        raise SyntaxError(\
+            "'|' é o primeiro símbolo no lado direito da linha " + line)
+    if '|' == right[-1]:
+        raise SyntaxError(\
+            "'|' é o último símbolo no lado direito da linha " + line)
+    if '||' in right:
+        raise SyntaxError(\
+            "dois '|' consecutivos na linha " + line)
+
+def check_r(r, isInitial):
+    if '&' in r and not isInitial:
+        raise SyntaxError(\
+            "Epsilon em local inválido.")
+    if len(r) == 1:
+        if not r.islower() and not r == '&':
+            raise SyntaxError(\
+                "Símbolo terminal " + r + " deve ser maiúsculo.")
+    elif len(r) == 2:
+        if not r[0].islower():
+            raise SyntaxError(\
+                "Símbolo terminal " + r[0] + " deve ser minúsculo.")
+        if not r[1].isupper():
+            raise SyntaxError(\
+                "Símbolo não-terminal " + r[1] + " deve ser minúsculo.")
+    else:
+        raise SyntaxError(\
+            "Produção inválida " + r)

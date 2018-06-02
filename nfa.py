@@ -495,8 +495,9 @@ class NFA:
                     transitions[state][production[0]].add(production[1:])
 
         transitions[new_accepting_state] = {}
-        return NFA(transitions, initial, accepting)
-
+        nfa = NFA(transitions, initial, accepting)
+        nfa.minimize()
+        return nfa
 
     # retorna FA em uma tabela legível
     def to_string(self):
