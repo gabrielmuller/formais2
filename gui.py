@@ -79,14 +79,18 @@ class GUI(QMainWindow, Ui_MainWindow, Ui_Dialog):
         if not self.fa:
             self.show_error("Não há AF selecionado!")
             return
-        self.fa.determinize()
+        fa = copy.deepcopy(self.fa)
+        fa.determinize()
+        self.fa = fa
         self.add_fa_to_list()
 
     def minimize(self):
         if not self.fa:
             self.show_error("Não há AF selecionado!")
             return
-        self.fa.minimize()
+        fa = copy.deepcopy(self.fa)
+        fa.minimize()
+        self.fa = fa
         self.add_fa_to_list()
 
     def reverse(self):
