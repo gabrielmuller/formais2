@@ -298,7 +298,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="pushButton_3">
+       <widget class="QPushButton" name="operations_button">
         <property name="text">
          <string>Criar autômato por operações...</string>
         </property>
@@ -314,7 +314,7 @@
      <x>0</x>
      <y>0</y>
      <width>1030</width>
-     <height>22</height>
+     <height>28</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
