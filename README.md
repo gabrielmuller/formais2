@@ -2,7 +2,11 @@
 Projeto feito por Gabriel Müller e Juliana Pinheiro para disciplina de Linguagens Formais e Compiladores na UFSC. Feito na linguagem Python3 com o framework gráfico PyQt5.
 
 ## Instalação
-TODO
+O repositório inclui o standalone `editorlr`. Execute:
+`./editorlr`
+
+Alternativamente, é possível executar do código-fonte com `make`, se as ferramentas de desenvolvimento Qt estiverem instaladas.
+
 ## Funcionamento
 
 ### Autômatos (`class NFA`)
