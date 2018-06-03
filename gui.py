@@ -30,8 +30,10 @@ class GUI(QMainWindow, Ui_MainWindow, AF_Dialog, GR_Dialog):
         self.determinize_button.clicked.connect(self.determinize)
         self.minimize_button.clicked.connect(self.minimize)
         self.reverse_button.clicked.connect(self.reverse)
+        self.complement_button.clicked.connect(self.complement)
         self.test_button.clicked.connect(self.test_word)
         self.rg_to_fa_button.clicked.connect(self.rg_to_fa)
+        self.fa_to_rg_button.clicked.connect(self.fa_to_rg)
         self.open_button.clicked.connect(self.open_fa)
         self.save_button.clicked.connect(self.save_fa)
         self.list.itemClicked.connect(self.select_fa)
@@ -63,6 +65,14 @@ class GUI(QMainWindow, Ui_MainWindow, AF_Dialog, GR_Dialog):
 
         self.fa.regex_str = regex_str
         self.add_fa_to_list()
+
+    def fa_to_rg(self):
+        if self.fa:
+            self.rg = RegularGrammar.from_nfa(self.fa)
+            self.update_rg_text()
+        else:
+            self.show_error("Não há AF selecionado!")
+            return
 
     def show_error(self, e):
         box = QErrorMessage(self) 
@@ -108,6 +118,15 @@ class GUI(QMainWindow, Ui_MainWindow, AF_Dialog, GR_Dialog):
         self.fa = self.fa.reverse()
         self.add_fa_to_list()
 
+    def complement(self):
+        if not self.fa:
+            self.show_error("Não há AF selecionado!")
+            return
+        fa = copy.deepcopy(self.fa)
+        fa.complement()
+        self.fa = fa
+        self.add_fa_to_list()
+
     def test_word(self):
         if not self.fa:
             self.show_error("Não há AF selecionado!")
@@ -132,7 +151,7 @@ class GUI(QMainWindow, Ui_MainWindow, AF_Dialog, GR_Dialog):
                 continue
             if state in self.fa.accepting:
                 special += "*"
-            if state in self.fa.initial:
+            if state is self.fa.initial:
                 special += "->"
             states.append(special + state)
 

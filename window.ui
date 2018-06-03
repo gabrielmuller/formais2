@@ -24,7 +24,7 @@
        <enum>QLayout::SetMinimumSize</enum>
       </property>
       <item>
-       <widget class="QLabel" name="fa_label">
+       <widget class="QWidget" name="horizontalWidget" native="true">
         <property name="minimumSize">
          <size>
           <width>0</width>
@@ -34,22 +34,47 @@
         <property name="maximumSize">
          <size>
           <width>16777215</width>
-          <height>20</height>
+          <height>50</height>
          </size>
         </property>
-        <property name="font">
-         <font>
-          <pointsize>12</pointsize>
-          <weight>75</weight>
-          <bold>true</bold>
-         </font>
-        </property>
-        <property name="text">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Autômato Selecionado&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-        </property>
-        <property name="margin">
-         <number>0</number>
-        </property>
+        <layout class="QHBoxLayout" name="horizontalLayout">
+         <item>
+          <widget class="QLabel" name="fa_label">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <pointsize>12</pointsize>
+             <weight>75</weight>
+             <bold>true</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Autômato Selecionado&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
+           <property name="margin">
+            <number>0</number>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="fa_to_rg_button">
+           <property name="text">
+            <string>Convertar para GR</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </widget>
       </item>
       <item>
@@ -82,11 +107,24 @@
         <property name="maximumSize">
          <size>
           <width>16777215</width>
-          <height>40</height>
+          <height>100</height>
          </size>
         </property>
-        <layout class="QHBoxLayout" name="horizontalLayout">
-         <item>
+        <layout class="QGridLayout" name="gridLayout_2">
+         <item row="0" column="1">
+          <widget class="QPushButton" name="minimize_button">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>30</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>Minimizar</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="0">
           <widget class="QPushButton" name="determinize_button">
            <property name="enabled">
             <bool>true</bool>
@@ -102,25 +140,19 @@
            </property>
           </widget>
          </item>
-         <item>
-          <widget class="QPushButton" name="minimize_button">
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>30</height>
-            </size>
-           </property>
+         <item row="1" column="0">
+          <widget class="QPushButton" name="complement_button">
            <property name="text">
-            <string>Minimizar</string>
+            <string>Complemento</string>
            </property>
           </widget>
          </item>
-         <item>
+         <item row="1" column="1">
           <widget class="QPushButton" name="reverse_button">
            <property name="maximumSize">
             <size>
              <width>16777215</width>
-             <height>22</height>
+             <height>16777215</height>
             </size>
            </property>
            <property name="text">
