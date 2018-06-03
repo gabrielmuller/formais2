@@ -206,7 +206,21 @@ class RegularGrammar():
        
         return RegularGrammar(initial, productions)
 
+    def char_to_string(self, char):
+        string = char + " -> "
 
+        for prod in self.productions[char]:
+            string += prod
+
+        print(string)
+
+
+    def to_string(self):
+        string = self.char_to_string(self.initial + '\n')
+        for char in self.productions:
+            string += self.char_to_string(char) + '\n'
+        return string
+        
     def printer(self):
         print("----")
         string = ""
