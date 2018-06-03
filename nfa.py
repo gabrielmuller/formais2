@@ -56,7 +56,7 @@ class NFA:
         else: return self.accepts_nfa(word)
 
     def words_of_size(self, size):
-        det = self.determinize()
+        self.determinize()
 
         # (palavra, estado onde termina a palavra)
         words = [("", self.initial)]
@@ -428,12 +428,14 @@ class NFA:
         # criar transições do novo estado inicial
         transitions[initial] = {}
 
+        # adicionar todos estados
+        for state in self.transitions:
+            transitions[state] = {}
+            
         # reverter transições
         for state, char_to_next in self.transitions.items():
             for char, next_states  in char_to_next.items():
                 for next_state in next_states:
-                    if next_state not in transitions:
-                        transitions[next_state] = {}
                     if char not in transitions[next_state]:
                         transitions[next_state][char] = set()
                     if state != '-':
