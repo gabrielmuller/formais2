@@ -39,6 +39,7 @@ class GUI(QMainWindow, Ui_MainWindow, AF_Dialog, GR_Dialog):
         self.list.itemClicked.connect(self.select_fa)
         self.operations_button.clicked.connect(self.fa_op_dialog)
         self.rg_operations_button.clicked.connect(self.rg_op_dialog)
+        self.words_button.clicked.connect(self.words_op_dialog)
 
         # Ações
         self.actionSalvar.triggered.connect(self.save_fa)
@@ -209,11 +210,25 @@ class GUI(QMainWindow, Ui_MainWindow, AF_Dialog, GR_Dialog):
 
         Dialog.exec_()
 
-    def words_op_dialog(self, size):
+    def words_op_dialog(self):
         Dialog = QtWidgets.QDialog()
         ui = Words_Dialog()
         ui.setupUi(Dialog)
-        ui.words.setPlainText('\n'.join(self.fa.words_of_size(size)))
+        
+        try:
+            size = int(self.n_field.text()) if self.n_field.text() else 3
+        except:
+            self.show_error("Tamanho deve ser um número")
+
+        if not self.fa:
+            self.show_error("Não há autômato selecionado")
+            return
+
+        words = self.fa.words_of_size(size)
+        msg = "Palavras de tamanho " + str(size) + " em " + self.fa.name
+        if len(words) == 10000:
+            msg += "\nPalavras demais, mostrando resultado parcial"
+        ui.words.setPlainText(msg + '\n\n' + '\n'.join(words))
         Dialog.exec_()
         
 

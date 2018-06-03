@@ -24,7 +24,13 @@
    </property>
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
-     <widget class="QPlainTextEdit" name="words"/>
+     <widget class="QPlainTextEdit" name="words">
+      <property name="font">
+       <font>
+        <family>Noto Mono</family>
+       </font>
+      </property>
+     </widget>
     </item>
     <item>
      <widget class="QDialogButtonBox" name="buttonBox">

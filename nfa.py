@@ -65,6 +65,8 @@ class NFA:
             prev_words = words
             words = set()
             for word in prev_words:
+                if len(words) > 9999:
+                    break
                 for char, state in self.transitions[word[1]].items():
                     words.add((word[0] + char, next(iter(state))))
 
