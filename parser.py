@@ -164,7 +164,7 @@ def parse_rg(string):
             productions[left].add(r)
 
     rg = RegularGrammar(initial, productions)
-    rg.rg_str += string
+    rg.rg_str = string
     return rg
 
 # checagem de erros em GR

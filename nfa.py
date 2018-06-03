@@ -10,6 +10,9 @@ class NFA:
         self.accepting = accepting
         self.name = 'Default'
 
+        self.regex_str = None
+        self.rg_str = None
+
     def states(self):
         return self.transitions.keys()
 
@@ -500,7 +503,7 @@ class NFA:
 
         transitions[new_accepting_state] = {}
         nfa = NFA(transitions, initial, accepting)
-        nfa.name = crop(rg.rg_str)
+        nfa.name = crop("Gramática " + rg.rg_str)
         return nfa
 
     """
@@ -512,6 +515,8 @@ class NFA:
         to_save["accepting"] = self.accepting
         to_save["transitions"] = self.transitions
         to_save["name"] = self.name
+        to_save["regex_str"] = self.regex_str
+        to_save["rg_str"] = self.rg_str
         json.dump(to_save, open(path, 'w'), cls=SetEncoder)
 
     """
@@ -533,6 +538,8 @@ class NFA:
                     transitions[state][symbol].add(i)
         nfa = NFA(transitions, initial, accepting)
         nfa.name = data["name"]
+        nfa.regex_str = data["regex_str"]
+        nfa.rg_str = data["rg_str"]
         return nfa
 
 

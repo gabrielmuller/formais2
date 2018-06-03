@@ -48,6 +48,7 @@ class GUI(QMainWindow, Ui_MainWindow):
             self.show_error(e)
             return
 
+        self.fa.regex_str = regex_str
         self.add_fa_to_list()
 
     def show_error(self, e):
@@ -55,7 +56,7 @@ class GUI(QMainWindow, Ui_MainWindow):
         box.showMessage(str(e))
 
     def rg_to_fa(self):
-        if (self.rg_text.toPlainText()):
+        if self.rg_text.toPlainText():
             try:
                 self.rg = parse_rg(self.rg_text.toPlainText())
             except SyntaxError as e:
@@ -63,6 +64,7 @@ class GUI(QMainWindow, Ui_MainWindow):
                 return
                 
             self.fa = NFA.from_rg(self.rg)
+            self.fa.rg_str = self.rg.rg_str
             self.add_fa_to_list()
 
     def determinize(self):
@@ -132,6 +134,10 @@ class GUI(QMainWindow, Ui_MainWindow):
         if path:
             nfa = NFA.open(path)
             self.fa = nfa
+            if self.fa.regex_str:
+                self.regex_input.setText(self.fa.regex_str)
+            if self.fa.rg_str:
+                self.rg_text.setPlainText(self.fa.rg_str)
             self.add_fa_to_list()
 
 
