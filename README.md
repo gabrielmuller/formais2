@@ -64,7 +64,28 @@ E em Gramáticas Regulares:
 2. União
 3. Fechamento
 
-A maior parte das operações entre autômatos ou gramáticas são feitas por algoritmos conhecidos. Em especial, a eliminação de estados equivalentes na minimização usa o teorema de Myhill-Nerode:
-TODO
+A maior parte das operações entre autômatos ou gramáticas são feitas por algoritmos vistos em aula. Em especial, a eliminação de estados equivalentes na minimização usa o algoritmo de preenchimento de tabela (*table-filling algorithm*).
+
+#### Table-filling algorithm
+
+**Base:** Se *p* é um estado final e *q* não é um estado final, então o par *{p,q}* é equivalente (ou não-distinguível).
+
+**Indução:** Sejam *p* e *q* estados tais que para alguma entrada *a*, *r=δ(p, a)* e *s=δ(q, a)* são pares equivalentes conhecidos. Então *{p,q}* é um par conhecido. A razão para essa regra é que deve existir alguma entrada *w* que diferencie *r* de *s*; isto é, uma entrada que apenas *δ(r, w)* ou *δ(s, w)* seja final. Então a entrada *aw* deve diferenciar *p* de *q*, visto que *δ(p, aw)* e *δ(q, aw)* é o mesmo par de estados que *δ(r, w)* e *δ(s, w)*.
+
+*Fonte: Hopcroft, John E.; Ullman, Jeffrey D. (1979), "Chapter 3", Introduction to Automata Theory, Languages, and Computation.*
+
+    Entrada: AFD Completo
+
+    Saída: AFD Mínimo
+
+    Passo 1: Encontre todos os pares de estados (Qi, Qj) não necessariamente conectados.
+
+    Passo 2: Marque todos os pares (Qi, Qj) no AFD tal que Qi ∈ F e Qj ∉ F ou Qj ∈ F e Qi ∉ F.
+
+    Passo 3: Repita até não ser possível marcar mais estados:
+             Se existe um par não marcado (Qi, Qj), marque-o se o par {δ (Qi, A), δ (Qi, A)} está marcado para algum símbolo do alfabeto.
+             
+    Passo 4: Combine os pares não marcados (Qi, Qj), transformando-os em um único estado no DFA reduzido.
+
 ### Análise (`parser.py`)
 O parsing de expressões regulares e gramáticas regulares é feito respectivamente por `parse(string)` e `parse_rg(string)`. O parser ignora espaços e símbolos explícitos de concatenação ('.'). Há detecção de erro para vários casos de expressões inválidas.
