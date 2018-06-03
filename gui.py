@@ -3,6 +3,7 @@ from parser import *
 from regex import Regex
 from dialog_ui import Ui_Dialog
 from window_ui import Ui_MainWindow
+from misc import crop
 
 import copy
 from PyQt5 import QtWidgets
@@ -150,7 +151,7 @@ class GUI(QMainWindow, Ui_MainWindow, Ui_Dialog):
         if name:
             fa.name = name
         self.list_fas.append(fa)
-        item = QListWidgetItem(fa.name, self.list)
+        item = QListWidgetItem(crop(fa.name), self.list)
         self.list.setCurrentItem(item)
         self.update_fa_table()
 

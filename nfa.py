@@ -431,7 +431,7 @@ class NFA:
         transitions = {}
 
         # criar novo estado inicial
-        initial = "q0'"
+        initial = self.initial + "'"
 
         # criar transições do novo estado inicial
         transitions[initial] = {}
@@ -464,7 +464,7 @@ class NFA:
                 transitions[accept] = {}
 
         nfa = NFA(transitions, initial, accepting)
-        nfa.name = "reverso de " + self.name
+        nfa.name = ("reverso de " + self.name)
         return nfa
 
     """
@@ -516,7 +516,7 @@ class NFA:
 
         transitions[new_accepting_state] = {}
         nfa = NFA(transitions, initial, accepting)
-        nfa.name = crop("gramática " + rg.rg_str)
+        nfa.name = ("gramática " + rg.rg_str)
         return nfa
 
     """

@@ -17,7 +17,7 @@ def matrix_to_table(matrix):
     return lines
 
 def crop(string):
-    size = 100
-    string.replace('\n', '; ')
-    string.replace('\r', '; ')
+    size = 40
+    string = string.replace('\n', '; ')
+    string = string.replace('\r', '; ')
     return string[:size] + '...' if len(string) > size + 3 else string
