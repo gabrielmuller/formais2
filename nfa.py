@@ -79,9 +79,10 @@ class NFA:
 
     # TESTED OK
     def determinize(self):
-        self.name += " determinizada"
-
         if self.is_dfa(): return self
+
+        self.name = "determinização de " + self.name
+
         initial = ""
         accepting = set()
 
@@ -278,7 +279,7 @@ class NFA:
         self.remove_unreachable()
         self.remove_dead()
         self.merge_nondistinguishable()
-        self.name += " minimizada"
+        self.name = "minimização de " + self.name
 
     """
         Renomear estados do AF
@@ -344,6 +345,8 @@ class NFA:
                 self.accepting.remove(state)
             else:
                 self.accepting.add(state)
+
+        self.name = "complemento de " + self.name
 
     """
         União
@@ -452,7 +455,9 @@ class NFA:
         if self.initial in self.accepting:
             accepting.add(initial)
 
-        return NFA(transitions, initial, accepting)
+        nfa = NFA(transitions, initial, accepting)
+        nfa.name = "reverso de " + nfa.name
+        return nfa
 
     """
         Conversão de GR para AF
@@ -503,7 +508,7 @@ class NFA:
 
         transitions[new_accepting_state] = {}
         nfa = NFA(transitions, initial, accepting)
-        nfa.name = crop("Gramática " + rg.rg_str)
+        nfa.name = crop("gramática " + rg.rg_str)
         return nfa
 
     """

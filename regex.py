@@ -91,7 +91,7 @@ class Regex:
             self.root = parse(regex_str)
             self.thread()
         self.dfa = self.simone()
-        self.dfa.name = crop("Regex " + \
+        self.dfa.name = crop("regex " + \
             (self.regex_str if self.regex_str else '&'))
 
     # costura toda árvore

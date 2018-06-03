@@ -82,6 +82,12 @@ class GUI(QMainWindow, Ui_MainWindow):
             self.statusbar.showMessage("Sentença rejeitada")
 
     def update_fa_table(self):
+        # restaura regex / gramática
+        if self.fa.regex_str:
+            self.regex_input.setText(self.fa.regex_str)
+        if self.fa.rg_str:
+            self.rg_text.setPlainText(self.fa.rg_str)
+
         alphabet = sorted(self.fa.alphabet())
         states = []
         for state in self.fa.states():
@@ -134,10 +140,6 @@ class GUI(QMainWindow, Ui_MainWindow):
         if path:
             nfa = NFA.open(path)
             self.fa = nfa
-            if self.fa.regex_str:
-                self.regex_input.setText(self.fa.regex_str)
-            if self.fa.rg_str:
-                self.rg_text.setPlainText(self.fa.rg_str)
             self.add_fa_to_list()
 
 
