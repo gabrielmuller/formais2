@@ -131,7 +131,7 @@ class GUI(QMainWindow, Ui_MainWindow, AF_Dialog, GR_Dialog):
                 continue
             if state in self.fa.accepting:
                 special += "*"
-            if state in self.fa.initial:
+            if state is self.fa.initial:
                 special += "->"
             states.append(special + state)
 
