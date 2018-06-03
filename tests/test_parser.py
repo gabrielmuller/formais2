@@ -49,6 +49,14 @@ class TestParser(unittest.TestCase):
         self.assertFalse(a.accepts('c'))
         self.assertFalse(a.accepts('f'))
         self.assertFalse(a.accepts('acf'))
+        
+        a = NFA.from_rg(parse_rg("S -> a \n S -> cB | & \n B -> f"))
+        self.assertTrue(a.accepts('a'))
+        self.assertTrue(a.accepts('cf'))
+        self.assertTrue(a.accepts(''))
+        self.assertFalse(a.accepts('c'))
+        self.assertFalse(a.accepts('f'))
+        self.assertFalse(a.accepts('acf'))
 
         a = NFA.from_rg(parse_rg("S -> fZ \n Z -> zZ | yZ | z"))
         self.assertTrue(a.accepts('fyz'))
@@ -103,9 +111,9 @@ class TestParser(unittest.TestCase):
             parse('a(a(bb)))')
         with self.assertRaises(SyntaxError):
             parse('a(b))c(')
-        with self.assertRaises(SyntaxWarning):
+        with self.assertRaises(SyntaxError):
             parse('a(aa*(a) *')
-        with self.assertRaises(SyntaxWarning):
+        with self.assertRaises(SyntaxError):
             parse('a(a(a(a( (( (')
 
 if __name__ == "__main__":

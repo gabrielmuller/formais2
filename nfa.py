@@ -8,6 +8,7 @@ class NFA:
         self.initial = initial
         self.transitions = transitions
         self.accepting = accepting
+        self.name = 'Default'
 
     def states(self):
         return self.transitions.keys()
@@ -134,7 +135,7 @@ class NFA:
         self.initial = copy.deepcopy(initial)
         self.accepting = copy.deepcopy(accepting)
         self.rename_states(0)
-        #return NFA(transitions, initial, accepting)
+        self.name += " determinizada"
 
     """
         Remover estado
@@ -273,6 +274,7 @@ class NFA:
         self.remove_unreachable()
         self.remove_dead()
         self.merge_nondistinguishable()
+        self.name += " minimizada"
 
     """
         Renomear estados do AF
@@ -496,7 +498,9 @@ class NFA:
                     transitions[state][production[0]].add(production[1:])
 
         transitions[new_accepting_state] = {}
-        return NFA(transitions, initial, accepting)
+        nfa = NFA(transitions, initial, accepting)
+        nfa.name = crop(rg.rg_str)
+        return nfa
 
     """
         Salva AF para arquivo JSON

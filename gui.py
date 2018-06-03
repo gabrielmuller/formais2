@@ -5,7 +5,7 @@ from window_ui import Ui_MainWindow
 
 import copy
 from PyQt5.QtWidgets import (
-    QMainWindow, QTableWidgetItem, QFileDialog)
+    QMainWindow, QTableWidgetItem, QFileDialog, QListWidgetItem, QErrorMessage)
 
 class GUI(QMainWindow, Ui_MainWindow):
 
@@ -31,7 +31,13 @@ class GUI(QMainWindow, Ui_MainWindow):
 
     def regex_to_fa(self):
         regex_str = self.regex_input.text()
-        self.fa = Regex(regex_str).dfa
+        try:
+            self.fa = Regex(regex_str).dfa
+        except SyntaxError as e:
+            box = QErrorMessage(self) 
+            box.showMessage(str(e))
+            return
+
         self.update_fa_table()
 
     def rg_to_fa(self):
@@ -55,6 +61,7 @@ class GUI(QMainWindow, Ui_MainWindow):
             self.statusbar.showMessage("Sentença rejeitada")
 
     def update_fa_table(self):
+        self.add_fa_to_list()
         alphabet = sorted(self.fa.alphabet())
         states = []
         for state in self.fa.states():
@@ -75,12 +82,18 @@ class GUI(QMainWindow, Ui_MainWindow):
         transitions = self.fa.transitions
         for i, state in enumerate(self.fa.states()):
             for j, symbol in enumerate(alphabet):
+                transition = '-'
                 if state in transitions:
                     if symbol in transitions[state]:
-                        transition = ",".join(  \
+                        transition = ", ".join(  \
                             sorted(transitions[state][symbol]))
                 self.transition_table.setItem(
                     i, j, QTableWidgetItem(transition))
+
+    def add_fa_to_list(self):
+        fa = self.fa
+        item = QListWidgetItem(fa.name, self.list)
+
 
     def save_fa(self):
         path, _ = QFileDialog.getSaveFileName(self)

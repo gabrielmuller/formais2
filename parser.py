@@ -67,8 +67,8 @@ def parse_parenthesis(nodes):
         else:
             front(stack).append(node)
     if len(stack) != 1:
-        raise SyntaxWarning("Faltam fechar " + str(len(stack)-1) + 
-            "parêntesis. Isso será feito automaticamente.")
+        raise SyntaxError("Faltam fechar " + str(len(stack)-1) + 
+            " parêntesis.")
     return parse_or(front(stack))
 
 def front(stack):
@@ -157,12 +157,15 @@ def parse_rg(string):
 
         rights = right.split('|')
 
-        productions[left] = set()
+        if left not in productions:
+            productions[left] = set()
         for r in rights:
             check_r(r, left == initial)
             productions[left].add(r)
 
-    return RegularGrammar(initial, productions)
+    rg = RegularGrammar(initial, productions)
+    rg.rg_str += string
+    return rg
 
 # checagem de erros em GR
 

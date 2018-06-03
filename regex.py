@@ -1,5 +1,6 @@
 from parser import *
 from nfa import NFA
+from misc import crop
 
 # Alias para claridade
 DOWN = False
@@ -21,6 +22,8 @@ class Move:
         moves = {self}
         first = True
 
+        visited = {UP: set(), DOWN: set()}
+
         while moves:
             next_moves = set()
 
@@ -28,9 +31,11 @@ class Move:
                 if move.node == '&':
                     leaves.add(move)
                     continue
-                if move.node.is_operator():
-                    func = Regex.semantics[move.dir][move.node.value]
-                    next_moves = next_moves.union(func(move.node))
+                if move.node.is_operator() :
+                    if move.node not in visited[move.dir]:
+                        func = Regex.semantics[move.dir][move.node.value]
+                        next_moves = next_moves.union(func(move.node))
+                        visited[move.dir].add(move.node)
                 else:
                     if first:
                         func = Regex.leaf_up
@@ -45,7 +50,7 @@ class Move:
 
 # semântica de subida do '|', a mais complicada
 def or_up_semantics(node):
-    while type(node) is Node and node.is_operator():
+    while type(node) is Node and not node.up:
         node = node.right
 
 
@@ -86,6 +91,7 @@ class Regex:
             self.root = parse(regex_str)
             self.thread()
         self.dfa = self.simone()
+        self.dfa.name = crop("Regex " + self.regex_str)
 
     # costura toda árvore
     def thread(self):

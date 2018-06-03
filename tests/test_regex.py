@@ -64,6 +64,13 @@ class TestRegex(unittest.TestCase):
         self.assertFalse(b.accepts(""))
         self.assertFalse(b.accepts("aa"))
 
+        a = Regex("a*")
+        b = a.dfa
+        self.assertTrue(b.accepts("a"))
+        self.assertTrue(b.accepts("aaaa"))
+        self.assertTrue(b.accepts(""))
+        self.assertFalse(b.accepts("b"))
+
         a = Regex("")
         b = a.dfa
         self.assertFalse(b.accepts(""))
@@ -119,6 +126,16 @@ class TestRegex(unittest.TestCase):
         self.assertFalse(b.accepts("bcde"))
         self.assertFalse(b.accepts("gh"))
         self.assertFalse(b.accepts("abcdeg"))
+
+        a = Regex("(a | (b|c)+)*")
+        b = a.dfa
+        print(b.to_string())
+        self.assertTrue(b.accepts("abcbcabcbcba"))
+        self.assertTrue(b.accepts("aaaa"))
+        self.assertTrue(b.accepts("bcabcabab"))
+        self.assertTrue(b.accepts("abcbacba"))
+        self.assertTrue(b.accepts(""))
+        self.assertFalse(b.accepts("ddd"))
 
         a = Regex("a++++")
         b = a.dfa

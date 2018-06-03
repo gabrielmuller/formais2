@@ -15,3 +15,8 @@ def matrix_to_table(matrix):
     nmatrix = transpose(nmatrix)
     lines = '\n'.join(['  '.join(line) for line in nmatrix])
     return lines
+
+def crop(string):
+    size = 100
+    string.replace('\n', '; ')
+    return string[:size] + '...' if len(string) > size + 3 else string

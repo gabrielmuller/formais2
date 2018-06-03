@@ -17,6 +17,7 @@ class RegularGrammar():
     def __init__(self, initial, productions):
         self.initial = initial
 
+        self.rg_str = "Gramática "
         # Dicionário de conjunto
         self.productions = productions
 
