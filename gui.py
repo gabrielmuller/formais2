@@ -1,13 +1,16 @@
 from nfa import NFA
 from parser import *
 from regex import Regex
+from dialog_ui import Ui_Dialog
 from window_ui import Ui_MainWindow
 
 import copy
+from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import (
-    QMainWindow, QTableWidgetItem, QFileDialog, QListWidgetItem, QErrorMessage)
+    QMainWindow, QTableWidgetItem, QFileDialog, QListWidgetItem, 
+    QErrorMessage, QDialog)
 
-class GUI(QMainWindow, Ui_MainWindow):
+class GUI(QMainWindow, Ui_MainWindow, Ui_Dialog):
 
     def __init__(self):
         QMainWindow.__init__(self)
@@ -28,6 +31,7 @@ class GUI(QMainWindow, Ui_MainWindow):
         self.open_button.clicked.connect(self.open_fa)
         self.save_button.clicked.connect(self.save_fa)
         self.list.itemClicked.connect(self.select_fa)
+        self.operations_button.clicked.connect(self.op_dialog)
 
         # Ações
         self.actionSalvar.triggered.connect(self.save_fa)
@@ -141,6 +145,27 @@ class GUI(QMainWindow, Ui_MainWindow):
             nfa = NFA.open(path)
             self.fa = nfa
             self.add_fa_to_list()
+
+    def op_dialog(self):
+        Dialog = QtWidgets.QDialog()
+        ui = Ui_Dialog()
+        ui.setupUi(Dialog)
+
+        ui.intersection_radio.setChecked(True)
+        ui.fa_1_combo.addItems(fa.name for fa in self.list_fas)
+        ui.fa_2_combo.addItems(fa.name for fa in self.list_fas)
+        ui.op_buttonBox.accepted.connect(lambda:self.create_by_op(ui))
+
+        Dialog.exec_()
+
+    def create_by_op(self, dialog):
+        if dialog.difference_radio.isChecked():
+            print("difference")
+        elif dialog.intersection_radio.isChecked():
+            print("intersection")
+        else:
+            print("reverse")
+
 
 
         
