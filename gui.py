@@ -3,6 +3,7 @@ from parser import *
 from regex import Regex
 from dialog_af_ui import Ui_Dialog as AF_Dialog
 from dialog_gr_ui import Ui_Dialog as GR_Dialog
+from words_ui import Ui_words_of_size as Words_Dialog
 from window_ui import Ui_MainWindow
 from misc import crop
 
@@ -188,6 +189,14 @@ class GUI(QMainWindow, Ui_MainWindow, AF_Dialog, GR_Dialog):
         ui.op_buttonBox.accepted.connect(lambda:self.create_fa_by_op(ui))
 
         Dialog.exec_()
+
+    def words_op_dialog(self, size):
+        Dialog = QtWidgets.QDialog()
+        ui = Words_Dialog()
+        ui.setupUi(Dialog)
+        ui.words.setPlainText('\n'.join(self.fa.words_of_size(size)))
+        Dialog.exec_()
+        
 
     def create_fa_by_op(self, dialog):
         fa1 = self.list_fas[dialog.fa_1_combo.currentIndex()]

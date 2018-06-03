@@ -56,6 +56,8 @@ class NFA:
         else: return self.accepts_nfa(word)
 
     def words_of_size(self, size):
+        det = self.determinize()
+
         # (palavra, estado onde termina a palavra)
         words = [("", self.initial)]
 
@@ -64,7 +66,7 @@ class NFA:
             words = set()
             for word in prev_words:
                 for char, state in self.transitions[word[1]].items():
-                    words.add((word[0] + char, state))
+                    words.add((word[0] + char, next(iter(state))))
 
         valid = lambda i : i[1] in self.accepting
         return {i[0] for i in filter(valid, words)}
