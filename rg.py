@@ -1,4 +1,5 @@
 from nfa import NFA
+import copy
 
 """
     Gramática regular
@@ -32,7 +33,7 @@ class RegularGrammar():
         """
             q0 = S
         """
-        initial = nfa.initial
+        initial = nfa.initial.upper()
         productions = {}
 
         # state type = str
@@ -43,16 +44,16 @@ class RegularGrammar():
             """
             if state not in productions:
                 # Adiciona não terminal
-                productions[state] = set()
+                productions[state.upper()] = set()
             for vt in transitions: 
                 for i in transitions[vt]:
-                    productions[state].add(vt+i)
+                    productions[state.upper()].add(vt+i.upper())
 
                 """
                     Se C in F, adicione B->a
                 """
                 if transitions[vt].issubset(nfa.accepting):
-                    productions[state].add(vt)
+                    productions[state.upper()].add(vt)
 
         """
             Se q0 in F, então epsilon in T(M)
@@ -65,7 +66,20 @@ class RegularGrammar():
             productions[new_initial].add("&")
             initial = new_initial
 
-        return RegularGrammar(initial, productions)
+        """
+            Tirar Vn's que representam estados sem transição
+        """
+        to_delete = [vn for vn in productions if len(productions[vn]) == 0]
+        for i in to_delete:
+            del productions[i]
+        new_productions = copy.deepcopy(productions)
+        for vn, ld in productions.items():
+            for production in ld:
+                for i in to_delete:
+                    if i in production:
+                        new_productions[vn] -= {production}
+
+        return RegularGrammar(initial, new_productions)
 
     """
         Método auxiliar
@@ -208,16 +222,15 @@ class RegularGrammar():
 
 
     def to_string(self):
-        string = ""
         # Inicial
         prod = self.initial+"-> "
         for ld in self.productions[self.initial]:
             prod+=ld
             prod+=" | "
-        string+=prod[:len(prod)-2]
-        for vn in self.productions:
-            if vn is self.initial:
-                continue
+        string = prod[:len(prod)-2]
+        vn_list = list(self.productions)
+        vn_list.remove(self.initial)
+        for vn in vn_list:
             string+="\n"
             prod = vn+"-> "
             for ld in self.productions[vn]:
