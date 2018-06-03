@@ -448,6 +448,8 @@ class NFA:
                         transitions[next_state][char].add(state)
 
         for prev_accept in self.accepting:
+            if prev_accept not in transitions:
+                transitions[prev_accept] = {}
             for char, next_states in transitions[prev_accept].items():
                 if char not in transitions[initial]:
                     transitions[initial][char] = set()
