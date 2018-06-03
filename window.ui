@@ -79,20 +79,35 @@
       </item>
       <item>
        <widget class="QTableWidget" name="transition_table">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="maximumSize">
          <size>
           <width>16777215</width>
           <height>999999</height>
          </size>
         </property>
+        <property name="autoFillBackground">
+         <bool>false</bool>
+        </property>
+        <property name="sizeAdjustPolicy">
+         <enum>QAbstractScrollArea::AdjustToContents</enum>
+        </property>
         <property name="editTriggers">
          <set>QAbstractItemView::NoEditTriggers</set>
         </property>
         <attribute name="horizontalHeaderDefaultSectionSize">
-         <number>40</number>
+         <number>50</number>
         </attribute>
         <attribute name="horizontalHeaderMinimumSectionSize">
          <number>38</number>
+        </attribute>
+        <attribute name="horizontalHeaderStretchLastSection">
+         <bool>false</bool>
         </attribute>
        </widget>
       </item>
@@ -111,20 +126,10 @@
          </size>
         </property>
         <layout class="QGridLayout" name="gridLayout_2">
-         <item row="0" column="1">
-          <widget class="QPushButton" name="minimize_button">
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>30</height>
-            </size>
-           </property>
-           <property name="text">
-            <string>Minimizar</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="0">
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <item row="1" column="0">
           <widget class="QPushButton" name="determinize_button">
            <property name="enabled">
             <bool>true</bool>
@@ -140,14 +145,20 @@
            </property>
           </widget>
          </item>
-         <item row="1" column="0">
-          <widget class="QPushButton" name="complement_button">
+         <item row="1" column="1">
+          <widget class="QPushButton" name="minimize_button">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>30</height>
+            </size>
+           </property>
            <property name="text">
-            <string>Complemento</string>
+            <string>Minimizar</string>
            </property>
           </widget>
          </item>
-         <item row="1" column="1">
+         <item row="2" column="1">
           <widget class="QPushButton" name="reverse_button">
            <property name="maximumSize">
             <size>
@@ -157,6 +168,20 @@
            </property>
            <property name="text">
             <string>Reverso</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <widget class="QPushButton" name="complement_button">
+           <property name="text">
+            <string>Complemento</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="0">
+          <widget class="QLabel" name="table_label">
+           <property name="text">
+            <string/>
            </property>
           </widget>
          </item>

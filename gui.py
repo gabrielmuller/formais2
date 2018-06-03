@@ -40,6 +40,7 @@ class GUI(QMainWindow, Ui_MainWindow, AF_Dialog, GR_Dialog):
         self.operations_button.clicked.connect(self.fa_op_dialog)
         self.rg_operations_button.clicked.connect(self.rg_op_dialog)
         self.words_button.clicked.connect(self.words_op_dialog)
+        self.transition_table.cellClicked.connect(self.click_cell)
 
         # Ações
         self.actionSalvar.triggered.connect(self.save_fa)
@@ -52,6 +53,8 @@ class GUI(QMainWindow, Ui_MainWindow, AF_Dialog, GR_Dialog):
         # Correspondência entre index do QListWidgetItem e autômato
         self.list_fas = []
 
+    def click_cell(self):
+        self.table_label.setText(self.transition_table.currentItem().text())
     def select_fa(self):
         self.fa = self.list_fas[self.list.currentRow()]
         self.update_fa_table()
