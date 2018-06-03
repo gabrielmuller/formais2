@@ -16,7 +16,7 @@ class NFA:
     def states(self):
         return self.transitions.keys()
 
-    # TESTED OK
+    
     def is_dfa(self):
         for state, transitions in self.transitions.items():
             if state is not self.initial and \
@@ -28,7 +28,7 @@ class NFA:
                     return False    
         return True
 
-    # TESTED OK
+    
     # provavelmente não vai ser usado assim
     def accepts_nfa(self, word):
         states = {self.initial}
@@ -41,7 +41,7 @@ class NFA:
                     states = states.union(self.transitions[state][char])
         return list(filter(lambda s : s in self.accepting, states))
 
-    # TESTED OK
+    
     def accepts_dfa(self, word):
         state = self.initial
         for char in word:
@@ -55,7 +55,6 @@ class NFA:
         if self.is_dfa(): return self.accepts_dfa(word)
         else: return self.accepts_nfa(word)
 
-    # [dfa.py]
     def words_of_size(self, size):
         # (palavra, estado onde termina a palavra)
         words = [("", self.initial)]
@@ -77,7 +76,7 @@ class NFA:
                 alphabet.add(vt)
         return alphabet
 
-    # TESTED OK
+    
     def determinize(self):
         if self.is_dfa(): return self
 
@@ -145,7 +144,6 @@ class NFA:
     """
         Remover estado
     """
-    # TESTED OK
     def remove_state(self, removed):
         # Evitar remover estado inicial
         # TODO: colocar exceção ou coisa assim
@@ -168,7 +166,6 @@ class NFA:
     """
         Remover estados inacessíveis
     """
-    # TESTED OK
     def remove_unreachable(self):
         reacheable = set()
         new_states = {self.initial}
@@ -187,7 +184,6 @@ class NFA:
     """
         Remover estados mortos
     """
-    # TESTED OK
     def remove_dead(self):
         # TODO: colocar exceção ou coisa assim pra estado inicial
         alive = set()
@@ -286,7 +282,6 @@ class NFA:
         Renomeia estados a partir de "qi" sendo i definido
         pelo parâmetro "start"
     """
-    # TESTED OK
     def rename_states(self, start):
         new_transitions = {}
         new_names = {} # Dicionário
@@ -319,8 +314,7 @@ class NFA:
     """ 
         Torna AFD Completo, i.e., todo estado tem transição
         definida para cada símbolo do alfabeto
-    """
-    # TESTED OK
+    """    
     def complete(self):
         if not self.is_dfa(): 
             self.determinize()
@@ -337,7 +331,6 @@ class NFA:
         Transforma o AFD no autômato que reconhece o complemento
         da linguagem do AFD original
     """
-    # TESTED OK
     def complement(self):
         self.complete()
         for state in self.transitions.keys():
@@ -351,8 +344,7 @@ class NFA:
     """
         União
         Retorna novo autômato
-    """
-    # TESTED OK
+    """ 
     def union(self, other):
         self.complete()
         other.complete()
@@ -381,11 +373,10 @@ class NFA:
                 new_transitions[state][key].add(next(iter(values)))
 
         new_transitions[new_initial] = {}
-        for symbol in self.alphabet() | other.alphabet():
-            new_transitions[new_initial][symbol] = {                    \
-                next(iter(self.transitions[self.initial].get(symbol))), \
-                next(iter(other.transitions[other.initial].get(symbol)))
-            }
+        for symbol in self.alphabet() | other.alphabet():     
+            new_transitions[new_initial][symbol] =                               \
+                self.transitions[self.initial].get(symbol, set())  |             \
+                other.transitions[other.initial].get(symbol, set())
 
         new_accepting |= self.accepting | other.accepting
 
@@ -397,7 +388,6 @@ class NFA:
         regulares representadas por AFDs
         L1-L2 = L1 ^ (~L2)
     """
-    # TESTED OK
     def difference(self, other):
         m1 = copy.deepcopy(self)
         m2 = copy.deepcopy(other)
@@ -409,7 +399,6 @@ class NFA:
         Intersecção
         L1 ^ L2 = ~(~L1 v ~L2)
     """
-    # TESTED OK
     def intersection(self, other):
         m1 = copy.deepcopy(self)
         m2 = copy.deepcopy(other)
@@ -426,7 +415,6 @@ class NFA:
     """
         Reverso
     """
-    # TESTED OK
     def reverse(self):
         transitions = {}
 
@@ -473,7 +461,6 @@ class NFA:
         Conversão de GR para AF
         Retorna AF
     """
-    # TESTED OK
     @staticmethod
     def from_rg(rg):
         productions = rg.productions

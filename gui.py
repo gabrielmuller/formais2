@@ -42,6 +42,8 @@ class GUI(QMainWindow, Ui_MainWindow, AF_Dialog, GR_Dialog):
         self.actionAbrir.triggered.connect(self.open_fa)
         self.actionSalvar_GR.triggered.connect(self.save_rg)
         self.actionImportar_GR.triggered.connect(self.open_rg)
+        self.actionSalvar_ER.triggered.connect(self.save_regex)
+        self.actionImportar_ER.triggered.connect(self.open_regex)
 
         # Correspondência entre index do QListWidgetItem e autômato
         self.list_fas = []
@@ -222,23 +224,28 @@ class GUI(QMainWindow, Ui_MainWindow, AF_Dialog, GR_Dialog):
         Dialog.exec_()
 
     def create_rg_by_op(self, dialog):
+        rg1 = None
+        rg2 = None
         if dialog.rg_1_input.toPlainText():
-            try:
-                rg1 = parse_rg(dialog.rg_1_input.toPlainText())
-            except (SyntaxError) as e:
-                self.show_error(e)
-                return
+            rg1 = self.parse_rg(dialog.rg_1_input.toPlainText())
         if dialog.rg_2_input.toPlainText():
-            try:
-                rg2 = parse_rg(dialog.rg_2_input.toPlainText())
-            except (SyntaxError) as e:
-                self.show_error(e)
-                return
+            rg2 = self.parse_rg(dialog.rg_2_input.toPlainText())
+
         if dialog.concatenation_radio.isChecked():
+            if not rg1 or not rg2:
+                self.show_error("Defina duas gramáticas!")
+                return
             self.concatenation(rg1, rg2)
         elif dialog.kleene_radio.isChecked():
-            self.kleene(rg1)
+            if not rg1 and not rg2 or rg1 and rg2:
+                self.show_error("Defina apenas uma gramática!")
+                return
+            if rg1: self.kleene(rg1)
+            elif rg2: self.kleene(rg2)
         else:
+            if not rg1 or not rg2:
+                self.show_error("Defina duas gramáticas!")
+                return
             self.union_rg(rg1, rg2)
 
     # Importa GR no diálogo de operações
@@ -249,7 +256,9 @@ class GUI(QMainWindow, Ui_MainWindow, AF_Dialog, GR_Dialog):
             file = open(path, 'r')
             rg_string = file.read()
             file.close()
-        rg = parse_rg(rg_string)
+            rg = parse_rg(rg_string)
+        else:
+            return
         if input_number is 1: dialog.rg_1_input.setPlainText(rg.to_string())
         else: dialog.rg_2_input.setPlainText(rg.to_string())
 
@@ -268,6 +277,7 @@ class GUI(QMainWindow, Ui_MainWindow, AF_Dialog, GR_Dialog):
     def update_rg_text(self):
         self.rg_text.setPlainText(self.rg.to_string())
 
+    # Salva GR da janela principal
     def save_rg(self):
         rg = parse_rg(self.rg_text.toPlainText())
 
@@ -276,6 +286,8 @@ class GUI(QMainWindow, Ui_MainWindow, AF_Dialog, GR_Dialog):
             file = open(path, 'w')
             file.write(rg.to_string())
             file.close()
+        else:
+            return
 
     # Importa GR na janela principal
     def open_rg(self):
@@ -288,7 +300,7 @@ class GUI(QMainWindow, Ui_MainWindow, AF_Dialog, GR_Dialog):
         self.rg = parse_rg(rg_string)
         self.update_rg_text()
 
-    # Salva GR da janela principal
+    # Parse sem salvar na GR principal
     def parse_rg(self, str):
         try:
             rg = parse_rg(str)
@@ -296,9 +308,31 @@ class GUI(QMainWindow, Ui_MainWindow, AF_Dialog, GR_Dialog):
             self.show_error(e)
             return
         return rg
-        
 
+    def save_regex(self):
+        regex = Regex(self.regex_input.text())
 
+        path, _ = QFileDialog.getSaveFileName(self)
+        if path:
+            file = open(path, 'w')
+            file.write(regex.regex_str)
+            file.close()
+        else:
+            return
+
+    def open_regex(self):
+        path, _ = QFileDialog.getOpenFileName(self)
+        string = ""
+        if path:
+            file = open(path, 'r')
+            string = file.read()
+            try:
+                regex = Regex(string)
+                self.regex_input.setText(regex.regex_str)
+            except SyntaxError as e:
+                self.show_error(e)
+                return
+            file.close()
 
 
 
