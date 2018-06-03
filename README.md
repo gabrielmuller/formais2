@@ -36,8 +36,34 @@ Utiliza-se o algoritmo de Simone para converter a árvore sintática de ER para 
 
 A `class Node` representa nodos de uma árvore, enquanto a `class Move` representa um `Node` em conjunto com uma direção (subida ou descida). Há detecção de loops infinitos em casos como `(a | (b|c)*)*`, quando a árvore costurada apresenta ciclos entre nodos operadores.
 ### Gramáticas Regulares (`class RegularGrammar`)
-TODO
+O programa permite criação de uma gramática, edição de gramática, exportar e importar (.txt), e operações de união, concatenação e fechamento. A edição de gramáticas na interface gráfica se dá apenas pela definição de suas produções, sem necessidade de definir alfabeto, Vn e Vt. Gramáticas também podem ser obtidas através da conversão de autômatos, bem como podem ser convertidas para autômatos.
+
+A classe `RegularGrammar` é definida por um símbolo inicial e um dicionário de conjuntos representando as produções. Segue um exemplo de como as produções de uma gramática G são representadas:
+    
+    G: P = { S -> aA | ε 
+             A -> aA | a }
+
+    productions = {
+        "S": {"aA", "&"},
+        "A": {"aA", "a"}
+    }
+   
 ### Operações
+Foram implementas as seguintes operações em Autômatos Finitos:
+1. Complemento
+2. União
+3. Diferença
+4. Intersecção
+5. Reverso
+6. Minimização
+7. Determinização
+8. Transformação em AFD Completo
+
+E em Gramáticas Regulares:
+1. Concatenação
+2. União
+3. Fechamento
+
 A maior parte das operações entre autômatos ou gramáticas são feitas por algoritmos conhecidos. Em especial, a eliminação de estados equivalentes na minimização usa o teorema de Myhill-Nerode:
 TODO
 ### Análise (`parser.py`)
