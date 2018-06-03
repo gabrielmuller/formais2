@@ -4,6 +4,7 @@ from regex import Regex
 from dialog_af_ui import Ui_Dialog as AF_Dialog
 from dialog_gr_ui import Ui_Dialog as GR_Dialog
 from window_ui import Ui_MainWindow
+from misc import crop
 
 import copy
 from PyQt5 import QtWidgets
@@ -83,14 +84,18 @@ class GUI(QMainWindow, Ui_MainWindow, AF_Dialog, GR_Dialog):
         if not self.fa:
             self.show_error("Não há AF selecionado!")
             return
-        self.fa.determinize()
+        fa = copy.deepcopy(self.fa)
+        fa.determinize()
+        self.fa = fa
         self.add_fa_to_list()
 
     def minimize(self):
         if not self.fa:
             self.show_error("Não há AF selecionado!")
             return
-        self.fa.minimize()
+        fa = copy.deepcopy(self.fa)
+        fa.minimize()
+        self.fa = fa
         self.add_fa_to_list()
 
     def reverse(self):
@@ -150,7 +155,7 @@ class GUI(QMainWindow, Ui_MainWindow, AF_Dialog, GR_Dialog):
         if name:
             fa.name = name
         self.list_fas.append(fa)
-        item = QListWidgetItem(fa.name, self.list)
+        item = QListWidgetItem(crop(fa.name), self.list)
         self.list.setCurrentItem(item)
         self.update_fa_table()
 

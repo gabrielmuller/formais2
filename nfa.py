@@ -428,22 +428,28 @@ class NFA:
     """
     # TESTED OK
     def reverse(self):
-        # reverter transições
         transitions = {}
-        for states, char_to_next in self.transitions.items():
-            for char, next_states  in char_to_next.items():
-                for next_state in next_states:
-                    if next_state not in transitions:
-                        transitions[next_state] = {}
-                    transitions[next_state][char] = states
 
         # criar novo estado inicial
-        initial = "q0'"
+        initial = self.initial + "'"
 
         # criar transições do novo estado inicial
         transitions[initial] = {}
 
+        # reverter transições
+        for state, char_to_next in self.transitions.items():
+            for char, next_states  in char_to_next.items():
+                for next_state in next_states:
+                    if next_state not in transitions:
+                        transitions[next_state] = {}
+                    if char not in transitions[next_state]:
+                        transitions[next_state][char] = set()
+                    if state != '-':
+                        transitions[next_state][char].add(state)
+
         for prev_accept in self.accepting:
+            if prev_accept not in transitions:
+                transitions[prev_accept] = {}
             for char, next_states in transitions[prev_accept].items():
                 if char not in transitions[initial]:
                     transitions[initial][char] = set()
@@ -455,8 +461,12 @@ class NFA:
         if self.initial in self.accepting:
             accepting.add(initial)
 
+        for accept in accepting:
+            if accept not in transitions:
+                transitions[accept] = {}
+
         nfa = NFA(transitions, initial, accepting)
-        nfa.name = "reverso de " + nfa.name
+        nfa.name = ("reverso de " + self.name)
         return nfa
 
     """
@@ -508,7 +518,7 @@ class NFA:
 
         transitions[new_accepting_state] = {}
         nfa = NFA(transitions, initial, accepting)
-        nfa.name = crop("gramática " + rg.rg_str)
+        nfa.name = ("gramática " + rg.rg_str)
         return nfa
 
     """
