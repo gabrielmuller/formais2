@@ -1,3 +1,4 @@
 *.vim
 .*.sw*
+setup.py
 __pycache__
