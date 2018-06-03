@@ -58,7 +58,7 @@ class TestParser(unittest.TestCase):
         self.assertFalse(a.accepts('f'))
         self.assertFalse(a.accepts('acf'))
 
-        a = NFA.from_rg(parse_rg("S -> fZ \n Z -> zZ | yZ | z"))
+        a = NFA.from_rg(parse_rg("Start -> fZ \n Z -> zZ | yZ | z"))
         self.assertTrue(a.accepts('fyz'))
         self.assertTrue(a.accepts('fz'))
         self.assertTrue(a.accepts('fzzyyzz'))
@@ -68,7 +68,7 @@ class TestParser(unittest.TestCase):
 
     def test_parse_rg_error(self):
         with self.assertRaises(SyntaxError):
-            a = NFA.from_rg(parse_rg("S -> aS | bB \n B -> cS | f \n SA -> u"))
+            a = NFA.from_rg(parse_rg("S -> aS | bB \n B -> cS | f \n SA -> U"))
         with self.assertRaises(SyntaxError):
             a = NFA.from_rg(parse_rg("S -> | aS | a"))
         with self.assertRaises(SyntaxError):
@@ -78,7 +78,7 @@ class TestParser(unittest.TestCase):
         with self.assertRaises(SyntaxError):
             a = NFA.from_rg(parse_rg("S > aA | a"))
         with self.assertRaises(SyntaxError):
-            a = NFA.from_rg(parse_rg("S > aA | a"))
+            a = NFA.from_rg(parse_rg("S aA | a"))
         with self.assertRaises(SyntaxError):
             a = NFA.from_rg(parse_rg("s -> aA | a"))
         with self.assertRaises(SyntaxError):

@@ -142,17 +142,25 @@ def parse(string):
 # retorna gramática regular a partir de string
 def parse_rg(string):
     string = string.replace(' ', '')
-    initial = string[0]
+    initial = ''
     productions = {}
     lines = string.split('\n')
 
     
     for line in lines:
         i = line.find('->')
+
+        if i < 0:
+            raise SyntaxError("'->' não achado.")
+
         left = line[:i]
         right = line[i+2:]
 
         check_left(left, line)
+
+        if not initial:
+            initial = left
+
         check_right(right, line)
 
         rights = right.split('|')
@@ -170,12 +178,10 @@ def parse_rg(string):
 # checagem de erros em GR
 
 def check_left(left, line):
-    if len(left) != 1:
+    if not left[0].isupper():
         raise SyntaxError(\
-            "Lado esquerdo inválido em " + line)
-    if not left.isupper():
-        raise SyntaxError(\
-            "Símbolo não-terminal " + left + " deve ser maiúsculo.")
+            "Símbolo não-terminal " + left + " deve ser capitalizado.")
+
 def check_right(right, line):
     if not right:
         raise SyntaxError(\
@@ -198,7 +204,7 @@ def check_r(r, isInitial):
         if not r.islower() and not r.isdigit() and not r == '&':
             raise SyntaxError(\
                 "Símbolo terminal " + r + " deve ser minúsculo.")
-    elif len(r) == 2:
+    elif len(r) >= 2:
         if not r[0].islower() and not r[0].isdigit():
             raise SyntaxError(\
                 "Símbolo terminal " + r[0] + " deve ser minúsculo.")
