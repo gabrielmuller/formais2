@@ -354,16 +354,6 @@ class NFA:
     """
     # TESTED OK
     def union(self, other):
-        name = "união de " + self.name + ", " + other.name
-
-        if self.rg_str and other.rg_str:
-            rg_self = NFA.from_rg(self.rg_str)
-            rg_other = NFA.from_rg(self.rg_str)
-            nfa = rg_self.union(rg_other)
-            nfa.name = name
-            return nfa
-
-
         self.complete()
         other.complete()
 
@@ -399,14 +389,7 @@ class NFA:
 
         new_accepting |= self.accepting | other.accepting
 
-        nfa = NFA(new_transitions, new_initial, new_accepting)
-        nfa.name = name
-
-        if self.regex_str and other.regex_str:
-            nfa.regex_str = '(' + self.regex_str + \
-                ') | (' + other.regex_str + ')'
-
-        return nfa
+        return NFA(new_transitions, new_initial, new_accepting)
 
     """
         Diferença
