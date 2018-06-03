@@ -195,16 +195,16 @@ def check_r(r, isInitial):
         raise SyntaxError(\
             "Epsilon em local inválido.")
     if len(r) == 1:
-        if not r.islower() and not r == '&':
+        if not r.islower() and not r.isdigit() and not r == '&':
             raise SyntaxError(\
-                "Símbolo terminal " + r + " deve ser maiúsculo.")
+                "Símbolo terminal " + r + " deve ser minúsculo.")
     elif len(r) == 2:
-        if not r[0].islower():
+        if not r[0].islower() and not r[0].isdigit():
             raise SyntaxError(\
                 "Símbolo terminal " + r[0] + " deve ser minúsculo.")
         if not r[1].isupper():
             raise SyntaxError(\
-                "Símbolo não-terminal " + r[1] + " deve ser minúsculo.")
+                "Símbolo não-terminal " + r[1] + " deve ser maiúsculo.")
     else:
         raise SyntaxError(\
             "Produção inválida " + r)

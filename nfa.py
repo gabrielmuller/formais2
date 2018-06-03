@@ -76,6 +76,8 @@ class NFA:
 
     # TESTED OK
     def determinize(self):
+        self.name += " determinizada"
+
         if self.is_dfa(): return self
         initial = ""
         accepting = set()
@@ -135,7 +137,6 @@ class NFA:
         self.initial = copy.deepcopy(initial)
         self.accepting = copy.deepcopy(accepting)
         self.rename_states(0)
-        self.name += " determinizada"
 
     """
         Remover estado
@@ -510,6 +511,7 @@ class NFA:
         to_save["initial"] = self.initial
         to_save["accepting"] = self.accepting
         to_save["transitions"] = self.transitions
+        to_save["name"] = self.name
         json.dump(to_save, open(path, 'w'), cls=SetEncoder)
 
     """
@@ -529,7 +531,9 @@ class NFA:
                     transitions[state][symbol] = set()
                 for i in next_states:
                     transitions[state][symbol].add(i)
-        return NFA(transitions, initial, accepting)
+        nfa = NFA(transitions, initial, accepting)
+        nfa.name = data["name"]
+        return nfa
 
 
     # retorna FA em uma tabela legível

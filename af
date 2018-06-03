@@ -1,1 +1,1 @@
-{"initial": "q0", "accepting": ["q0"], "transitions": {"q0": {"a": ["q1"], "b": ["q2"]}, "q1": {"b": ["q0"], "a": ["-"]}, "q2": {"a": ["q0"], "b": ["-"]}, "-": {"a": ["-"], "b": ["-"]}}}
+{"initial": "", "accepting": {}, "transitions": {}, "name": "Default"}

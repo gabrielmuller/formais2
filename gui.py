@@ -12,7 +12,8 @@ class GUI(QMainWindow, Ui_MainWindow):
     def __init__(self):
         QMainWindow.__init__(self)
 
-        self.fa = NFA({}, "", {})
+        #self.fa = NFA({}, "", {})
+        self.fa = None
         self.rg = RegularGrammar("",{})
 
         self.setupUi(self)
@@ -24,35 +25,53 @@ class GUI(QMainWindow, Ui_MainWindow):
         self.minimize_button.clicked.connect(self.minimize)
         self.test_button.clicked.connect(self.test_word)
         self.rg_to_fa_button.clicked.connect(self.rg_to_fa)
+        self.open_button.clicked.connect(self.open_fa)
+        self.save_button.clicked.connect(self.save_fa)
+        self.list.itemClicked.connect(self.select_fa)
 
         # Ações
         self.actionSalvar.triggered.connect(self.save_fa)
         self.actionAbrir.triggered.connect(self.open_fa)
+
+        # Correspondência entre index do QListWidgetItem e autômato
+        self.list_fas = []
+
+    def select_fa(self):
+        self.fa = self.list_fas[self.list.currentRow()]
+        self.update_fa_table()
 
     def regex_to_fa(self):
         regex_str = self.regex_input.text()
         try:
             self.fa = Regex(regex_str).dfa
         except SyntaxError as e:
-            box = QErrorMessage(self) 
-            box.showMessage(str(e))
+            self.show_error(e)
             return
 
-        self.update_fa_table()
+        self.add_fa_to_list()
+
+    def show_error(self, e):
+        box = QErrorMessage(self) 
+        box.showMessage(str(e))
 
     def rg_to_fa(self):
         if (self.rg_text.toPlainText()):
-            self.rg = parse_rg(self.rg_text.toPlainText())
+            try:
+                self.rg = parse_rg(self.rg_text.toPlainText())
+            except SyntaxError as e:
+                self.show_error(e)
+                return
+                
             self.fa = NFA.from_rg(self.rg)
-            self.update_fa_table()
+            self.add_fa_to_list()
 
     def determinize(self):
         self.fa.determinize()
-        self.update_fa_table()
+        self.add_fa_to_list()
 
     def minimize(self):
         self.fa.minimize()
-        self.update_fa_table()
+        self.add_fa_to_list()
 
     def test_word(self):
         if self.fa.accepts(self.word_input.text()):
@@ -61,7 +80,6 @@ class GUI(QMainWindow, Ui_MainWindow):
             self.statusbar.showMessage("Sentença rejeitada")
 
     def update_fa_table(self):
-        self.add_fa_to_list()
         alphabet = sorted(self.fa.alphabet())
         states = []
         for state in self.fa.states():
@@ -92,10 +110,19 @@ class GUI(QMainWindow, Ui_MainWindow):
 
     def add_fa_to_list(self):
         fa = self.fa
+        name = self.name_field.text()
+        if name:
+            fa.name = name
+        self.list_fas.append(fa)
         item = QListWidgetItem(fa.name, self.list)
-
+        self.list.setCurrentItem(item)
+        self.update_fa_table()
 
     def save_fa(self):
+        if not self.fa:
+            self.show_error("Não há AF selecionado!")
+            return
+
         path, _ = QFileDialog.getSaveFileName(self)
         if path:
             self.fa.save(path)
@@ -105,7 +132,7 @@ class GUI(QMainWindow, Ui_MainWindow):
         if path:
             nfa = NFA.open(path)
             self.fa = nfa
-            self.update_fa_table()
+            self.add_fa_to_list()
 
 
         

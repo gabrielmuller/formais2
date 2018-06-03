@@ -91,7 +91,8 @@ class Regex:
             self.root = parse(regex_str)
             self.thread()
         self.dfa = self.simone()
-        self.dfa.name = crop("Regex " + self.regex_str)
+        self.dfa.name = crop("Regex " + \
+            (self.regex_str if self.regex_str else '&'))
 
     # costura toda árvore
     def thread(self):
@@ -113,7 +114,7 @@ class Regex:
     def simone(self):
         # se não há raiz, linguagem vazia
         if not self.root:
-            return NFA({}, "q0", {})
+            return NFA({"q0": {}}, "q0", {})
 
         # se raiz é terminal, só uma palavra de um caracter
         if not self.root.is_operator():

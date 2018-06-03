@@ -129,7 +129,6 @@ class TestRegex(unittest.TestCase):
 
         a = Regex("(a | (b|c)+)*")
         b = a.dfa
-        print(b.to_string())
         self.assertTrue(b.accepts("abcbcabcbcba"))
         self.assertTrue(b.accepts("aaaa"))
         self.assertTrue(b.accepts("bcabcabab"))
