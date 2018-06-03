@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'dialog.ui'
+# Form implementation generated from reading ui file 'dialog_af.ui'
 #
 # Created by: PyQt5 UI code generator 5.10.1
 #
@@ -47,6 +47,9 @@ class Ui_Dialog(object):
         self.horizontalLayout_3 = QtWidgets.QHBoxLayout(self.horizontalLayoutWidget_3)
         self.horizontalLayout_3.setContentsMargins(0, 0, 0, 0)
         self.horizontalLayout_3.setObjectName("horizontalLayout_3")
+        self.union_radio = QtWidgets.QRadioButton(self.horizontalLayoutWidget_3)
+        self.union_radio.setObjectName("union_radio")
+        self.horizontalLayout_3.addWidget(self.union_radio)
         self.intersection_radio = QtWidgets.QRadioButton(self.horizontalLayoutWidget_3)
         self.intersection_radio.setObjectName("intersection_radio")
         self.horizontalLayout_3.addWidget(self.intersection_radio)
@@ -54,9 +57,6 @@ class Ui_Dialog(object):
         self.difference_radio.setEnabled(True)
         self.difference_radio.setObjectName("difference_radio")
         self.horizontalLayout_3.addWidget(self.difference_radio)
-        self.reverse_radio = QtWidgets.QRadioButton(self.horizontalLayoutWidget_3)
-        self.reverse_radio.setObjectName("reverse_radio")
-        self.horizontalLayout_3.addWidget(self.reverse_radio)
 
         self.retranslateUi(Dialog)
         self.op_buttonBox.accepted.connect(Dialog.accept)
@@ -68,9 +68,9 @@ class Ui_Dialog(object):
         Dialog.setWindowTitle(_translate("Dialog", "Operações"))
         self.fa_1_label.setText(_translate("Dialog", "AF 1"))
         self.fa_2_label.setText(_translate("Dialog", "AF 2"))
+        self.union_radio.setText(_translate("Dialog", "União"))
         self.intersection_radio.setText(_translate("Dialog", "Intersecção"))
         self.difference_radio.setText(_translate("Dialog", "Diferença"))
-        self.reverse_radio.setText(_translate("Dialog", "Reverso"))
 
 
 if __name__ == "__main__":

@@ -292,6 +292,13 @@
          </widget>
         </item>
         <item>
+         <widget class="QPushButton" name="rg_operations_button">
+          <property name="text">
+           <string>Criar por operações...</string>
+          </property>
+         </widget>
+        </item>
+        <item>
          <widget class="QPushButton" name="rg_to_fa_button">
           <property name="text">
            <string>Converter para AF</string>

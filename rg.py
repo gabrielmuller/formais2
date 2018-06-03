@@ -207,21 +207,26 @@ class RegularGrammar():
         return RegularGrammar(initial, productions)
 
 
-    def printer(self):
-        print("----")
+    def to_string(self):
         string = ""
-        first = True
+        # Inicial
+        prod = self.initial+"-> "
+        for ld in self.productions[self.initial]:
+            prod+=ld
+            prod+=" | "
+        string+=prod[:len(prod)-2]
         for vn in self.productions:
-            if not first:
-                string+="\n"
+            if vn is self.initial:
+                continue
+            string+="\n"
             prod = vn+"-> "
             for ld in self.productions[vn]:
                 prod+=ld
                 prod+=" | "
-            string+=prod
-            first = False
-        print(string)
-        print("----")
+            string+=prod[:len(prod)-2]
+        return(string)
+
+        
 
 
 
