@@ -209,7 +209,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout_5.addLayout(self.input_section)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 1030, 22))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 1030, 28))
         self.menubar.setObjectName("menubar")
         self.menuFile = QtWidgets.QMenu(self.menubar)
         self.menuFile.setObjectName("menuFile")
@@ -246,7 +246,7 @@ class Ui_MainWindow(object):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "Linguagens Regulares"))
         self.fa_label.setText(_translate("MainWindow", "<html><head/><body><p>Autômato Selecionado</p></body></html>"))
-        self.fa_to_rg_button.setText(_translate("MainWindow", "Convertar para GR"))
+        self.fa_to_rg_button.setText(_translate("MainWindow", "Converter para GR"))
         self.determinize_button.setText(_translate("MainWindow", "Determinizar"))
         self.minimize_button.setText(_translate("MainWindow", "Minimizar"))
         self.reverse_button.setText(_translate("MainWindow", "Reverso"))

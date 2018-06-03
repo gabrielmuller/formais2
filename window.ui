@@ -70,7 +70,7 @@
          <item>
           <widget class="QPushButton" name="fa_to_rg_button">
            <property name="text">
-            <string>Convertar para GR</string>
+            <string>Converter para GR</string>
            </property>
           </widget>
          </item>
@@ -436,7 +436,7 @@
      <x>0</x>
      <y>0</y>
      <width>1030</width>
-     <height>22</height>
+     <height>28</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
