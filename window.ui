@@ -115,6 +115,19 @@
            </property>
           </widget>
          </item>
+         <item>
+          <widget class="QPushButton" name="reverse_button">
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>22</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>Reverso</string>
+           </property>
+          </widget>
+         </item>
         </layout>
        </widget>
       </item>
@@ -323,6 +336,12 @@
     </property>
     <addaction name="actionSalvar"/>
     <addaction name="actionAbrir"/>
+    <addaction name="separator"/>
+    <addaction name="actionSalvar_GR"/>
+    <addaction name="actionImportar_GR"/>
+    <addaction name="separator"/>
+    <addaction name="actionSalvar_ER"/>
+    <addaction name="actionImportar_ER"/>
    </widget>
    <addaction name="menuFile"/>
   </widget>
@@ -335,6 +354,26 @@
   <action name="actionAbrir">
    <property name="text">
     <string>Importar AF</string>
+   </property>
+  </action>
+  <action name="actionSalvar_GR">
+   <property name="text">
+    <string>Salvar GR</string>
+   </property>
+  </action>
+  <action name="actionImportar_GR">
+   <property name="text">
+    <string>Importar GR</string>
+   </property>
+  </action>
+  <action name="actionSalvar_ER">
+   <property name="text">
+    <string>Salvar ER</string>
+   </property>
+  </action>
+  <action name="actionImportar_ER">
+   <property name="text">
+    <string>Importar ER</string>
    </property>
   </action>
  </widget>

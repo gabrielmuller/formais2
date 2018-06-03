@@ -84,6 +84,13 @@
    </property>
    <layout class="QHBoxLayout" name="horizontalLayout_3">
     <item>
+     <widget class="QRadioButton" name="uniao_radio">
+      <property name="text">
+       <string>União</string>
+      </property>
+     </widget>
+    </item>
+    <item>
      <widget class="QRadioButton" name="intersection_radio">
       <property name="text">
        <string>Intersecção</string>
@@ -97,13 +104,6 @@
       </property>
       <property name="text">
        <string>Diferença</string>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QRadioButton" name="reverse_radio">
-      <property name="text">
-       <string>Reverso</string>
       </property>
      </widget>
     </item>

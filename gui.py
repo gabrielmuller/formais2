@@ -26,6 +26,7 @@ class GUI(QMainWindow, Ui_MainWindow, Ui_Dialog):
         self.regex_to_fa_button.clicked.connect(self.regex_to_fa)
         self.determinize_button.clicked.connect(self.determinize)
         self.minimize_button.clicked.connect(self.minimize)
+        self.reverse_button.clicked.connect(self.reverse)
         self.test_button.clicked.connect(self.test_word)
         self.rg_to_fa_button.clicked.connect(self.rg_to_fa)
         self.open_button.clicked.connect(self.open_fa)
@@ -60,6 +61,9 @@ class GUI(QMainWindow, Ui_MainWindow, Ui_Dialog):
         box.showMessage(str(e))
 
     def rg_to_fa(self):
+        if not self.rg:
+            self.show_error("Defina uma gramática!")
+            return
         if self.rg_text.toPlainText():
             try:
                 self.rg = parse_rg(self.rg_text.toPlainText())
@@ -72,14 +76,30 @@ class GUI(QMainWindow, Ui_MainWindow, Ui_Dialog):
             self.add_fa_to_list()
 
     def determinize(self):
+        if not self.fa:
+            self.show_error("Não há AF selecionado!")
+            return
         self.fa.determinize()
         self.add_fa_to_list()
 
     def minimize(self):
+        if not self.fa:
+            self.show_error("Não há AF selecionado!")
+            return
         self.fa.minimize()
         self.add_fa_to_list()
 
+    def reverse(self):
+        if not self.fa:
+            self.show_error("Não há AF selecionado!")
+            return
+        self.fa = self.fa.reverse()
+        self.add_fa_to_list()
+
     def test_word(self):
+        if not self.fa:
+            self.show_error("Não há AF selecionado!")
+            return
         if self.fa.accepts(self.word_input.text()):
             self.statusbar.showMessage("Sentença aceita")
         else:
@@ -164,7 +184,9 @@ class GUI(QMainWindow, Ui_MainWindow, Ui_Dialog):
         elif dialog.intersection_radio.isChecked():
             print("intersection")
         else:
-            print("reverse")
+            print("união")
+
+
 
 
 
