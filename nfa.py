@@ -337,11 +337,7 @@ class NFA:
     """
     def complement(self):
         self.complete()
-        for state in self.transitions.keys():
-            if state in self.accepting:
-                self.accepting.remove(state)
-            else:
-                self.accepting.add(state)
+        self.accepting = self.transitions.keys() - self.accepting
 
         self.name = "complemento de " + self.name
 
@@ -436,6 +432,8 @@ class NFA:
         for state, char_to_next in self.transitions.items():
             for char, next_states  in char_to_next.items():
                 for next_state in next_states:
+                    if next_state not in transitions:
+                        transitions[next_state] = {}
                     if char not in transitions[next_state]:
                         transitions[next_state][char] = set()
                     if state != '-':
