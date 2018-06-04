@@ -8,7 +8,8 @@ class NFA:
         self.initial = initial
         self.transitions = transitions
         self.accepting = accepting
-        self.name = 'Default'
+
+        self.name = 'autômato'
 
         self.regex_str = None
         self.rg_str = None
@@ -152,8 +153,9 @@ class NFA:
     """
     def remove_state(self, removed):
         # Evitar remover estado inicial
-        # TODO: colocar exceção ou coisa assim
         if removed is self.initial:
+            self.transitions = {self.initial: {}}
+            self.accepting = {}
             return
         # Remover estado
         if removed in self.transitions.keys():
