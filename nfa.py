@@ -67,6 +67,8 @@ class NFA:
             for word in prev_words:
                 if len(words) > 9999:
                     break
+                if word[1] not in self.transitions:
+                    continue
                 for char, state in self.transitions[word[1]].items():
                     words.add((word[0] + char, next(iter(state))))
 
@@ -320,15 +322,16 @@ class NFA:
         definida para cada símbolo do alfabeto
     """    
     def complete(self):
+        error = 'qe'
         if not self.is_dfa(): 
             self.determinize()
-        self.transitions["-"] = {}
+        self.transitions[error] = {}
         for state in self.transitions.keys():
             for symbol in self.alphabet():
                 if symbol not in self.transitions[state]:
-                    self.transitions[state][symbol] = {"-"}
+                    self.transitions[state][symbol] = {error}
                 elif len(self.transitions[state][symbol])==0:
-                    self.transitions[state][symbol].add("-")
+                    self.transitions[state][symbol].add(error)
 
     """     
         Complemento
