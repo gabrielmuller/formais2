@@ -90,19 +90,19 @@ class GUI(QMainWindow, Ui_MainWindow):
                 self.show_error("Gramática já é Própria.")
                 return
             # G sem símbolos inférteis
-            sset = str(self.cfg.fertile()) if self.cfg.fertile() else "Ø"
+            sset = str(self.cfg.fertile() or "Ø")
             g = self.cfg.remove_infertile()
             resultText = "Nf = " + sset + "\n\n    G' sem símbolos inférteis:\n" + str(g)
             self.resultText_1.setPlainText(resultText)
 
             # G sem símbolos inalcançáveis
-            sset = str(g.reachable()) if g.reachable() else "Ø"
+            sset = str(g.reachable() or "Ø")
             g = g.rm_unreachable()
             resultText = "\nVi = " + sset + "\n\n    G'' sem símbolos inalcançáveis:\n" + str(g)
             self.resultText_1.appendPlainText(resultText)
 
             # G ε-livre
-            sset = str(g.nullable()) if g.nullable() else "Ø"
+            sset = str(g.nullable() or "Ø")
             g = g.epsilon_free()
             resultText = "\nNe = " + sset + "\n\n    G''' ε-livre:\n" + str(g)
             self.resultText_1.appendPlainText(resultText)
@@ -166,9 +166,9 @@ class GUI(QMainWindow, Ui_MainWindow):
 
             # Interface
             self.resultText_1.setPlainText("Não-terminais com rec. a esquerda direta: " + \
-                str(direct_rec) + '\n')
+                str(direct_rec or 'Ø') + '\n')
             self.resultText_1.appendPlainText("Não-terminais com rec. a esquerda indireta: " + \
-                str(indirect_rec) + '\n')
+                str(indirect_rec or 'Ø') + '\n')
             self.resultText_1.appendPlainText(str(g))
             g.name = self.cfg.name + " sem Rec. a Esquerda"
             self.add_result_grammar_to_list(g)
