@@ -4,7 +4,11 @@
     como uma GLC.
 """
 # retorna gramática regular a partir de string
-def read_rg(string):
+def read_glc(string):
+    if not string:
+        raise SyntaxError(\
+            "Gramática vazia.")
+
     string = string.replace(' ', '')
     initial = ''
     productions = {}
@@ -12,6 +16,9 @@ def read_rg(string):
 
     
     for line in lines:
+        # aqui tem um continuiu
+        if not line: continue
+
         i = line.find('->')
 
         if i < 0:
@@ -25,15 +32,41 @@ def read_rg(string):
         if not initial:
             initial = left
 
-        check_right(right, line)
+        check_rights(right, line)
 
         rights = right.split('|')
 
         if left not in productions:
             productions[left] = set()
-        for r in rights:
-            check_r(r, left == initial)
-            productions[left].add(r)
+
+        #beautiful
+        for right in rights:
+            check_right(right)
+
+            symbol = ''
+            prod = []
+
+            for char in right:
+                if not symbol:
+                    if char.isupper():
+                        symbol = char
+                    else:
+                        prod.append(char)
+                elif char.isupper():
+                    prod.append(symbol)
+                    symbol = char
+                elif char.islower():
+                    prod.append(symbol)
+                    prod.append(char)
+                    symbol = ''
+                elif char.isdigit():
+                    symbol += char
+                else:
+                    raise SyntaxError("Caracter inválido " + char)
+
+            if symbol:
+                prod.append(symbol)
+            productions[left].add(tuple(prod))
 
     return (initial, productions)
 
@@ -44,7 +77,7 @@ def check_left(left, line):
         raise SyntaxError(\
             "Símbolo não-terminal " + left + " deve ser capitalizado.")
 
-def check_right(right, line):
+def check_rights(right, line):
     if not right:
         raise SyntaxError(\
             "Lado direito não encontrado na linha " + line)
@@ -58,7 +91,8 @@ def check_right(right, line):
         raise SyntaxError(\
             "dois '|' consecutivos na linha " + line)
 
-def check_r(r, is_initial):
-    if '&' in r and r is not '&':
+def check_right(right):
+    if '&' in right and right is not '&':
         raise SyntaxError(\
-            "'&' não pode aparecer acompanhado de outros símbolos.")
+            "'&' não pode aparecer concatenado")
+

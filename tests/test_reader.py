@@ -1,14 +1,14 @@
 import unittest
 from reader import *
-from rg import RegularGrammar 
+from glc import Grammar 
 
 class TestReader(unittest.TestCase):
     def setUp(self):
         print('Running ' + self._testMethodName)
 
     """
-    def test_read_rg(self):
-        a = RegularGrammar(read_rg("S -> aS | bB \n B -> cS | f"))
+    def test_read_glc(self):
+        a = Grammar("S -> aS | bB \n B -> cS | f"))
         self.assertTrue(a.accepts('aaaaabcaaaabf'))
         self.assertTrue(a.accepts('bf'))
         self.assertTrue(a.accepts('bcaaaabf'))
@@ -17,7 +17,7 @@ class TestReader(unittest.TestCase):
         self.assertFalse(a.accepts('aaaacf'))
         self.assertFalse(a.accepts(''))
 
-        a = RegularGrammar(read_rg("S -> a | cB | & \n B -> f"))
+        a = Grammar("S -> a | cB | & \n B -> f"))
         self.assertTrue(a.accepts('a'))
         self.assertTrue(a.accepts('cf'))
         self.assertTrue(a.accepts(''))
@@ -25,7 +25,7 @@ class TestReader(unittest.TestCase):
         self.assertFalse(a.accepts('f'))
         self.assertFalse(a.accepts('acf'))
         
-        a = RegularGrammar(read_rg("S -> a \n S -> cB | & \n B -> f"))
+        a = Grammar("S -> a \n S -> cB | & \n B -> f"))
         self.assertTrue(a.accepts('a'))
         self.assertTrue(a.accepts('cf'))
         self.assertTrue(a.accepts(''))
@@ -33,7 +33,7 @@ class TestReader(unittest.TestCase):
         self.assertFalse(a.accepts('f'))
         self.assertFalse(a.accepts('acf'))
 
-        a = RegularGrammar(read_rg("Start -> fZ \n Z -> zZ | yZ | z"))
+        a = Grammar("Start -> fZ \n Z -> zZ | yZ | z"))
         self.assertTrue(a.accepts('fyz'))
         self.assertTrue(a.accepts('fz'))
         self.assertTrue(a.accepts('fzzyyzz'))
@@ -42,30 +42,26 @@ class TestReader(unittest.TestCase):
         self.assertFalse(a.accepts(''))
     """
 
-    def test_read_rg_error(self):
+    def test_read_glc_error(self):
         with self.assertRaises(SyntaxError):
-            a = RegularGrammar(read_rg(""))
+            a = Grammar("")
         with self.assertRaises(SyntaxError):
-            a = RegularGrammar(read_rg("S"))
+            a = Grammar("S")
         with self.assertRaises(SyntaxError):
-            a = RegularGrammar(read_rg("SA"))
+            a = Grammar("SA")
         with self.assertRaises(SyntaxError):
-            a = RegularGrammar(read_rg("S1E"))
+            a = Grammar("S1E")
         with self.assertRaises(SyntaxError):
-            a = RegularGrammar(read_rg("S -> aS | a |"))
+            a = Grammar("S -> aS | a |")
         with self.assertRaises(SyntaxError):
-            a = RegularGrammar(read_rg("B -> aA \n S -> aS | | a"))
+            a = Grammar("B -> aA \n S -> aS | | a")
         with self.assertRaises(SyntaxError):
-            a = RegularGrammar(read_rg("S aA | a"))
+            a = Grammar("S aA | a")
         with self.assertRaises(SyntaxError):
-            a = RegularGrammar(read_rg("s -> aA | a"))
+            a = Grammar("s -> aA | a")
         with self.assertRaises(SyntaxError):
-            a = RegularGrammar(read_rg("S -> aA | a \n A -> a | a&"))
+            a = Grammar("S -> aA | a \n A -> a | a&")
 
-    def test_rg_tostr(self):
-        return
-        
 
 if __name__ == "__main__":
     unittest.main()
-

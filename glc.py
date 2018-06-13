@@ -1,36 +1,36 @@
-from reader import read_rg
+from reader import read_glc
 
 """
     Gramática regular
     Representada pelo símbolo inicial e por suas produções.
-    Para as produções, tem-se um dicionário de conjuntos de listas.
+    Para as produções, tem-se um dicionário de conjuntos de tuplas.
     Exemplo:
     S -> a A1
     A1 -> a A1 | a
     {
-        "S": {["a", "A1"]},
-        "A1": {["a", "A1"], ["a"]}
+        "S": {("a", "A1")},
+        "A1": {("a", "A1"), ("a")}
     }
 """
 
-class RegularGrammar():
+class Grammar():
     
     """
         Cria a gramática a partir do parse de uma string.
     """
     def __init__(self, string, name="Gramática"):
-        self.initial, self.prods = parse_rg(string)
+        self.initial, self.prods = read_glc(string)
         self.name = name
 
     """
         Representação em string.
     """
-    def __repr__(self):
+    def __str__(self):
         # transforma as produções de um Vn em string
-        pstr = lambda vn: vn + ' -> ' + ' | '.join(' '.join(self.prods[vn]))
+        pstr = lambda vn: vn + ' -> ' + ' | '.join([' '.join(prod) for prod in self.prods[vn]])
 
         others = self.prods.keys() - {self.initial}
-        return [pstr(vn) for vn in ([self.initial] + list(others))]
+        return '\n'.join([pstr(vn) for vn in ([self.initial] + list(others))])
 
 
         

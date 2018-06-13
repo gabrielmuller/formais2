@@ -1,12 +1,13 @@
 from itertools import combinations
 import unittest
 
-from rg import RegularGrammar
+from glc import Grammar
 
 class TestGrammar(unittest.TestCase):
     def setUp(self):
         print('Running ' + self._testMethodName)
         # L1 = {(a,b)* ^ no "aaa"}
+    """
         productions = {
             "S": {"aA", "a", "bT", "b", "&"},
             "T": {"aA", "a", "bT", "b"},
@@ -14,7 +15,7 @@ class TestGrammar(unittest.TestCase):
             "B": {"bT", "b"}
         }
 
-        self.no_aaa = RegularGrammar("S", productions)
+        self.no_aaa = Grammar("S", productions)
         self.no_aaa_accept = ["", "a", "aa", "baa", 
             "aabbaa", "bababaab", "bbb"]
         self.no_aaa_reject = ["aaaba", "bbbbaaab", 
@@ -27,7 +28,7 @@ class TestGrammar(unittest.TestCase):
             "B": {"bC"},
             "C": {"bA", "b"},
         }
-        self.b_div_3 = RegularGrammar("S", productions)
+        self.b_div_3 = Grammar("S", productions)
         self.b_div_3_accept = ["", "bbb", "bbbbbb"]
         self.b_div_3_reject = ["b", "bb", "bbbb", "bbbbb"]
 
@@ -37,7 +38,7 @@ class TestGrammar(unittest.TestCase):
             "A": {"aB"},
             "B": {"aA", "a"},
         }
-        self.even_a = RegularGrammar("S", productions)
+        self.even_a = Grammar("S", productions)
         self.even_a_accept = ["", "aa", "aaaa", "aaaaaa"]
         self.even_a_reject = ["a", "aaa", "aaaaa"]
 
@@ -48,7 +49,7 @@ class TestGrammar(unittest.TestCase):
             "B": {"0C", "1A", "1"},
             "C": {"0B", "1C"},
         }
-        self.bin_3 = RegularGrammar("S", productions)
+        self.bin_3 = Grammar("S", productions)
         self.bin_3_accept = ["0", "11", "1001","1100"]
         self.bin_3_reject = ["", "1", "10", "100", "101", "111"]
 
@@ -59,18 +60,35 @@ class TestGrammar(unittest.TestCase):
             self.assertFalse(fa.accepts(word))
 
     """
+
+    # não testa '|' porque não é possível determinar a ordem.
+    def test_from_to_str(self):
+        a = "S  -> aaaaaS18S18\n\n  S18 - > bbb"
+        r = Grammar(a)
+        c  = str(r)
+        b = "S -> a a a a a S18 S18\nS18 -> b b b"
+        self.assertEqual(b, c)
+
+        a = "S1->aS1bS45A99\nS45  ->  &"
+        r = Grammar(a)
+        c  = str(r)
+        b = "S1 -> a S1 b S45 A99\nS45 -> &"
+        self.assertEqual(b, c)
+
+    """
+
     Análise não foi implementada ainda...
     def test_grammar(self):
-        fa = NFA.from_rg(self.no_aaa)
+        fa = NFA.from_glc(self.no_aaa)
         self.check_strings(fa, self.no_aaa_accept,
             self.no_aaa_reject)
-        fa = NFA.from_rg(self.b_div_3)
+        fa = NFA.from_glc(self.b_div_3)
         self.check_strings(fa, self.b_div_3_accept,
             self.b_div_3_reject)
-        fa = NFA.from_rg(self.even_a)
+        fa = NFA.from_glc(self.even_a)
         self.check_strings(fa, self.even_a_accept,
             self.even_a_reject)
-        fa = NFA.from_rg(self.bin_3)
+        fa = NFA.from_glc(self.bin_3)
         self.check_strings(fa, self.bin_3_accept,
             self.bin_3_reject)
     """
