@@ -1,13 +1,13 @@
 import unittest
 from reader import *
-from glc import Grammar 
+from cfg import Grammar 
 
 class TestReader(unittest.TestCase):
     def setUp(self):
         print('Running ' + self._testMethodName)
 
     """
-    def test_read_glc(self):
+    def test_read_cfg(self):
         a = Grammar("S -> aS | bB \n B -> cS | f"))
         self.assertTrue(a.accepts('aaaaabcaaaabf'))
         self.assertTrue(a.accepts('bf'))
@@ -42,7 +42,7 @@ class TestReader(unittest.TestCase):
         self.assertFalse(a.accepts(''))
     """
 
-    def test_read_glc_error(self):
+    def test_read_cfg_error(self):
         with self.assertRaises(SyntaxError):
             a = Grammar("")
         with self.assertRaises(SyntaxError):

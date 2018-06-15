@@ -1,13 +1,13 @@
 from itertools import combinations
 import unittest
 
-from glc import Grammar
+from cfg import Grammar
 
 class TestGrammar(unittest.TestCase):
     def setUp(self):
         print('Running ' + self._testMethodName)
-        # L1 = {(a,b)* ^ no "aaa"}
-    """
+
+        """
         productions = {
             "S": {"aA", "a", "bT", "b", "&"},
             "T": {"aA", "a", "bT", "b"},
@@ -75,20 +75,76 @@ class TestGrammar(unittest.TestCase):
         b = "S1 -> a S1 b S45 A99\nS45 -> &"
         self.assertEqual(b, c)
 
+    def test_first(self):
+        
+        # caso simples
+        g = """
+        S -> AC|CeB|Ba
+        A -> aA|BC
+        C -> cC
+        B -> bB
+    """
+        gr = Grammar(g)
+        f = {'S': {'a', 'b', 'c'},
+                'A': {'a', 'b'},
+                'C': {'c'},
+                'B': {'b'}}
+        self.assertEqual(gr.first(), f)
+
+        # caso com firsts equivalentes (A e B)
+        g = """
+        S -> AC|CeB|Ba
+        A -> aA|BC
+        C -> cC
+        B -> bB|AB
+    """
+        gr = Grammar(g)
+        f = {'S': {'a', 'b', 'c'},
+                'A': {'a', 'b'},
+                'C': {'c'},
+                'B': {'a', 'b'}}
+        self.assertEqual(gr.first(), f)
+
+        # caso com &
+        g = """
+        S -> AC|CeB|Ba
+        A -> aA|BC
+        C -> cC|&
+        B -> bB|AB|&
+    """
+        gr = Grammar(g)
+        f = {'S': {'a', 'b', 'c', 'e', '&'},
+                'A': {'a', 'b', 'c', '&'},
+                'C': {'c', '&'},
+                'B': {'a', 'b', 'c', '&'}}
+        self.assertEqual(gr.first(), f)
+
+        g = """
+        S -> ABC
+        A -> aA|&
+        B -> bB|ACd
+        C -> cC|&
+    """
+        gr = Grammar(g)
+        f = {'S': {'a', 'b', 'c', 'd'},
+                'A': {'a', '&'},
+                'B': {'a', 'b', 'c', 'd'},
+                'C': {'c', '&'}}
+        self.assertEqual(gr.first(), f)
     """
 
     Análise não foi implementada ainda...
     def test_grammar(self):
-        fa = NFA.from_glc(self.no_aaa)
+        fa = NFA.from_cfg(self.no_aaa)
         self.check_strings(fa, self.no_aaa_accept,
             self.no_aaa_reject)
-        fa = NFA.from_glc(self.b_div_3)
+        fa = NFA.from_cfg(self.b_div_3)
         self.check_strings(fa, self.b_div_3_accept,
             self.b_div_3_reject)
-        fa = NFA.from_glc(self.even_a)
+        fa = NFA.from_cfg(self.even_a)
         self.check_strings(fa, self.even_a_accept,
             self.even_a_reject)
-        fa = NFA.from_glc(self.bin_3)
+        fa = NFA.from_cfg(self.bin_3)
         self.check_strings(fa, self.bin_3_accept,
             self.bin_3_reject)
     """

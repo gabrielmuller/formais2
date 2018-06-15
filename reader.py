@@ -4,7 +4,7 @@
     como uma GLC.
 """
 # retorna gramática regular a partir de string
-def read_glc(string):
+def read_cfg(string):
     if not string:
         raise SyntaxError(\
             "Gramática vazia.")
