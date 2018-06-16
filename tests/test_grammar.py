@@ -204,6 +204,19 @@ class TestGrammar(unittest.TestCase):
         self.assertEqual(gr.first(), f)
         self.assertEqual(gr.first_nt(), fnt)
 
+    def test_follow(self):
+        g = """
+        S -> AC|CeB|Ba
+        A -> aA|BC
+        C -> cC|&
+        B -> bB|AB|&
+    """
+        gr = Grammar(g)
+        f = {'S': {'$'},
+                'A': {'c', 'a', 'b', '$'},
+                'C': {'e', '$', 'a', 'b', 'c'},
+                'B': {'a', 'c', '$', 'b'}}
+        self.assertEqual(gr.follow(), f)
     def test_nullable(self):
         g = """
         S -> ABC|zz

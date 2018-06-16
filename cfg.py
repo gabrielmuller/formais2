@@ -73,7 +73,7 @@ class Grammar():
     # Auxiliar
     @staticmethod
     def _first_star(prod, firsts):
-        if not prod: return '&'
+        if not prod: return {'&'}
 
         start = prod[0]
         if start is '&' or start.islower():
@@ -146,4 +146,27 @@ class Grammar():
                         partial.add(nt)
                         changed = True
         return partial
+
+    def follow(self):
+        follows = {nt: set() for nt in self.prods.keys()}
+        follows[self.initial] = {'$'}
+        firsts = self.first()
+
+        changed = True
+
+        while changed:
+            changed = False
+            for nt, prods in self.prods.items():
+                for prod in prods:
+                    for index, symbol in enumerate(prod):
+                        if not symbol.isupper(): continue
+
+                        rest = prod[index:]
+                        first = Grammar._first_star(rest, firsts)
+                        to_add = follows[nt] if '&' in first else first
+                        if not to_add.issubset(follows[symbol]):
+                            follows[symbol] = follows[symbol].union(to_add)
+                            changed = True
+
+        return follows
 
