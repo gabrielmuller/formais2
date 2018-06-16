@@ -85,4 +85,65 @@ class Grammar():
                 return f.union(Grammar._first_star(prod[1:], firsts))
             else:
                 return f
+
+    # conjunto de símbolos de Vn que podem 
+    # iniciar sequências derivadas de A para todo A ∈ Vn
+    def first_nt(self):
+        nullables = self.nullable()
+        firsts = {nt: set() for nt in self.prods.keys()}
+
+        changed = False
+
+        # passo base
+        for nt, prods in self.prods.items():
+            for prod in prods:
+                start = prod[0]
+                if start.isupper():
+                    firsts[nt].add(start)
+                    changed = True
+
+        while changed:
+            changed = False
+            for nt, prods in self.prods.items():
+                for prod in prods:
+                    to_add = Grammar._first_nt_star(prod, firsts, nullables)
+                    if not to_add.issubset(firsts[nt]):
+                        firsts[nt] = firsts[nt].union(to_add)
+                        changed = True
+
+        return firsts
             
+    # Auxiliar
+    @staticmethod
+    def _first_nt_star(prod, firsts, nullables):
+        if not prod or not prod[0].isupper(): return set()
+
+        start = prod[0]
+        f = firsts[start].union({start})
+        if start in nullables:
+            return f.union(Grammar._first_nt_star(prod[1:], firsts, nullables))
+        else:
+            return f
+
+    # Conjunto de NTs que derivam &
+    def nullable(self):
+        partial = {nt for nt, prods in self.prods.items() if ('&',) in prods}
+        changed = bool(partial)
+
+        while changed:
+            changed = False
+            for nt, prods in self.prods.items():
+                if prods and nt not in partial:
+                    nt_is_null = False
+                    for prod in prods:
+                        prod_is_null = True
+                        for symbol in prod:
+                            if symbol not in partial:
+                                prod_is_null = False
+                        nt_is_null = nt_is_null or prod_is_null
+
+                    if nt_is_null:
+                        partial.add(nt)
+                        changed = True
+        return partial
+

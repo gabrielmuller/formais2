@@ -76,6 +76,18 @@ class TestGrammar(unittest.TestCase):
         self.assertEqual(b, c)
 
     def test_first(self):
+        # caso com linguagem vazia
+        g = """
+        S -> SS | A
+    """
+        gr = Grammar(g)
+        f = {'S': set(),
+                'A': set()}
+        fnt = {'S': {'S', 'A'},
+                'A': set()}
+        self.assertEqual(gr.first(), f)
+        self.assertEqual(gr.first_nt(), fnt)
+
         # caso simples
         g = """
         S -> AC|CeB|Ba
@@ -88,7 +100,12 @@ class TestGrammar(unittest.TestCase):
                 'A': {'a', 'b'},
                 'C': {'c'},
                 'B': {'b'}}
+        fnt = {'S': {'A', 'B', 'C'},
+                'A': {'B'},
+                'B': set(),
+                'C': set()}
         self.assertEqual(gr.first(), f)
+        self.assertEqual(gr.first_nt(), fnt)
 
         # caso com NTs sem produções
         g = """
@@ -103,7 +120,13 @@ class TestGrammar(unittest.TestCase):
                 'C': {'c'},
                 'B': {'b'},
                 'Z': set()}
+        fnt = {'S': {'A', 'B', 'C', 'Z'},
+                'A': {'B'},
+                'B': set(),
+                'C': set(),
+                'Z': set()}
         self.assertEqual(gr.first(), f)
+        self.assertEqual(gr.first_nt(), fnt)
 
         # caso com firsts equivalentes (A e B)
         g = """
@@ -117,7 +140,12 @@ class TestGrammar(unittest.TestCase):
                 'A': {'a', 'b'},
                 'C': {'c'},
                 'B': {'a', 'b'}}
+        fnt = {'S': {'A', 'B', 'C'},
+                'A': {'A', 'B'},
+                'B': {'A', 'B'},
+                'C': set()}
         self.assertEqual(gr.first(), f)
+        self.assertEqual(gr.first_nt(), fnt)
 
         # caso com &
         g = """
@@ -131,7 +159,12 @@ class TestGrammar(unittest.TestCase):
                 'A': {'a', 'b', 'c', '&'},
                 'C': {'c', '&'},
                 'B': {'a', 'b', 'c', '&'}}
+        fnt = {'S': {'A', 'B', 'C'},
+                'A': {'A', 'B', 'C'},
+                'B': {'A', 'B', 'C'},
+                'C': set()}
         self.assertEqual(gr.first(), f)
+        self.assertEqual(gr.first_nt(), fnt)
 
         g = """
         S -> ABC
@@ -144,7 +177,12 @@ class TestGrammar(unittest.TestCase):
                 'A': {'a', '&'},
                 'B': {'a', 'b', 'c', 'd'},
                 'C': {'c', '&'}}
+        fnt = {'S': {'A', 'B', 'C'},
+                'A': set(),
+                'B': {'A', 'C'},
+                'C': set()}
         self.assertEqual(gr.first(), f)
+        self.assertEqual(gr.first_nt(), fnt)
 
         g = """
         S -> ABC
@@ -158,7 +196,63 @@ class TestGrammar(unittest.TestCase):
                 'B': {'a', 'b', 'c', 'd'},
                 'C': {'c', '&'},
                 'H': set()}
+        fnt = {'S': {'A', 'B', 'C', 'H'},
+                'A': set(),
+                'B': {'A', 'C', 'H'},
+                'C': set(),
+                'H': set()}
         self.assertEqual(gr.first(), f)
+        self.assertEqual(gr.first_nt(), fnt)
+
+    def test_nullable(self):
+        g = """
+        S -> ABC|zz
+        A -> aA|a
+        B -> bB|ACd|H
+        C -> cC|c
+    """
+        gr = Grammar(g)
+        n = set()
+        self.assertEqual(gr.nullable(), n)
+
+        g = """
+        S -> ABC|zz
+        A -> aA|a
+        B -> bB|ACd|H
+        C -> cC|&
+    """
+        gr = Grammar(g)
+        n = {'C'}
+        self.assertEqual(gr.nullable(), n)
+
+        g = """
+        S -> ABCH|zz
+        A -> aA|&
+        B -> bB|AC|H
+        C -> cC|&
+    """
+        gr = Grammar(g)
+        n = {'C', 'A', 'B'}
+        self.assertEqual(gr.nullable(), n)
+
+        g = """
+        S -> ABC|zz
+        A -> aA|&
+        B -> bB|AC|H
+        C -> cC|&
+    """
+        gr = Grammar(g)
+        n = {'S', 'A', 'B', 'C'}
+        self.assertEqual(gr.nullable(), n)
+        
+        g = """
+        X -> abc | Babc
+        A -> BA | &
+        B -> AA | b
+    """
+        gr = Grammar(g)
+        n = {'A', 'B'}
+        self.assertEqual(gr.nullable(), n)
 
 if __name__ == "__main__":
     unittest.main()
