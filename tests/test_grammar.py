@@ -76,7 +76,6 @@ class TestGrammar(unittest.TestCase):
         self.assertEqual(b, c)
 
     def test_first(self):
-        
         # caso simples
         g = """
         S -> AC|CeB|Ba
@@ -89,6 +88,21 @@ class TestGrammar(unittest.TestCase):
                 'A': {'a', 'b'},
                 'C': {'c'},
                 'B': {'b'}}
+        self.assertEqual(gr.first(), f)
+
+        # caso com NTs sem produções
+        g = """
+        S -> AC|CeB|Ba|Za|Z
+        A -> aA|BC
+        C -> cC
+        B -> bB
+    """
+        gr = Grammar(g)
+        f = {'S': {'a', 'b', 'c'},
+                'A': {'a', 'b'},
+                'C': {'c'},
+                'B': {'b'},
+                'Z': set()}
         self.assertEqual(gr.first(), f)
 
         # caso com firsts equivalentes (A e B)
@@ -131,23 +145,20 @@ class TestGrammar(unittest.TestCase):
                 'B': {'a', 'b', 'c', 'd'},
                 'C': {'c', '&'}}
         self.assertEqual(gr.first(), f)
-    """
 
-    Análise não foi implementada ainda...
-    def test_grammar(self):
-        fa = NFA.from_cfg(self.no_aaa)
-        self.check_strings(fa, self.no_aaa_accept,
-            self.no_aaa_reject)
-        fa = NFA.from_cfg(self.b_div_3)
-        self.check_strings(fa, self.b_div_3_accept,
-            self.b_div_3_reject)
-        fa = NFA.from_cfg(self.even_a)
-        self.check_strings(fa, self.even_a_accept,
-            self.even_a_reject)
-        fa = NFA.from_cfg(self.bin_3)
-        self.check_strings(fa, self.bin_3_accept,
-            self.bin_3_reject)
+        g = """
+        S -> ABC
+        A -> aA|&
+        B -> bB|ACd|AHAHA
+        C -> cC|&
     """
+        gr = Grammar(g)
+        f = {'S': {'a', 'b', 'c', 'd'},
+                'A': {'a', '&'},
+                'B': {'a', 'b', 'c', 'd'},
+                'C': {'c', '&'},
+                'H': set()}
+        self.assertEqual(gr.first(), f)
 
 if __name__ == "__main__":
     unittest.main()

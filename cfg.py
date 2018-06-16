@@ -18,6 +18,7 @@ class Grammar():
     # Cria a gramática a partir do parse de uma string.
     def __init__(self, string, name="Gramática"):
         self.initial, self.prods = read_cfg(string)
+        self.complete()
         self.name = name
 
     # Representação em string.
@@ -26,8 +27,22 @@ class Grammar():
         # transforma as produções de um NT em string
         pstr = lambda nt: nt + ' -> ' + ' | '.join([' '.join(prod) for prod in self.prods[nt]])
 
-        others = self.prods.keys() - {self.initial}
+        not_empty = {nt for nt, prods in self.prods.items() if prods}
+        others = not_empty - {self.initial}
         return '\n'.join([pstr(nt) for nt in ([self.initial] + list(others))])
+
+    # Adiciona NTs sem produções no dict para garantir
+    # consistência na representação
+    def complete(self):
+        to_add = set()
+        for nt, prods in self.prods.items():
+            for prod in prods:
+                for symbol in prod:
+                    if symbol.isupper() and symbol not in self.prods:
+                       to_add.add(symbol) 
+        
+        for nt in to_add:
+            self.prods[nt] = set()
 
     # Retorna first de cada NT
     def first(self):
