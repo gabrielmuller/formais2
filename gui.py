@@ -79,7 +79,7 @@ class GUI(QMainWindow, Ui_MainWindow):
         self.grammarList.setCurrentItem(item)
 
     def update_cfg_text(self):
-        self.grammarText.setPlainText(self.cfg.to_string())
+        self.grammarText.setPlainText(str(self.cfg))
 
     def update_info_label(self):
         # TODO:

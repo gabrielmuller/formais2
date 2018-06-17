@@ -309,7 +309,86 @@ class TestGrammar(unittest.TestCase):
     """
         er = Grammar(e)
         self.assertEqual(gr.epsilon_free(), er)
-        
+    
+    def test_fertile(self):
+        # Caso simples
+        g = """
+        S -> aS | BC | BD
+        A -> cC | AB
+        C -> aA | BC
+        B -> bB | &
+        D -> dDd | c
+        """
+        gr = Grammar(g)
+        n = {'S', 'B', 'D'}
+        self.assertEqual(gr.fertile(), n)
+
+        # Caso com G vazia
+        g = """
+        S -> AC|CeB|Ba
+        A -> aA|BC
+        C -> cC
+        B -> bB
+        """
+        gr = Grammar(g)
+        n = set()
+        self.assertEqual(gr.fertile(), n)
+
+        # caso com &
+        g = """
+        S -> AC|CeB|Ba
+        A -> aA|BC
+        C -> cC|&
+        B -> bB|AB|&
+        """
+        gr = Grammar(g)
+        n = {'S', 'A', 'C', 'B'}
+        self.assertEqual(gr.fertile(), n)
+
+        g = """
+        S -> aS
+        """
+        gr = Grammar(g)
+        n = set()
+        self.assertEqual(gr.fertile(), n)
+
+    def test_remove_infertile(self):
+        # Caso simples
+        g = """
+        S -> aS | BC | BD
+        A -> cC | AB
+        C -> aA | BC
+        B -> bB | &
+        D -> dDd | c
+        """
+        gr = Grammar(g)
+        f = """
+        S -> a S | B D
+        B -> & | b B
+        D -> d D d | c
+        """
+        gf = Grammar(f)
+        self.assertEqual(gr.remove_infertile(), gf)
+
+        # Caso com G vazia
+        g = """
+        S -> AC|CeB|Ba
+        A -> aA|BC
+        C -> cC
+        B -> bB
+        """
+        gr = Grammar(g)
+        self.assertEqual(gr.remove_infertile(), Grammar())
+
+        # caso com & e sem infertéis
+        g = """
+        S -> AC|CeB|Ba
+        A -> aA|BC
+        C -> cC|&
+        B -> bB|AB|&
+        """
+        gr = Grammar(g)
+        self.assertEqual(gr.remove_infertile(), gr)
 
 if __name__ == "__main__":
     unittest.main()

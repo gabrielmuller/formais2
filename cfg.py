@@ -1,7 +1,9 @@
 from reader import read_cfg
 
+import copy
+
 """
-    Gramática regular
+    Gramática Livre de Contexto
     Representada pelo símbolo inicial e por suas produções.
     Para as produções, tem-se um dicionário de conjuntos de tuplas.
     Exemplo:
@@ -17,6 +19,8 @@ class Grammar():
 
     # Cria a gramática a partir do parse de uma string.
     def __init__(self, string=None, name="Gramática"):
+        self.initial = ""
+        self.prods = {}
         if string is not None:
             self.initial, self.prods = read_cfg(string)
             self.complete()
@@ -226,26 +230,66 @@ class Grammar():
 
         return result
 
-    # TODO: corrigir
-    # usado na interface
-    def to_string(self):
-        # Inicial
-        prod = self.initial+"-> "
-        for ld in self.prods[self.initial]:
-            prod+=ld
-            prod+=" | "
-        string = prod[:len(prod)-2]
-        vn_list = list(self.prods)
-        vn_list.remove(self.initial)
-        for vn in vn_list:
-            string+="\n"
-            prod = vn+"-> "
+    # Retorna conjunto Nf (Vn férteis)
+    def fertile(self):
+        ni = set()
+        i = 0
+        changed = True
+        while changed:
+            ni_last = copy.deepcopy(ni) # Ni-1
+            ni = copy.deepcopy(ni_last) # Ni = Ni-1
+
+            # Todo A ∈ Vn - Ni-1
+            for vn in self.prods.keys() - ni_last:
+
+                # Todo A -> α ^ α ∈ (Vt U Ni-1)*
+                fertile_prod = {ld for ld in self.prods[vn] 
+                    if all(c in (self.vt() | ni_last | {"&"}) for c in list(ld)) }
+                
+                # Ni = Ni-1 U A
+                if len(fertile_prod) != 0:
+                    ni.add(vn)
+
+            # While Ni != Ni-1
+            if (len(ni) > len(ni_last)):
+                changed = True
+            else:
+                changed = False
+
+        return ni
+
+    # Remover símbolos inférteis
+    def remove_infertile(self):
+        cfg = copy.deepcopy(self)
+
+        fertile = self.fertile()
+        infertile = cfg.prods.keys() - fertile
+
+        # Remover não-terminais inférteis
+        for vn in infertile:
+            del cfg.prods[vn]
+
+        # Remover produções com não-terminais inférteis
+        for vn, prods in copy.deepcopy(cfg.prods).items():
+            for ld in prods:
+                if any(i in ld for i in infertile):
+                    cfg.prods[vn].remove(ld)
+
+        if len(cfg.prods) == 0:
+            return Grammar()
+        return cfg
+
+    # Retorna conjunto de terminais (Vt)
+    def vt(self):
+        vt = set()
+        for vn in self.prods.keys():
             for ld in self.prods[vn]:
-                prod+=ld
-                prod+=" | "
-            string+=prod[:len(prod)-2]
-        return(string)
+                for v in ld:
+                    if v.islower():
+                        vt.add(v)
+        return vt
 
             
+
 
 
