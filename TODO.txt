@@ -1,9 +1,9 @@
-GUI
+OK~ GUI
 Finita / Infinita
 Inférteis / Vazia
-Inalcançáveis
+OK Inalcançáveis
 OK &-livre
-Sem prod simples
+FAZENDO Sem prod simples
 OK First
 OK First-NT
 OK Follow

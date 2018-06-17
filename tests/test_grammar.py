@@ -1,6 +1,4 @@
-from itertools import combinations
 import unittest
-
 from cfg import Grammar
 
 class TestGrammar(unittest.TestCase):
@@ -163,6 +161,7 @@ class TestGrammar(unittest.TestCase):
                 'C': {'e', '$', 'a', 'b', 'c'},
                 'B': {'a', 'c', '$', 'b'}}
         self.assertEqual(gr.follow(), f)
+
     def test_nullable(self):
         g = """
         S -> ABC|zz
@@ -226,6 +225,7 @@ class TestGrammar(unittest.TestCase):
         l = []
         c = [[]]
         self.assertEqual(Grammar._combinations(l), c)
+
     def test_epsilon_free(self):
         g = """
         S -> AB
@@ -272,6 +272,22 @@ class TestGrammar(unittest.TestCase):
     """
         er = Grammar(e)
         self.assertEqual(gr.rm_unreachable(), er)
+
+    def test_simple_star(self):
+        g = """
+        S -> FGH
+        F -> G | a
+        G -> dG | H | b
+        H -> c
+    """
+        gr = Grammar(g)
+        nset = gr._simple_star()
+        e = {"S": {'S'},
+            "F": {'F', 'G', 'H'},
+            "G": {'G', 'H'},
+            "H": {'H'}}
+        self.assertEqual(nset, e)
+        
 
 if __name__ == "__main__":
     unittest.main()
