@@ -1,6 +1,6 @@
 OK~ GUI
 Finita / Infinita
-Inférteis / Vazia
+OK Inférteis / Vazia
 OK Inalcançáveis
 OK &-livre
 FAZENDO Sem prod simples
