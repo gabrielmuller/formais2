@@ -3,7 +3,7 @@ Finita / Infinita
 OK Inférteis / Vazia
 OK Inalcançáveis
 OK &-livre
-FAZENDO Sem prod simples
+OK Sem prod simples
 OK First
 OK First-NT
 OK Follow
