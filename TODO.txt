@@ -2,7 +2,7 @@ GUI
 Finita / Infinita
 Inférteis / Vazia
 Inalcançáveis
-&-livre
+OK &-livre
 Sem prod simples
 OK First
 OK First-NT

@@ -16,10 +16,21 @@ from reader import read_cfg
 class Grammar():
 
     # Cria a gramática a partir do parse de uma string.
-    def __init__(self, string, name="Gramática"):
-        self.initial, self.prods = read_cfg(string)
-        self.complete()
+    def __init__(self, string=None, name="Gramática"):
+        if string is not None:
+            self.initial, self.prods = read_cfg(string)
+            self.complete()
         self.name = name
+
+    # Igualdade entre gramáticas
+    def __eq__(self, other):
+        result = self.initial == other.initial and \
+                self.prods == other.prods
+        if not result:
+            print(self)
+            print ("!=")
+            print(other)
+        return result
 
     # Representação em string.
     def __str__(self):
@@ -164,9 +175,57 @@ class Grammar():
                         rest = prod[index:]
                         first = Grammar._first_star(rest, firsts)
                         to_add = follows[nt] if '&' in first else first
+
                         if not to_add.issubset(follows[symbol]):
                             follows[symbol] = follows[symbol].union(to_add)
                             changed = True
 
         return follows
+
+    def epsilon_free(self):
+        eprods = {nt: prods - {('&',)} for nt, prods in self.prods.items()}
+        nullables = self.nullable()
+
+        einitial = self.initial
+        if self.initial in nullables:
+            einitial = 'S1'
+            eprods['S1'] = {('S',), ('&',)}
+
+        for e in nullables:
+            new_prods = {nt: set() for nt in eprods.keys()}
+            for nt, prods in eprods.items():
+                for prod in prods:
+                    occurrences = []
+                    enp = list(enumerate(prod))
+
+                    for i, symbol in enp:
+                        if symbol is e:
+                            occurrences.append(i)
+
+                    for combo in Grammar._combinations(occurrences):
+                         # possivelmente a linha de código mais linda e horrível
+                         to_add = [c for i, c in enp if c is not e or i in combo]
+
+                         if to_add: new_prods[nt].add(tuple(to_add))
+            eprods = dict(eprods, **new_prods)
+                            
+        gr = Grammar()
+        gr.prods = eprods
+        gr.initial = einitial
+        return gr
+
+    # Retorna todas combinações de elementos da lista l
+    def _combinations(l):
+        result = []
+        bformat = "{0:0"+str(len(l))+"b}"
+        binary = lambda n: bformat.format(n)
+        combos = map(binary, range(2**len(l)))
+        for combo in combos:
+            matches = list(zip(combo, l))
+            result.append([match[1] for match in matches if int(match[0])])
+
+        return result
+
+            
+
 

@@ -267,5 +267,49 @@ class TestGrammar(unittest.TestCase):
         n = {'A', 'B'}
         self.assertEqual(gr.nullable(), n)
 
+    def test_combinations(self):
+        l = [8, 9, 'foo']
+        c = [[], ['foo'], [9], [9, 'foo'], [8],
+            [8, 'foo'], [8, 9], [8, 9, 'foo']]
+        self.assertEqual(Grammar._combinations(l), c)
+
+        l = [9]
+        c = [[], [9]]
+        self.assertEqual(Grammar._combinations(l), c)
+
+        l = []
+        c = [[]]
+        self.assertEqual(Grammar._combinations(l), c)
+    def test_epsilon_free(self):
+        g = """
+        S -> AB
+        A -> aA | &
+        B -> bB | &
+    """
+        gr = Grammar(g)
+        e = """
+        S1 -> S | &
+        S -> AB | A | B
+        A -> aA | a
+        B -> bB | b
+    """
+        er = Grammar(e)
+        self.assertEqual(gr.epsilon_free(), er)
+
+        g = """
+        S -> AzBzA
+        A -> BB | a
+        B -> bB | &
+    """
+        gr = Grammar(g)
+        e = """
+        S -> AzBzA | AzBz | AzzA | Azz | zBzA | zBz | zzA | zz
+        A -> BB | B | a
+        B -> bB | b
+    """
+        er = Grammar(e)
+        self.assertEqual(gr.epsilon_free(), er)
+        
+
 if __name__ == "__main__":
     unittest.main()
