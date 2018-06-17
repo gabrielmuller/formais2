@@ -225,27 +225,23 @@ class Grammar():
             result.append([match[1] for match in matches if int(match[0])])
 
         return result
+    
+    # Retorna nova gramática sem NTs inalcançáveis.
+    def rm_unreachable(self):
+        reachables = {self.initial}
+        next_reach = {self.initial}
 
-    # TODO: corrigir
-    # usado na interface
-    def to_string(self):
-        # Inicial
-        prod = self.initial+"-> "
-        for ld in self.prods[self.initial]:
-            prod+=ld
-            prod+=" | "
-        string = prod[:len(prod)-2]
-        vn_list = list(self.prods)
-        vn_list.remove(self.initial)
-        for vn in vn_list:
-            string+="\n"
-            prod = vn+"-> "
-            for ld in self.prods[vn]:
-                prod+=ld
-                prod+=" | "
-            string+=prod[:len(prod)-2]
-        return(string)
+        while next_reach:
+            prev_reach = set(next_reach)
+            next_reach = set()
+            for nt in prev_reach:
+                for prod in self.prods[nt]:
+                    new = {c for c in prod if c.isupper() and c not in reachables}
+                    next_reach = next_reach.union(new)
+            reachables = reachables.union(next_reach)
 
-            
+        result = Grammar()
+        result.initial = self.initial
+        result.prods = {nt: prods for nt, prods in self.prods.items() if nt in reachables}
 
-
+        return result
