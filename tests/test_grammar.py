@@ -353,7 +353,7 @@ class TestGrammar(unittest.TestCase):
         er = Grammar(e)
         self.assertEqual(gr.rm_unreachable(), er)
 
-    def test_simple_star(self):
+    def test_simple(self):
         g = """
         S -> FGH
         F -> G | a
@@ -366,7 +366,38 @@ class TestGrammar(unittest.TestCase):
             "F": {'F', 'G', 'H'},
             "G": {'G', 'H'},
             "H": {'H'}}
+        f = """
+        S -> FGH
+        F -> a | dG | b | c
+        G -> dG | b | c
+        H -> c
+    """
         self.assertEqual(nset, e)
+        self.assertEqual(Grammar(f), gr.rm_simple())
+
+        g = """
+        S -> a B c D e
+        B -> b B | E | F
+        D -> d D | F | d
+        E -> e E | e
+        F -> f F | f
+    """
+        gr = Grammar(g)
+        nset = gr._simple_star()
+        e = {"S": {'S'},
+            "B": {'B', 'E', 'F'},
+            "D": {'D', 'F'},
+            "E": {'E'},
+            "F": {'F'}}
+        f = """
+        S -> a B c D e
+        B -> b B | e E | e | f F | f
+        D -> d D | d | f F | f
+        E -> e E | e
+        F -> f F | f
+    """
+        self.assertEqual(nset, e)
+        self.assertEqual(Grammar(f), gr.rm_simple())
 
 if __name__ == "__main__":
     unittest.main()

@@ -30,10 +30,12 @@ class Grammar():
     def __eq__(self, other):
         result = self.initial == other.initial and \
                 self.prods == other.prods
-        """if not result:
+
+        if not result:
             print(self)
             print ("!=")
-            print(other)"""
+            print(other)
+
         return result
 
     # Representação em string.
@@ -300,7 +302,24 @@ class Grammar():
     def rm_simple(self):
         efree = self.epsilon_free()
         nset = efree._simple_star()
-        return
+
+        # Tira simples
+        for nt, prods in efree.prods.items():
+            to_remove = set()
+
+            for prod in prods:
+                if len(prod) is 1 and prod[0].isupper():
+                    to_remove.add(prod)
+
+            for rm in to_remove:
+                prods.remove(rm)
+
+        # Adiciona produções de Nx
+        for nt in efree.prods.keys():
+            for eq in nset[nt]:
+                efree.prods[nt] = efree.prods[nt].union(efree.prods[eq])
+        
+        return efree
 
     # Retorna conjunto Nf (Vn férteis)
     def fertile(self):
