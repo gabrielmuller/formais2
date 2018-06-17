@@ -30,10 +30,10 @@ class Grammar():
     def __eq__(self, other):
         result = self.initial == other.initial and \
                 self.prods == other.prods
-        if not result:
+        """if not result:
             print(self)
             print ("!=")
-            print(other)
+            print(other)"""
         return result
 
     # Representação em string.
@@ -45,6 +45,9 @@ class Grammar():
         not_empty = {nt for nt, prods in self.prods.items() if prods}
         others = not_empty - {self.initial}
         return '\n'.join([pstr(nt) for nt in ([self.initial] + list(others))])
+
+    def isEmpty(self):
+        return self.remove_infertile() == Grammar()
 
     # Adiciona NTs sem produções no dict para garantir
     # consistência na representação
