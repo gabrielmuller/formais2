@@ -104,6 +104,16 @@ class Grammar():
     # conjunto de símbolos de Vn que podem 
     # iniciar sequências derivadas de A para todo A ∈ Vn
     def first_nt(self):
+        return self._first_nt(False)
+
+    # Nx para prod simples
+    def _simple_star(self):
+        nset = self._first_nt(True)
+        for nt, s in nset.items():
+            s.add(nt)
+        return nset
+
+    def _first_nt(self, simple_only):
         nullables = self.nullable()
         firsts = {nt: set() for nt in self.prods.keys()}
 
@@ -113,7 +123,7 @@ class Grammar():
         for nt, prods in self.prods.items():
             for prod in prods:
                 start = prod[0]
-                if start.isupper():
+                if start.isupper() and (len(prod) is 1 or not simple_only):
                     firsts[nt].add(start)
                     changed = True
 
@@ -121,6 +131,8 @@ class Grammar():
             changed = False
             for nt, prods in self.prods.items():
                 for prod in prods:
+                    if simple_only and len(prod) > 1:
+                        continue
                     to_add = Grammar._first_nt_star(prod, firsts, nullables)
                     if not to_add.issubset(firsts[nt]):
                         firsts[nt] = firsts[nt].union(to_add)
@@ -229,6 +241,29 @@ class Grammar():
             result.append([match[1] for match in matches if int(match[0])])
 
         return result
+    
+    # Retorna nova gramática sem NTs inalcançáveis.
+    def rm_unreachable(self):
+        reachables = {self.initial}
+        next_reach = {self.initial}
+
+        while next_reach:
+            prev_reach = set(next_reach)
+            next_reach = set()
+            for nt in prev_reach:
+                for prod in self.prods[nt]:
+                    new = {c for c in prod if c.isupper() and c not in reachables}
+                    next_reach = next_reach.union(new)
+            reachables = reachables.union(next_reach)
+
+        result = Grammar()
+        result.initial = self.initial
+        result.prods = {nt: prods for nt, prods in self.prods.items() if nt in reachables}
+
+    def rm_simple(self):
+        efree = self.epsilon_free()
+        nset = efree._simple_star()
+        return
 
     # Retorna conjunto Nf (Vn férteis)
     def fertile(self):
@@ -288,8 +323,3 @@ class Grammar():
                     if v.islower():
                         vt.add(v)
         return vt
-
-            
-
-
-

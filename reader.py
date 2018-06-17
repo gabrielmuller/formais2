@@ -8,6 +8,9 @@ def read_cfg(string):
     if not string:
         raise SyntaxError(\
             "Gramática vazia.")
+    if '$' in string:
+        raise SyntaxError(\
+            "Símbolo especial '$' não permitido.")
 
     string = string.replace(' ', '')
     initial = ''
@@ -16,8 +19,10 @@ def read_cfg(string):
 
     
     for line in lines:
-        # aqui tem um continuiu
         if not line: continue
+        if line.count('->') > 1:
+            raise SyntaxError(\
+                "'->' achado mais de uma vez na linha.")
 
         i = line.find('->')
 
@@ -39,7 +44,6 @@ def read_cfg(string):
         if left not in productions:
             productions[left] = set()
 
-        #beautiful
         for right in rights:
             check_right(right)
 
