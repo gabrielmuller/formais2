@@ -54,6 +54,14 @@ class TestReader(unittest.TestCase):
         with self.assertRaises(SyntaxError):
             a = Grammar("S -> aS | a |")
         with self.assertRaises(SyntaxError):
+            a = Grammar("S ->   \n\n")
+        with self.assertRaises(SyntaxError):
+            a = Grammar("S ->  ")
+        with self.assertRaises(SyntaxError):
+            a = Grammar("S ->  a$b")
+        with self.assertRaises(SyntaxError):
+            a = Grammar("S ->  ab -> abb")
+        with self.assertRaises(SyntaxError):
             a = Grammar("B -> aA \n S -> aS | | a")
         with self.assertRaises(SyntaxError):
             a = Grammar("S aA | a")
