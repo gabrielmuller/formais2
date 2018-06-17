@@ -82,10 +82,8 @@ class GUI(QMainWindow, Ui_MainWindow):
         self.grammarText.setPlainText(str(self.cfg))
 
     def update_info_label(self):
-        # TODO:
         empty = "vazia" if self.cfg.isEmpty() else "não-vazia"
-        #finite = self.cfg.isFinite() ? "finita" : "infinita"
-        finite = "finita"
+        finite = "finita" if self.cfg.isFinite() else "infinita"
 
         info = "Gramática é: " + empty + " e " + finite + "."
         self.infoLabel.setText(info)

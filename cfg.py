@@ -49,6 +49,39 @@ class Grammar():
     def isEmpty(self):
         return self.remove_infertile() == Grammar()
 
+    def isFinite(self):
+        # Gramática vazia não é infinita (?)
+        if self.isEmpty():
+            return False
+
+        """
+        for vn, prods in self.prods.items():
+            for ld in prods:
+                # Se A-> α ^ A in α ^ A->α não é simples, é infinita
+                if vn in ld and len(ld) > 1:
+                    return False
+        """
+
+        # Simbolos alcançaveis por cada Vn
+        # nao funciona com produção simples
+        # TODO: transformar em Propria primeiro
+        for vn in self.prods.keys():
+            reachables = set()
+            next_reach = {vn}
+            while next_reach:
+                prev_reach = set(next_reach)
+                next_reach = set()
+                for nt in prev_reach | {vn}: 
+                    for ld in self.prods[nt]:
+                        new = {c for c in ld if c.isupper() and c not in reachables}
+                        next_reach |= new
+                reachables |= next_reach
+            # Se vn alcança a si mesmo
+            if vn in reachables:
+                return False
+        
+        return True
+
     # Adiciona NTs sem produções no dict para garantir
     # consistência na representação
     def complete(self):
@@ -262,6 +295,7 @@ class Grammar():
         result = Grammar()
         result.initial = self.initial
         result.prods = {nt: prods for nt, prods in self.prods.items() if nt in reachables}
+        return result
 
     def rm_simple(self):
         efree = self.epsilon_free()
