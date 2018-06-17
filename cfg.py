@@ -129,15 +129,15 @@ class Grammar():
         if not prod: return {'&'}
 
         start = prod[0]
-        if start is '&' or start.islower():
-            return {start}
-        elif start.isupper():
+        if start.isupper():
             f = set(firsts[start])
             if '&' in f:
                 f.remove('&')
                 return f.union(Grammar._first_star(prod[1:], firsts))
             else:
                 return f
+        else:
+            return {start}
 
     # conjunto de símbolos de Vn que podem 
     # iniciar sequências derivadas de A para todo A ∈ Vn
@@ -226,13 +226,17 @@ class Grammar():
                     for index, symbol in enumerate(prod):
                         if not symbol.isupper(): continue
 
-                        rest = prod[index:]
+                        rest = prod[index+1:]
                         first = Grammar._first_star(rest, firsts)
-                        to_add = follows[nt] if '&' in first else first
+                        to_add = first
+                        if '&' in first:
+                            to_add.remove('&')
+                            to_add = to_add.union(follows[nt])
 
                         if not to_add.issubset(follows[symbol]):
                             follows[symbol] = follows[symbol].union(to_add)
                             changed = True
+
 
         return follows
 
@@ -242,8 +246,8 @@ class Grammar():
 
         einitial = self.initial
         if self.initial in nullables:
-            einitial = 'S1'
-            eprods['S1'] = {('S',), ('&',)}
+            einitial = self.initial + '1'
+            eprods[einitial] = {('S',), ('&',)}
 
         for e in nullables:
             new_prods = {nt: set() for nt in eprods.keys()}

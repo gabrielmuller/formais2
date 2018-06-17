@@ -5,7 +5,6 @@ class TestGrammar(unittest.TestCase):
     def setUp(self):
         print('Running ' + self._testMethodName)
 
-    # não testa '|' porque não é possível determinar a ordem.
     def test_from_to_str(self):
         a = "S  -> aaaaaS18S18\n\n  S18 - > bbb"
         r = Grammar(a)
@@ -18,6 +17,10 @@ class TestGrammar(unittest.TestCase):
         c  = str(r)
         b = "S1 -> a S1 b S45 A99\nS45 -> &"
         self.assertEqual(b, c)
+
+        a = "S1->(*B*)|CbbH\nC->cC|&\nB->bbb"
+        b = "S1 -> C b b H | ( * B  * ) \nC - > & | c C\nB ->bbb"
+        self.assertEqual(Grammar(a), Grammar(b))
 
     def test_first(self):
         # caso com linguagem vazia
@@ -160,6 +163,46 @@ class TestGrammar(unittest.TestCase):
                 'A': {'c', 'a', 'b', '$'},
                 'C': {'e', '$', 'a', 'b', 'c'},
                 'B': {'a', 'c', '$', 'b'}}
+        self.assertEqual(gr.follow(), f)
+
+        g = """
+        S -> AB
+        A -> aA | aB
+        B -> bBB
+    """
+        gr = Grammar(g)
+        f = {'S': {'$'},
+                'A': {'b'},
+                'B': {'b', '$'}}
+        self.assertEqual(gr.follow(), f)
+
+        g = """
+        E -> T E1
+        E1 -> +T E1|&
+        T -> F T1
+        T1 -> *F T1 | &
+        F -> (E) | id
+    """
+        gr = Grammar(g)
+        f = {'E': {'$', ')'},
+                'E1': {'$', ')'},
+                'T' : {'+', '$', ')'},
+                'T1': {'+', '$', ')'},
+                'F' : {'*', '+', '$', ')'}}
+
+        self.assertEqual(gr.follow(), f)
+
+        g = """
+            S -> ACB|Cbb|Ba
+            A -> da|BC
+            B-> g|&
+            C-> h| &
+    """
+        gr = Grammar(g)
+        f = {'S': {'$'},
+            'A': {'h', 'g', '$'},
+            'B': {'a', '$', 'h', 'g'},
+            'C': {'b', 'g', '$', 'h'}}
         self.assertEqual(gr.follow(), f)
 
     def test_nullable(self):

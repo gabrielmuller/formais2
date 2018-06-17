@@ -56,17 +56,16 @@ def read_cfg(string):
                         symbol = char
                     else:
                         prod.append(char)
-                elif char.isupper():
-                    prod.append(symbol)
-                    symbol = char
                 elif char.islower():
                     prod.append(symbol)
                     prod.append(char)
                     symbol = ''
                 elif char.isdigit():
                     symbol += char
+                # NT
                 else:
-                    raise SyntaxError("Caracter inválido " + char)
+                    prod.append(symbol)
+                    symbol = char
 
             if symbol:
                 prod.append(symbol)
