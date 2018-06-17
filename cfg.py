@@ -226,6 +226,26 @@ class Grammar():
 
         return result
 
+    # TODO: corrigir
+    # usado na interface
+    def to_string(self):
+        # Inicial
+        prod = self.initial+"-> "
+        for ld in self.prods[self.initial]:
+            prod+=ld
+            prod+=" | "
+        string = prod[:len(prod)-2]
+        vn_list = list(self.prods)
+        vn_list.remove(self.initial)
+        for vn in vn_list:
+            string+="\n"
+            prod = vn+"-> "
+            for ld in self.prods[vn]:
+                prod+=ld
+                prod+=" | "
+            string+=prod[:len(prod)-2]
+        return(string)
+
             
 
 

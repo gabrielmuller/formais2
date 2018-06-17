@@ -3,7 +3,7 @@ from gui import GUI
 from PyQt5.QtWidgets import QApplication
 
 def main():
-    app = QApplication(sys.acfgv)
+    app = QApplication(sys.argv)
     window = GUI()
     window.show()
 
