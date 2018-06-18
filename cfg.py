@@ -30,12 +30,13 @@ class Grammar():
     def __eq__(self, other):
         result = self.initial == other.initial and \
                 self.prods == other.prods
-
+        """
+        # Printar gramática vazia quebra a interface!!
         if not result:
             print(self)
             print ("!=")
             print(other)
-
+        """
         return result
 
     # Representação em string.
@@ -63,18 +64,17 @@ class Grammar():
                 if vn in ld and len(ld) > 1:
                     return False
         """
+        # G sem produções simples
+        g = self.rm_simple()
 
-        # Simbolos alcançaveis por cada Vn
-        # nao funciona com produção simples
-        # TODO: transformar em Propria primeiro
-        for vn in self.prods.keys():
+        for vn in g.prods.keys():
             reachables = set()
             next_reach = {vn}
             while next_reach:
                 prev_reach = set(next_reach)
                 next_reach = set()
                 for nt in prev_reach | {vn}: 
-                    for ld in self.prods[nt]:
+                    for ld in g.prods[nt]:
                         new = {c for c in ld if c.isupper() and c not in reachables}
                         next_reach |= new
                 reachables |= next_reach
