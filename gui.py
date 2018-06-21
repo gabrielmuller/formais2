@@ -23,7 +23,7 @@ class GUI(QMainWindow, Ui_MainWindow):
         # Botões
         self.leftRecursionButton.clicked.connect(self.leftRecursion)
         self.saveGrammarButton.clicked.connect(self.create_grammar)
-        self.fatoradaButton.clicked.connect(self.fatorar)
+        self.fatoradaButton.clicked.connect(self.factored)
         self.firstNtButton.clicked.connect(self.first_nt)
         self.followButton.clicked.connect(self.follow)
         self.properButton.clicked.connect(self.proper)
@@ -87,7 +87,7 @@ class GUI(QMainWindow, Ui_MainWindow):
             sset = str(self.cfg.fertile()) if self.cfg.fertile() else "Ø"
             g = self.cfg.remove_infertile()
             resultText = "Nf = " + sset + "\n\n    Sem símbolos inférteis:" + '\n' + str(g)
-            self.resultText_1.appendPlainText(resultText)
+            self.resultText_1.setPlainText(resultText)
 
             # G sem símbolos inalcançáveis
             sset = str(self.cfg.fertile()) if g.reachable() else "Ø"
@@ -121,9 +121,10 @@ class GUI(QMainWindow, Ui_MainWindow):
             self.show_error("Defina uma gramática! (e salve-a!)")
             return
 
-    def fatorar(self):
+    def factored(self):
         if self.cfg:
-            self.resultText_1.setPlainText("placeholder")
+            result = "Fatorada." if self.cfg.is_factored() else "Não-fatorada."
+            self.resultText_1.setPlainText(result)
         else:
             self.show_error("Defina uma gramática! (e salve-a!)")
             return
