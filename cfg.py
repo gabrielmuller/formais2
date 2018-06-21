@@ -380,6 +380,19 @@ class Grammar():
             return Grammar()
         return cfg
 
+    # Retorna se G é fatorável
+    def is_factored(self):
+        # Para reconhecer Não-Determinismo Indireto:
+        g = self.epsilon_free()
+        g = g.rm_simple()
+
+        for vn, prods in g.prods.items():
+            for prod in prods:
+                if any(prod[0] == p[0] for p in prods - {prod}):
+                    return False
+
+        return True
+
     # Retorna conjunto de terminais (Vt)
     def vt(self):
         vt = set()
