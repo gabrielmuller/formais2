@@ -7,5 +7,5 @@ OK Sem prod simples
 OK First
 OK First-NT
 OK Follow
-Fatorar
+OK Fatorar
 Eliminar RE
