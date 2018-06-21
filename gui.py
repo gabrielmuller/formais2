@@ -16,15 +16,19 @@ class GUI(QMainWindow, Ui_MainWindow):
         self.cfg = None
 
         self.setupUi(self)
-        #self.resize(600, 400)
+
+        # PlainTextEdit
+        self.resultText_1.setReadOnly(True)
 
         # Botões
+        self.leftRecursionButton.clicked.connect(self.leftRecursion)
         self.saveGrammarButton.clicked.connect(self.create_grammar)
-        self.firstButton.clicked.connect(self.first)
+        self.fatoradaButton.clicked.connect(self.fatorar)
         self.firstNtButton.clicked.connect(self.first_nt)
         self.followButton.clicked.connect(self.follow)
-        self.glcPropriaButton.clicked.connect(self.proper)
-
+        self.properButton.clicked.connect(self.proper)
+        self.firstButton.clicked.connect(self.first)
+        
         # Lista
         self.grammarList.itemClicked.connect(self.select_grammar)
 
@@ -49,54 +53,80 @@ class GUI(QMainWindow, Ui_MainWindow):
             self.add_grammar_to_list()
             self.update_info_label()
         else:
-            self.show_error("Defina uma gramática!")
+            self.show_error("Defina uma gramática! (e salve-a!)")
             return
 
     def first(self):
         if self.cfg:
             self.resultText_1.setPlainText(
                 self.first_string(self.cfg.first(), "FIRST"))
+        else:
+            self.show_error("Defina uma gramática! (e salve-a!)")
+            return
 
     def first_nt(self):
         if self.cfg:
             self.resultText_1.setPlainText(
                 self.first_string(self.cfg.first_nt(), "FIRST-NT"))
+        else:
+            self.show_error("Defina uma gramática! (e salve-a!)")
+            return
 
     def follow(self):
         if self.cfg:
             self.resultText_1.setPlainText(
                 self.first_string(self.cfg.follow(), "FOLLOW"))
+        else:
+            self.show_error("Defina uma gramática! (e salve-a!)")
+            return
 
     def proper(self):
         # Transforma em própria e mostra intermediárias e conjuntos
         if self.cfg:
             # G sem símbolos inférteis
-            self.resultText_1.setPlainText("Nf = " + str(self.cfg.fertile()))
+            sset = str(self.cfg.fertile()) if self.cfg.fertile() else "Ø"
             g = self.cfg.remove_infertile()
-            self.resultText_1.appendPlainText("\n    Sem símbolos inférteis:")
-            self.resultText_1.appendPlainText(str(g))
+            resultText = "Nf = " + sset + "\n\n    Sem símbolos inférteis:" + '\n' + str(g)
+            self.resultText_1.appendPlainText(resultText)
 
             # G sem símbolos inalcançáveis
-            self.resultText_1.appendPlainText("\nVi = " + str(g.reachable()))
+            sset = str(self.cfg.fertile()) if g.reachable() else "Ø"
             g = g.rm_unreachable()
-            self.resultText_1.appendPlainText("\n   Sem símbolos inalcançáveis:")
-            self.resultText_1.appendPlainText(str(g))
+            resultText = "\nVi = " + sset + "\n\n    Sem símbolos inalcançáveis:" + '\n' + str(g)
+            self.resultText_1.appendPlainText(resultText)
 
             # G ε-livre
-            self.resultText_1.appendPlainText("\nNe = " + str(g.nullable()))
+            sset = str(self.cfg.fertile()) if g.nullable() else "Ø"
             g = g.epsilon_free()
-            self.resultText_1.appendPlainText("\n    ε-livre:")
-            self.resultText_1.appendPlainText(str(g))
+            resultText = "\nNe = " + sset + "\n\n    ε-livre:" + '\n' + str(g)
+            self.resultText_1.appendPlainText(resultText)
 
             # G sem produções simples (sem ciclos?)
-            self.resultText_1.appendPlainText("")
+            na = {c for c in g._simple_star().keys()}
             g = g.rm_simple()
-            self.resultText_1.appendPlainText("\n    Sem produções simples:\n   G Própria:")
-            self.resultText_1.appendPlainText(str(g)) 
-     
+            resultText = "\nNa = " + str(na) + "\n\n     Sem produções simples:\n   G Própria:" + '\n' + str(g)
+            self.resultText_1.appendPlainText(resultText)
+
             g.name = self.cfg.name + " Própria"
 
             self.add_result_grammar_to_list(g)
+        else:
+            self.show_error("Defina uma gramática! (e salve-a!)")
+            return
+
+    def leftRecursion(self):
+        if self.cfg:
+            self.resultText_1.setPlainText("placeholder")
+        else:
+            self.show_error("Defina uma gramática! (e salve-a!)")
+            return
+
+    def fatorar(self):
+        if self.cfg:
+            self.resultText_1.setPlainText("placeholder")
+        else:
+            self.show_error("Defina uma gramática! (e salve-a!)")
+            return
 
     """
         Auxiliares
