@@ -463,7 +463,7 @@ class TestGrammar(unittest.TestCase):
 
         self.assertTrue(gr.is_factored())
 
-        #exemplo de fatoravel indireta
+        #exemplo de nao fatoravel indireta
         g = """
             S -> aS | A
             A -> aAc | &
@@ -488,15 +488,35 @@ class TestGrammar(unittest.TestCase):
         gf = Grammar(g)
         self.assertEqual(gr.factor(), gf)
 
-        #exemplo de fatoravel indireta
+        #exemplo de fatoravel indireta em 1 passo
         g = """
-            S -> aS | A
-            A -> aAc | &
-            """
+        S -> a | A
+        A -> a | a A
+        """
         gr = Grammar(g)
+        g = """
+        S  -> a S'
+        S' -> A | &
+        A  -> a A'
+        A' -> A | &
+        """
+        gf = Grammar(g)
+        self.assertEqual(gr.factor_in_steps(1), gf)
 
-        # TODO:
-
+        #exemplo de não fatoravel indireta
+        g = """ 
+        S -> aS | A
+        A -> aAc | &
+        """
+        gr = Grammar(g)
+        g = """
+        S -> a S'
+        A -> & | a A c
+        S' -> & | a S''
+        S'' -> A c | S'
+        """
+        gf = Grammar(g)
+        self.assertEqual(gr.factor_in_steps(2), gf)
 
 if __name__ == "__main__":
     unittest.main()

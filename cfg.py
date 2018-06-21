@@ -393,31 +393,65 @@ class Grammar():
         return True
 
     """
-        Procedimento de fatoração:
+        Processo de fatoração:
         A -> α β | α γ
         para
         A  -> α A’
         A’ -> β | γ
     """
-    # TODO: retirar não determinismo indireto
+    # TODO: refazer com first()
     def factor(self):
         cfg = copy.deepcopy(self)
+        first = self.first()
 
+        for vn, prods in copy.deepcopy(cfg.prods).items():
+            for prod in prods:
+                """ 
+                    Procura por não determinismo indireto 
+                    A -> α β | B
+                    B -> α γ
+                    E faz
+                    A -> α β | α γ
+                """
+                if self.is_vn(prod[0]) and \
+                    any(q[0] == p[0] for p in prods - {prod} for q in cfg.prods[prod[0]]):
+
+                    cfg.prods[vn] -= {prod}     # Retirar A -> B
+                    for q in cfg.prods[prod[0]]:
+                        cfg.prods[vn] |= {q for p in prods - {prod} if q[0] == p[0]}
+                elif self.is_vn(prod[0]):
+                    """ 
+                        Procura por não determinismo indireto 
+                        A -> C | B
+                        B -> α γ 
+                        C -> α β
+                        E faz
+                        A -> α β | α γ
+                    """
+                    other_prods = { p for p in prods - {prod} if p[0].isupper() }
+                    for p in other_prods:
+                        if any(q[0] == pp[0] for pp in cfg.prods[p[0]] \
+                            for q in cfg.prods[prod[0]]):
+                            cfg.prods[vn] -= {prod, p} # Retirar A -> B, A- > C
+                            for q in cfg.prods[prod[0]] | cfg.prods[p[0]]:
+                                cfg.prods[vn] |= {q for p in prods if q[0] in first[p[0]]}
+
+        """
+            Procura determinismo direto
+            A -> α β | α γ
+        """
         alpha_dict = {}
-
         for vn, prods in cfg.prods.items():
             alpha_dict[vn] = set()
             for prod in prods:
-                if prod[0] not in alpha_dict[vn] and prod[0].islower() \
-                or prod[0].isdigit() and any(prod[0] == p[0] for p in prods - {prod}):
+                if prod[0] not in alpha_dict[vn] and (prod[0].islower() \
+                or prod[0].isdigit()) and any(prod[0] == p[0] for p in prods - {prod}):
                     alpha_dict[vn].add(prod[0])
-
-        rs = set()
 
         for vn, alphas in alpha_dict.items():
             # Cada α tal que existe A -> α β | α γ
             for alpha in alphas:
-                rs = set()
+                betas = set()   # Lado direito das produções, ie, β, γ...
 
                 # Procura por A -> α β | α γ
                 for prod in copy.deepcopy(cfg.prods[vn]):
@@ -425,11 +459,10 @@ class Grammar():
                     if prod[0] == alpha:
                         
                         cfg.prods[vn] -= {prod}                     # Retira A -> α β
-                        rs |= {prod[1:]} if prod[1:] else {("&",)}  # Salva β
+                        betas |= {prod[1:]} if prod[1:] else {("&",)}  # Salva β
 
-                cfg.prods[vn] |= {(alpha, vn+"'")}                 # Cria A  -> α A’
-                cfg.prods[vn+"'"] = {(beta) for beta in rs}        # Cria A’ -> β | γ
-
+                cfg.prods[vn] |= {(alpha, vn+"'")}                  # Cria A  -> α A’
+                cfg.prods[vn+"'"] = {(beta) for beta in betas}      # Cria A’ -> β | γ
         return cfg
 
     def factor_in_steps(self, steps):
@@ -448,3 +481,6 @@ class Grammar():
                     if v.islower():
                         vt.add(v)
         return vt
+
+    def is_vn(self, v):
+        return v in self.prods.keys()

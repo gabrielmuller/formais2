@@ -105,9 +105,10 @@ class GUI(QMainWindow, Ui_MainWindow):
             self.resultText_1.appendPlainText(resultText)
 
             # G sem produções simples (sem ciclos?)
-            na = {c for c in g._simple_star().keys()} if g._simple_star().keys() else "Ø"
+
+            na = self.first_string(g._simple_star(), "N")
             g = g.rm_simple()
-            resultText = "\nNa = " + str(na) + "\n\n     Sem produções simples:\n   G Própria:" + '\n' + str(g)
+            resultText = "\n" + str(na) + "\n     Sem produções simples:\n   G Própria:" + '\n' + str(g)
             self.resultText_1.appendPlainText(resultText)
 
             g.name = self.cfg.name + " Própria"
@@ -142,6 +143,8 @@ class GUI(QMainWindow, Ui_MainWindow):
 
                 # Interface
                 self.resultText_1.setPlainText(str(g))
+                self.resultText_1.appendPlainText("\nFatorada." if g.is_factored() \
+                    else "\nNão-fatorada.")
                 stepText = " passos" if steps>1 else " passo"
                 g.name = self.cfg.name + " após Fatoração em " + str(steps) + stepText
                 self.add_result_grammar_to_list(g)
