@@ -56,11 +56,11 @@ def read_cfg(string):
                         symbol = char
                     else:
                         prod.append(char)
-                elif char.isdigit() or char.islower():
+                elif char.islower():
                     prod.append(symbol)
                     prod.append(char)
                     symbol = ''
-                elif char == "'":
+                elif char.isdigit() or char == "'":
                     symbol += char
                 # NT
                 else:
