@@ -31,11 +31,10 @@ class Grammar():
         result = self.initial == other.initial and \
                 self.prods == other.prods
         """
-        # Printar gramática vazia quebra a interface!!
         if not result:
-            print(self)
+            if self.prods: print(self)
             print ("!=")
-            print(other)
+            if other.prods: print(other)
         """
         return result
 
@@ -392,6 +391,48 @@ class Grammar():
                     return False
 
         return True
+
+    """
+        Procedimento de fatoração:
+        A -> α β | α γ
+        para
+        A  -> α A’
+        A’ -> β | γ
+    """
+    # TODO: retirar não determinismo indireto
+    def factor(self):
+        if (self.is_factored()) : return self
+        cfg = copy.deepcopy(self)
+
+        alpha_dict = {}
+
+        for vn, prods in cfg.prods.items():
+            alpha_dict[vn] = set()
+            for prod in prods:
+                if prod[0] not in alpha_dict[vn] and prod[0].islower() and \
+                    any(prod[0] == p[0] for p in prods - {prod}):
+                    alpha_dict[vn].add(prod[0])
+
+        rs = set()
+
+        for vn, alphas in alpha_dict.items():
+            # Cada α tal que existe A -> α β | α γ
+            for alpha in alphas:
+                rs = set()
+
+                # Procura por A -> α β | α γ
+                for prod in copy.deepcopy(cfg.prods[vn]):
+
+                    if prod[0] == alpha:
+                        
+                        cfg.prods[vn] -= {prod}                     # Retira A -> α β
+                        rs |= {prod[1:]} if prod[1:] else {("&",)}  # Salva β
+
+                cfg.prods[vn] |= {(alpha, vn+"'")}                 # Cria A  -> α A’
+                cfg.prods[vn+"'"] = {(beta) for beta in rs}        # Cria A’ -> β | γ
+
+        return cfg
+        
 
     # Retorna conjunto de terminais (Vt)
     def vt(self):

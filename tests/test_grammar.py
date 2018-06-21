@@ -472,5 +472,31 @@ class TestGrammar(unittest.TestCase):
 
         self.assertFalse(gr.is_factored())
 
+    def test_factorate(self):
+        # exemplo de fatoravel
+        g = """
+            S -> aS | aB | dS
+            B -> bB | b
+            """
+        gr = Grammar(g)
+        g = """
+            S  -> aS' | dS
+            S' -> S | B
+            B  -> bB'
+            B' -> B | & 
+            """
+        gf = Grammar(g)
+        self.assertEqual(gr.factor(), gf)
+
+        #exemplo de fatoravel indireta
+        g = """
+            S -> aS | A
+            A -> aAc | &
+            """
+        gr = Grammar(g)
+
+        # TODO:
+
+
 if __name__ == "__main__":
     unittest.main()

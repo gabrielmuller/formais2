@@ -60,7 +60,7 @@ def read_cfg(string):
                     prod.append(symbol)
                     prod.append(char)
                     symbol = ''
-                elif char.isdigit():
+                elif char.isdigit() or char == "'":
                     symbol += char
                 # NT
                 else:

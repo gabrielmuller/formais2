@@ -7,6 +7,9 @@ from PyQt5.QtWidgets import (
     QMainWindow, QTableWidgetItem, QFileDialog, QListWidgetItem, 
     QErrorMessage, QDialog)
 
+# Mensagem de erro
+UNDEFINED_ERR_MSG =  "Defina uma gramática! (e salve-a!)"
+
 class GUI(QMainWindow, Ui_MainWindow):
 
     def __init__(self):
@@ -53,7 +56,7 @@ class GUI(QMainWindow, Ui_MainWindow):
             self.add_grammar_to_list()
             self.update_info_label()
         else:
-            self.show_error("Defina uma gramática! (e salve-a!)")
+            self.show_error(UNDEFINED_ERR_MSG)
             return
 
     def first(self):
@@ -61,7 +64,7 @@ class GUI(QMainWindow, Ui_MainWindow):
             self.resultText_1.setPlainText(
                 self.first_string(self.cfg.first(), "FIRST"))
         else:
-            self.show_error("Defina uma gramática! (e salve-a!)")
+            self.show_error(UNDEFINED_ERR_MSG)
             return
 
     def first_nt(self):
@@ -69,7 +72,7 @@ class GUI(QMainWindow, Ui_MainWindow):
             self.resultText_1.setPlainText(
                 self.first_string(self.cfg.first_nt(), "FIRST-NT"))
         else:
-            self.show_error("Defina uma gramática! (e salve-a!)")
+            self.show_error(UNDEFINED_ERR_MSG)
             return
 
     def follow(self):
@@ -77,7 +80,7 @@ class GUI(QMainWindow, Ui_MainWindow):
             self.resultText_1.setPlainText(
                 self.first_string(self.cfg.follow(), "FOLLOW"))
         else:
-            self.show_error("Defina uma gramática! (e salve-a!)")
+            self.show_error()
             return
 
     def proper(self):
@@ -102,31 +105,39 @@ class GUI(QMainWindow, Ui_MainWindow):
             self.resultText_1.appendPlainText(resultText)
 
             # G sem produções simples (sem ciclos?)
-            na = {c for c in g._simple_star().keys()}
+            na = {c for c in g._simple_star().keys()} if g._simple_star().keys() else "Ø"
             g = g.rm_simple()
             resultText = "\nNa = " + str(na) + "\n\n     Sem produções simples:\n   G Própria:" + '\n' + str(g)
             self.resultText_1.appendPlainText(resultText)
 
             g.name = self.cfg.name + " Própria"
-
             self.add_result_grammar_to_list(g)
         else:
-            self.show_error("Defina uma gramática! (e salve-a!)")
+            self.show_error(UNDEFINED_ERR_MSG)
             return
 
     def leftRecursion(self):
         if self.cfg:
             self.resultText_1.setPlainText("placeholder")
         else:
-            self.show_error("Defina uma gramática! (e salve-a!)")
+            self.show_error(UNDEFINED_ERR_MSG)
             return
 
     def factored(self):
         if self.cfg:
-            result = "Fatorada." if self.cfg.is_factored() else "Não-fatorada."
-            self.resultText_1.setPlainText(result)
+            # Caso G não fatorada
+            if not self.cfg.is_factored():
+                g = self.cfg.factor()
+                self.resultText_1.setPlainText(str(g))
+                g.name = self.cfg.name + "após Fatoração"
+                self.add_result_grammar_to_list(g)
+
+            else:
+                self.show_error("Gramática já está fatorada.")
+            return
+
         else:
-            self.show_error("Defina uma gramática! (e salve-a!)")
+            self.show_error(UNDEFINED_ERR_MSG)
             return
 
     """
@@ -151,8 +162,9 @@ class GUI(QMainWindow, Ui_MainWindow):
     def update_info_label(self):
         empty = "vazia" if self.cfg.isEmpty() else "não-vazia"
         finite = "finita" if self.cfg.isFinite() else "infinita"
+        factored = "Fatorada." if self.cfg.is_factored() else "Não-fatorada."
 
-        info = "Gramática é: " + empty + " e " + finite + "."
+        info = "Gramática é: " + empty + " e " + finite + ". " + factored 
         self.infoLabel.setText(info)
 
     def show_error(self, e):
