@@ -5,7 +5,7 @@ from window_ui import Ui_MainWindow
 from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import (
     QMainWindow, QTableWidgetItem, QFileDialog, QListWidgetItem, 
-    QErrorMessage, QDialog)
+    QErrorMessage, QDialog, QInputDialog)
 
 # Mensagem de erro
 UNDEFINED_ERR_MSG =  "Defina uma gramática! (e salve-a!)"
@@ -127,9 +127,23 @@ class GUI(QMainWindow, Ui_MainWindow):
         if self.cfg:
             # Caso G não fatorada
             if not self.cfg.is_factored():
-                g = self.cfg.factor()
+                
+                # Input número de passos de fatoração
+                dialog = QInputDialog()
+                dialog.setInputMode(QInputDialog.IntInput)
+                dialog.setIntRange (1, 10)
+                steps, ok = dialog.getInt(self, 'Passos de fatoração', \
+                    'Defina o número de passos:')
+                if not ok or not steps:
+                    return
+
+                # Fatoração
+                g = self.cfg.factor_in_steps(steps)
+
+                # Interface
                 self.resultText_1.setPlainText(str(g))
-                g.name = self.cfg.name + "após Fatoração"
+                stepText = " passos" if steps>1 else " passo"
+                g.name = self.cfg.name + " após Fatoração em " + str(steps) + stepText
                 self.add_result_grammar_to_list(g)
 
             else:

@@ -245,7 +245,7 @@ class Grammar():
 
         einitial = self.initial
         if self.initial in nullables:
-            einitial = self.initial + '1'
+            einitial = self.initial + "'"
             eprods[einitial] = {('S',), ('&',)}
 
         for e in nullables:
@@ -401,7 +401,6 @@ class Grammar():
     """
     # TODO: retirar não determinismo indireto
     def factor(self):
-        if (self.is_factored()) : return self
         cfg = copy.deepcopy(self)
 
         alpha_dict = {}
@@ -409,8 +408,8 @@ class Grammar():
         for vn, prods in cfg.prods.items():
             alpha_dict[vn] = set()
             for prod in prods:
-                if prod[0] not in alpha_dict[vn] and prod[0].islower() and \
-                    any(prod[0] == p[0] for p in prods - {prod}):
+                if prod[0] not in alpha_dict[vn] and prod[0].islower() \
+                or prod[0].isdigit() and any(prod[0] == p[0] for p in prods - {prod}):
                     alpha_dict[vn].add(prod[0])
 
         rs = set()
@@ -432,7 +431,13 @@ class Grammar():
                 cfg.prods[vn+"'"] = {(beta) for beta in rs}        # Cria A’ -> β | γ
 
         return cfg
-        
+
+    def factor_in_steps(self, steps):
+        cfg = copy.deepcopy(self)
+        for i in range(steps):
+            if cfg.is_factored(): return cfg
+            cfg = cfg.factor()
+        return cfg    
 
     # Retorna conjunto de terminais (Vt)
     def vt(self):
