@@ -23,6 +23,7 @@ class GUI(QMainWindow, Ui_MainWindow):
         self.firstButton.clicked.connect(self.first)
         self.firstNtButton.clicked.connect(self.first_nt)
         self.followButton.clicked.connect(self.follow)
+        self.glcPropriaButton.clicked.connect(self.propria)
 
         # Lista
         self.grammarList.itemClicked.connect(self.select_grammar)
@@ -66,6 +67,37 @@ class GUI(QMainWindow, Ui_MainWindow):
             self.resultText_1.setPlainText(
                 self.first_string(self.cfg.follow(), "FOLLOW"))
 
+    def propria(self):
+        # Transforma em própria e mostra intermediárias
+        if self.cfg:
+            # G ε-livre
+            self.resultText_1.setPlainText("Ne = " + str(self.cfg.nullable()))
+            g = self.cfg.epsilon_free()
+            self.resultText_1.appendPlainText("\n    ε-livre:")
+            self.resultText_1.appendPlainText(str(g))
+
+            # G sem produções simples (sem ciclos?)
+            self.resultText_1.appendPlainText("")
+            g = self.cfg.rm_simple()
+            self.resultText_1.appendPlainText("\n    Sem produções simples:")
+            self.resultText_1.appendPlainText(str(g)) 
+
+            # G sem símbolos inférteis
+            self.resultText_1.appendPlainText("\nNf = " + str(g.fertile()))
+            g = g.remove_infertile()
+            self.resultText_1.appendPlainText("\n    Sem símbolos inférteis:")
+            self.resultText_1.appendPlainText(str(g))
+
+            # G sem símbolos inalcançáveis
+            self.resultText_1.appendPlainText("\nVi = " + str(g.reachable()))
+            g = g.rm_unreachable()
+            self.resultText_1.appendPlainText("\n   Sem símbolos inalcançáveis: \n   G Própria:")
+            self.resultText_1.appendPlainText(str(g))
+            
+            g.name = self.cfg.name + " Própria"
+
+            self.add_result_grammar_to_list(g)
+
     """
         Auxiliares
     """
@@ -77,6 +109,10 @@ class GUI(QMainWindow, Ui_MainWindow):
         self.cfg_list.append(cfg)
         item = QListWidgetItem(cfg.name, self.grammarList)
         self.grammarList.setCurrentItem(item)
+
+    def add_result_grammar_to_list(self, result_cfg):
+        self.cfg_list.append(result_cfg)
+        item = QListWidgetItem(result_cfg.name, self.grammarList)
 
     def update_cfg_text(self):
         self.grammarText.setPlainText(str(self.cfg))
