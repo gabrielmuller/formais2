@@ -23,7 +23,7 @@ class GUI(QMainWindow, Ui_MainWindow):
         self.firstButton.clicked.connect(self.first)
         self.firstNtButton.clicked.connect(self.first_nt)
         self.followButton.clicked.connect(self.follow)
-        self.glcPropriaButton.clicked.connect(self.propria)
+        self.glcPropriaButton.clicked.connect(self.proper)
 
         # Lista
         self.grammarList.itemClicked.connect(self.select_grammar)
@@ -67,33 +67,33 @@ class GUI(QMainWindow, Ui_MainWindow):
             self.resultText_1.setPlainText(
                 self.first_string(self.cfg.follow(), "FOLLOW"))
 
-    def propria(self):
-        # Transforma em própria e mostra intermediárias
+    def proper(self):
+        # Transforma em própria e mostra intermediárias e conjuntos
         if self.cfg:
-            # G ε-livre
-            self.resultText_1.setPlainText("Ne = " + str(self.cfg.nullable()))
-            g = self.cfg.epsilon_free()
-            self.resultText_1.appendPlainText("\n    ε-livre:")
-            self.resultText_1.appendPlainText(str(g))
-
-            # G sem produções simples (sem ciclos?)
-            self.resultText_1.appendPlainText("")
-            g = self.cfg.rm_simple()
-            self.resultText_1.appendPlainText("\n    Sem produções simples:")
-            self.resultText_1.appendPlainText(str(g)) 
-
             # G sem símbolos inférteis
-            self.resultText_1.appendPlainText("\nNf = " + str(g.fertile()))
-            g = g.remove_infertile()
+            self.resultText_1.setPlainText("Nf = " + str(self.cfg.fertile()))
+            g = self.cfg.remove_infertile()
             self.resultText_1.appendPlainText("\n    Sem símbolos inférteis:")
             self.resultText_1.appendPlainText(str(g))
 
             # G sem símbolos inalcançáveis
             self.resultText_1.appendPlainText("\nVi = " + str(g.reachable()))
             g = g.rm_unreachable()
-            self.resultText_1.appendPlainText("\n   Sem símbolos inalcançáveis: \n   G Própria:")
+            self.resultText_1.appendPlainText("\n   Sem símbolos inalcançáveis:")
             self.resultText_1.appendPlainText(str(g))
-            
+
+            # G ε-livre
+            self.resultText_1.appendPlainText("\nNe = " + str(g.nullable()))
+            g = g.epsilon_free()
+            self.resultText_1.appendPlainText("\n    ε-livre:")
+            self.resultText_1.appendPlainText(str(g))
+
+            # G sem produções simples (sem ciclos?)
+            self.resultText_1.appendPlainText("")
+            g = g.rm_simple()
+            self.resultText_1.appendPlainText("\n    Sem produções simples:\n   G Própria:")
+            self.resultText_1.appendPlainText(str(g)) 
+     
             g.name = self.cfg.name + " Própria"
 
             self.add_result_grammar_to_list(g)
