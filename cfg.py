@@ -78,7 +78,7 @@ class Grammar():
                         new = {c for c in ld if c.isupper() and c not in reachables}
                         next_reach |= new
                 reachables |= next_reach
-            # Se vn alcança a si mesmo
+            # Se vn alcança a si mesmo (sem produzir terminais)
             if vn in reachables:
                 return False
         
@@ -284,8 +284,9 @@ class Grammar():
 
         return result
     
-    # Retorna nova gramática sem NTs inalcançáveis.
-    def rm_unreachable(self):
+    # Retorna conjunto Vi (símbolos alcançáveis)
+    # TODO: incluir Vt alcançáveis
+    def reachable(self):
         reachables = {self.initial}
         next_reach = {self.initial}
 
@@ -297,6 +298,11 @@ class Grammar():
                     new = {c for c in prod if c.isupper() and c not in reachables}
                     next_reach = next_reach.union(new)
             reachables = reachables.union(next_reach)
+        return reachables
+
+    # Retorna nova gramática sem NTs inalcançáveis.
+    def rm_unreachable(self):
+        reachables = self.reachable()
 
         result = Grammar()
         result.initial = self.initial
