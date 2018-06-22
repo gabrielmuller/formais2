@@ -403,6 +403,7 @@ class Grammar():
     def factor(self):
         cfg = copy.deepcopy(self)
         first = self.first()
+        print("--antes\n",cfg,"\n---")
 
         for vn, prods in copy.deepcopy(cfg.prods).items():
             for prod in prods:
@@ -418,7 +419,8 @@ class Grammar():
 
                     cfg.prods[vn] -= {prod}     # Retirar A -> B
                     for q in cfg.prods[prod[0]]:
-                        cfg.prods[vn] |= {q for p in prods - {prod} if q[0] == p[0]}
+                        print(prod[1:])
+                        cfg.prods[vn] |= {q+prod[1:] for p in prods - {prod} if q[0] == p[0]}
                 elif self.is_vn(prod[0]):
                     """ 
                         Procura por não determinismo indireto 
@@ -433,8 +435,17 @@ class Grammar():
                         if any(q[0] == pp[0] for pp in cfg.prods[p[0]] \
                             for q in cfg.prods[prod[0]]):
                             cfg.prods[vn] -= {prod, p} # Retirar A -> B, A- > C
-                            for q in cfg.prods[prod[0]] | cfg.prods[p[0]]:
-                                cfg.prods[vn] |= {q for p in prods if q[0] in first[p[0]]}
+                            for q in cfg.prods[prod[0]]:
+                                cfg.prods[vn] |= {q+prod[1:] for p2 in prods if q[0] in first[p2[0]]}
+                            for q in cfg.prods[p[0]]:
+                                cfg.prods[vn] |= {q+p[1:] for p2 in prods if q[0] in first[p2[0]]}
+        
+        # TODO: retirar esse loop depois
+        for vn, prods in copy.deepcopy(cfg.prods).items():
+            for prod in prods:
+                if "&" in prod and len(prod) > 1:
+                    cfg.prods[vn] -= {prod}
+                    cfg.prods[vn] |= {prod[1:]}
 
         """
             Procura determinismo direto
