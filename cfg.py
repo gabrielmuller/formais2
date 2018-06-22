@@ -405,7 +405,7 @@ class Grammar():
         first = self.first()
 
         for vn, prods in copy.deepcopy(cfg.prods).items():
-            for prod in prods:
+            for prod_A in prods:
                 """ 
                     Procura por não determinismo indireto 
                     A -> α β | B λ
@@ -413,13 +413,12 @@ class Grammar():
                     E faz
                     A -> α β | α γ | η λ
                 """
-                if self.is_vn(prod[0]) and any(p[0] in first[prod[0]] for p in prods - {prod}):
+                if self.is_vn(prod_A[0]) and any(p[0] in first[prod_A[0]] for p in prods - {prod_A}):
                     # Retira A -> B
-                    cfg.prods[vn] -= {prod}     
+                    cfg.prods[vn] -= {prod_A}     
                     # Adiciona A -> α γ λ | η λ
-                    cfg.prods[vn] |= {q+prod[1:] for p in prods - {prod} \
-                        for q in cfg.prods[prod[0]]}
-                elif self.is_vn(prod[0]):
+                    cfg.prods[vn] |= {q+prod_A[1:] for p in prods - {prod_A} for q in cfg.prods[prod_A[0]]}
+                elif self.is_vn(prod_A[0]):
                     """ 
                         Procura por não determinismo indireto 
                         A -> C | B
@@ -428,22 +427,17 @@ class Grammar():
                         E faz
                         A -> α β | α γ
                     """
-                    other_prods = { p for p in prods - {prod} if self.is_vn(p[0]) }
-                    for p in other_prods:
-                        if any(q == pp for pp in first[p[0]] for q in first[prod[0]]):
+                    other_prods = { p for p in prods - {prod_A} if self.is_vn(p[0]) }
+                    for prod_B in other_prods:
+                        if any(q == pp for pp in first[prod_B[0]] for q in first[prod_A[0]]):
                             # Retirar A -> B, A- > C
-                            cfg.prods[vn] -= {prod, p} 
-                            for q in cfg.prods[prod[0]]:
-                                cfg.prods[vn] |= {q+prod[1:] for p2 in prods if q[0] in first[p2[0]]}
-                            for q in cfg.prods[p[0]]:
-                                cfg.prods[vn] |= {q+p[1:] for p2 in prods if q[0] in first[p2[0]]}
-
-        # TODO: retirar esse loop depois
-        for vn, prods in copy.deepcopy(cfg.prods).items():
-            for prod in prods:
-                if "&" in prod and len(prod) > 1:
-                    cfg.prods[vn] -= {prod}
-                    cfg.prods[vn] |= {prod[1:]}
+                            cfg.prods[vn] -= {prod_A, prod_B} 
+                            for q in cfg.prods[prod_A[0]]:
+                                cfg.prods[vn] |= {q+prod_A[1:] for p2 in prods if q[0] in first[p2[0]] and q[0] != "&" or (len(prod_A)==1)}
+                                cfg.prods[vn] |= {prod_A[1:] for p2 in prods if q[0] in first[p2[0]] and q[0] == "&" and len(prod_A)>1}
+                            for q in cfg.prods[prod_B[0]]:
+                                cfg.prods[vn] |= {q+prod_B[1:] for p2 in prods if q[0] in first[p2[0]] and q[0] != "&" or (len(prod_B)==1)}
+                                cfg.prods[vn] |= {prod_B[1:] for p2 in prods if q[0] in first[p2[0]] and q[0] == "&" and len(prod_B)>1}
 
         """
             Procura determinismo direto
