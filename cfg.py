@@ -403,24 +403,22 @@ class Grammar():
     def factor(self):
         cfg = copy.deepcopy(self)
         first = self.first()
-        print("--antes\n",cfg,"\n---")
 
         for vn, prods in copy.deepcopy(cfg.prods).items():
             for prod in prods:
                 """ 
                     Procura por não determinismo indireto 
-                    A -> α β | B
-                    B -> α γ
+                    A -> α β | B λ
+                    B -> α γ | η
                     E faz
-                    A -> α β | α γ
+                    A -> α β | α γ | η λ
                 """
-                if self.is_vn(prod[0]) and \
-                    any(q[0] == p[0] for p in prods - {prod} for q in cfg.prods[prod[0]]):
-
-                    cfg.prods[vn] -= {prod}     # Retirar A -> B
-                    for q in cfg.prods[prod[0]]:
-                        print(prod[1:])
-                        cfg.prods[vn] |= {q+prod[1:] for p in prods - {prod} if q[0] == p[0]}
+                if self.is_vn(prod[0]) and any(p[0] in first[prod[0]] for p in prods - {prod}):
+                    # Retira A -> B
+                    cfg.prods[vn] -= {prod}     
+                    # Adiciona A -> α γ λ | η λ
+                    cfg.prods[vn] |= {q+prod[1:] for p in prods - {prod} \
+                        for q in cfg.prods[prod[0]]}
                 elif self.is_vn(prod[0]):
                     """ 
                         Procura por não determinismo indireto 
@@ -430,16 +428,16 @@ class Grammar():
                         E faz
                         A -> α β | α γ
                     """
-                    other_prods = { p for p in prods - {prod} if p[0].isupper() }
+                    other_prods = { p for p in prods - {prod} if self.is_vn(p[0]) }
                     for p in other_prods:
-                        if any(q[0] == pp[0] for pp in cfg.prods[p[0]] \
-                            for q in cfg.prods[prod[0]]):
-                            cfg.prods[vn] -= {prod, p} # Retirar A -> B, A- > C
+                        if any(q == pp for pp in first[p[0]] for q in first[prod[0]]):
+                            # Retirar A -> B, A- > C
+                            cfg.prods[vn] -= {prod, p} 
                             for q in cfg.prods[prod[0]]:
                                 cfg.prods[vn] |= {q+prod[1:] for p2 in prods if q[0] in first[p2[0]]}
                             for q in cfg.prods[p[0]]:
                                 cfg.prods[vn] |= {q+p[1:] for p2 in prods if q[0] in first[p2[0]]}
-        
+
         # TODO: retirar esse loop depois
         for vn, prods in copy.deepcopy(cfg.prods).items():
             for prod in prods:
@@ -474,7 +472,9 @@ class Grammar():
 
                 cfg.prods[vn] |= {(alpha, vn+"'")}                  # Cria A  -> α A’
                 cfg.prods[vn+"'"] = {(beta) for beta in betas}      # Cria A’ -> β | γ
+        
         return cfg
+
 
     def factor_in_steps(self, steps):
         cfg = copy.deepcopy(self)
