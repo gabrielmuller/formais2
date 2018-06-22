@@ -510,10 +510,10 @@ class TestGrammar(unittest.TestCase):
         """
         gr = Grammar(g)
         g = """
-        S -> a S'
+        S -> a S' | &
+        S' -> & | a S'' | c
+        S'' -> A c c | S'
         A -> & | a A c
-        S' -> & | a S''
-        S'' -> A c | S'
         """
         gf = Grammar(g)
         self.assertEqual(gr.factor_in_steps(2), gf)
