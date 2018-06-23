@@ -410,25 +410,30 @@ class Grammar():
         for vn, prods in copy.deepcopy(cfg.prods).items():
             # Combinações 2 a 2 de produções
             for prod_A, prod_B in itertools.combinations(prods,2):
-                if self.is_vn(prod_A[0]) and any(p[0] in first[prod_A[0]] for p in prods - {prod_A}):
-                    # Retira A -> B
-                    cfg.prods[vn] -= {prod_A}     
-                    # Adiciona A -> α γ λ | η λ
-                    cfg.prods[vn] |= {q+prod_A[1:] for p in prods - {prod_A} for q in cfg.prods[prod_A[0]]}
-                if self.is_vn(prod_B[0]) and any(p[0] in first[prod_B[0]] for p in prods - {prod_B}):
-                    # Retira A -> B
-                    cfg.prods[vn] -= {prod_B}     
-                    # Adiciona A -> α γ λ | η λ
-                    cfg.prods[vn] |= {q+prod_B[1:] for p in prods - {prod_B} for q in cfg.prods[prod_B[0]]}
+
+                """ 
+                    Procura por não determinismo indireto 
+                    A -> α β | B λ
+                    B -> α γ | η
+                    E faz
+                    A -> α β | α γ | η λ
+                """
+                for prod in [prod_A, prod_B]:
+                    if self.is_vn(prod[0]) and any(p[0] in first[prod[0]] for p in prods - {prod}):
+                        # Retira A -> B
+                        cfg.prods[vn] -= {prod}     
+                        # Adiciona A -> α γ λ | η λ
+                        cfg.prods[vn] |= {q+prod[1:] for q in cfg.prods[prod[0]]}
+
+                """ 
+                    Procura por não determinismo indireto 
+                    A -> C | B
+                    B -> α γ 
+                    C -> α β
+                    E faz
+                    A -> α β | α γ
+                """
                 if self.is_vn(prod_A[0]) and self.is_vn(prod_B[0]):
-                    """ 
-                        Procura por não determinismo indireto 
-                        A -> C | B
-                        B -> α γ 
-                        C -> α β
-                        E faz
-                        A -> α β | α γ
-                    """
                     if any(q == p for p in first[prod_B[0]] for q in first[prod_A[0]]):
                         # Retirar A -> B, A- > C
                         cfg.prods[vn] -= {prod_A, prod_B} 
