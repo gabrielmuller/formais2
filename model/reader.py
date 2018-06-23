@@ -51,18 +51,21 @@ def read_cfg(string):
 
             prod = []
 
-            for char in right:
-                if char.isupper():
-                    prod.append(char)
-                elif char[0].isupper() and len(char)>1:
-                    if char[1:].isdigit():
-                        prod.append(char)
+            for symbol in right:
+                if not symbol: 
+                    continue
+
+                if symbol.isupper():
+                    prod.append(symbol)
+                elif symbol[0].isupper() and len(char)>1:
+                    if symbol[1:].isdigit():
+                        prod.append(symbol)
                     else:
                         raise SyntaxError(\
                             "Não terminal deve ser composto apenas de 1 letra capitalizada \
                                 e dígitos" + line)
                 else:
-                    prod.append(char)
+                    prod.append(symbol)
             productions[left].add(tuple(prod))
 
     return (initial, productions)

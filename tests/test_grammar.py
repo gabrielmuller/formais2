@@ -7,7 +7,7 @@ class TestGrammar(unittest.TestCase):
 
     def test_from_to_str(self):
         # Testes antigos
-        a = "S  -> a a a a a S18 S18\n\n  S18 -> b b b"
+        a = "S  -> a  a   a a a S18 S18\n\n  S18 -> b b b"
         r = Grammar(a)
         c  = str(r)
         b = "S -> a a a a a S18 S18\nS18 -> b b b"
@@ -22,6 +22,9 @@ class TestGrammar(unittest.TestCase):
         a = "S1->( * B * ) | C b b H\nC-> c C | &\nB->b b b"
         b = "S1 -> C b b H | ( * B  * ) \nC -> & | c C\nB ->b b b"
         self.assertEqual(Grammar(a), Grammar(b))
+
+        # G vazia
+        self.assertEqual(str(Grammar()), 'Ø')
 
     def test_first(self):
         # caso com linguagem vazia
@@ -300,6 +303,10 @@ class TestGrammar(unittest.TestCase):
         er = Grammar(e)
         self.assertEqual(gr.epsilon_free(), er)
     
+        # G vazia
+        gr = Grammar()
+        self.assertEqual(gr.epsilon_free(), gr)
+
     def test_fertile(self):
         # Caso simples
         g = """
@@ -370,6 +377,14 @@ class TestGrammar(unittest.TestCase):
         gr = Grammar(g)
         self.assertEqual(gr.remove_infertile(), Grammar())
 
+        gr = Grammar()
+        self.assertEqual(gr.remove_infertile(), gr)
+
+        g = """
+        S -> S a | S b
+        """
+        gr = Grammar(g)
+        self.assertEqual(gr.remove_infertile(), Grammar())
         # caso com & e sem infertéis
         g = """
         S -> A C | C e B | B a
@@ -396,6 +411,10 @@ class TestGrammar(unittest.TestCase):
     """
         er = Grammar(e)
         self.assertEqual(gr.rm_unreachable(), er)
+
+        # G vazia
+        gr = Grammar()
+        self.assertEqual(gr.rm_unreachable(), gr)
 
     def test_simple(self):
         g = """
@@ -442,6 +461,10 @@ class TestGrammar(unittest.TestCase):
     """
         self.assertEqual(nset, e)
         self.assertEqual(Grammar(f), gr.rm_simple())
+
+        # G vazia
+        gr = Grammar()
+        self.assertEqual(gr.rm_simple(), gr)
 
     def test_is_factored(self):
         # exemplo de fatoravel
@@ -575,13 +598,15 @@ class TestGrammar(unittest.TestCase):
         """
         gr = Grammar(g)
         self.assertTrue(gr.is_proper())
+
         # G com produção simples
         g = """
         S -> A a | S b
-        A -> S c | d | S
+        A -> S  c | d | S
         """
         gr = Grammar(g)
         self.assertFalse(gr.is_proper())
+        
         # G não &-livre
         g = """
         S -> A a | S b
@@ -589,6 +614,7 @@ class TestGrammar(unittest.TestCase):
         """
         gr = Grammar(g)
         self.assertFalse(gr.is_proper())
+
         # G com símbolos inúteis
         g = """
         S -> A a | S b
@@ -598,8 +624,12 @@ class TestGrammar(unittest.TestCase):
         gr = Grammar(g)
         self.assertFalse(gr.is_proper())
 
-
-
+        # G de linguagem vazia
+        g = """
+        S -> S a | S b
+        """
+        gr = Grammar(g)
+        self.assertFalse(gr.is_proper())
 
 if __name__ == "__main__":
     unittest.main()

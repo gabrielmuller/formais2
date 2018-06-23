@@ -41,6 +41,9 @@ class Grammar():
     # Representação em string.
     def __str__(self):
 
+        if not self.initial:
+            return 'Ø'
+
         # transforma as produções de um NT em string
         pstr = lambda nt: nt + ' -> ' + ' | '.join([' '.join(prod) for prod in self.prods[nt]])
 
@@ -51,7 +54,7 @@ class Grammar():
     # Retorna conjunto de terminais (Vt)
     def vt(self):
         vt = set()
-        for vn in self.prods.keys():
+        for vn in self.vn():
             for ld in self.prods[vn]:
                 for v in ld:
                     if v.islower():
@@ -170,7 +173,7 @@ class Grammar():
 
     def _first_nt(self, simple_only):
         nullables = self.nullable()
-        firsts = {nt: set() for nt in self.prods.keys()}
+        firsts = {nt: set() for nt in self.vn()}
 
         changed = False
 
@@ -230,7 +233,7 @@ class Grammar():
         return partial
 
     def follow(self):
-        follows = {nt: set() for nt in self.prods.keys()}
+        follows = {nt: set() for nt in self.vn()}
         follows[self.initial] = {'$'}
         firsts = self.first()
 
@@ -311,6 +314,9 @@ class Grammar():
     
     # Retorna conjunto Vi (símbolos alcançáveis)
     def reachable(self):
+        if not self.initial:
+            return set()
+
         reachables = {self.initial}
         next_reach = {self.initial}
         next_vt_reach = set()
@@ -372,7 +378,7 @@ class Grammar():
             ni = copy.deepcopy(ni_last) # Ni = Ni-1
 
             # Todo A ∈ Vn - Ni-1
-            for vn in self.prods.keys() - ni_last:
+            for vn in self.vn() - ni_last:
 
                 # Todo A -> α ^ α ∈ (Vt U Ni-1)*
                 fertile_prod = {ld for ld in self.prods[vn] 
