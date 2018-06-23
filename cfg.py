@@ -474,12 +474,31 @@ class Grammar():
         
         return cfg
 
+    # Retorna conjunto de não-terminais que possuem recursão a esquerda direta
     def direct_left_recursion(self):
         rec_vn = set()
         for vn, prods in self.prods.items():
             direct = {x for x in prods if x[0] == vn}
             if len(direct): rec_vn.add(vn)
         return rec_vn
+
+    # Retorna conjunto de não-terminais que possuem recursão a esquerda indireta
+    def indirect_left_recursion(self):
+        rec_nt = set()
+        first_nt = self.first_nt()
+        for nt, prods in self.prods.items():
+            for prod in prods:
+                if nt in prod and prod[0] != nt:
+                    i = list(prod).index(nt)
+                    if all(other_nt in self.nullable() or other_nt in first_nt[nt] \
+                        for other_nt in prod[:i]):
+                        rec_nt.add(nt)
+                elif any(x for x in prod if x in first_nt[nt]):
+                    i = list(prod).index([x for x in prod if x in first_nt[nt]][0])
+                    if not i: rec_nt.add(nt)       
+                    elif all(other_nt in self.nullable() for other_nt in prod[:i]):
+                        rec_nt.add(nt)   
+        return rec_nt
 
     def remove_left_recursion(self):
         cfg = copy.deepcopy(self)
@@ -493,9 +512,6 @@ class Grammar():
             cfg.prods[new_vn] = {x[1:] + (new_vn,) for x in direct} | {('&',)}
 
         return cfg
-
-
-
 
     def factor_in_steps(self, steps):
         cfg = copy.deepcopy(self)

@@ -152,13 +152,16 @@ class GUI(QMainWindow, Ui_MainWindow):
 
     def leftRecursion(self):
         if self.cfg:
-            direct_rec_vn = self.cfg.direct_left_recursion()
+            direct_rec = self.cfg.direct_left_recursion()
+            indirect_rec = self.cfg.indirect_left_recursion()
 
             g = self.cfg.remove_left_recursion()
 
             # Interface
             self.resultText_1.setPlainText("Não-terminais com rec. a esquerda direta: " + \
-                str(direct_rec_vn) + '\n')
+                str(direct_rec) + '\n')
+            self.resultText_1.appendPlainText("Não-terminais com rec. a esquerda indireta: " + \
+                str(indirect_rec) + '\n')
             self.resultText_1.appendPlainText(str(g))
             g.name = self.cfg.name + " sem Rec. a Esquerda"
             self.add_result_grammar_to_list(g)
