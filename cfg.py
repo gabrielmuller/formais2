@@ -1,6 +1,6 @@
 from reader import read_cfg
 
-import copy
+import copy, itertools
 
 """
     Gramática Livre de Contexto
@@ -408,20 +408,19 @@ class Grammar():
         first = self.first()
 
         for vn, prods in copy.deepcopy(cfg.prods).items():
-            for prod_A in prods:
-                """ 
-                    Procura por não determinismo indireto 
-                    A -> α β | B λ
-                    B -> α γ | η
-                    E faz
-                    A -> α β | α γ | η λ
-                """
+            # Combinações 2 a 2 de produções
+            for prod_A, prod_B in itertools.combinations(prods,2):
                 if self.is_vn(prod_A[0]) and any(p[0] in first[prod_A[0]] for p in prods - {prod_A}):
                     # Retira A -> B
                     cfg.prods[vn] -= {prod_A}     
                     # Adiciona A -> α γ λ | η λ
                     cfg.prods[vn] |= {q+prod_A[1:] for p in prods - {prod_A} for q in cfg.prods[prod_A[0]]}
-                elif self.is_vn(prod_A[0]):
+                if self.is_vn(prod_B[0]) and any(p[0] in first[prod_B[0]] for p in prods - {prod_B}):
+                    # Retira A -> B
+                    cfg.prods[vn] -= {prod_B}     
+                    # Adiciona A -> α γ λ | η λ
+                    cfg.prods[vn] |= {q+prod_B[1:] for p in prods - {prod_B} for q in cfg.prods[prod_B[0]]}
+                if self.is_vn(prod_A[0]) and self.is_vn(prod_B[0]):
                     """ 
                         Procura por não determinismo indireto 
                         A -> C | B
@@ -430,17 +429,15 @@ class Grammar():
                         E faz
                         A -> α β | α γ
                     """
-                    other_prods = { p for p in prods - {prod_A} if self.is_vn(p[0]) }
-                    for prod_B in other_prods:
-                        if any(q == pp for pp in first[prod_B[0]] for q in first[prod_A[0]]):
-                            # Retirar A -> B, A- > C
-                            cfg.prods[vn] -= {prod_A, prod_B} 
-                            for q in cfg.prods[prod_A[0]]:
-                                cfg.prods[vn] |= {q+prod_A[1:] for p2 in prods if q[0] in first[p2[0]] and q[0] != "&" or (len(prod_A)==1)}
-                                cfg.prods[vn] |= {prod_A[1:] for p2 in prods if q[0] in first[p2[0]] and q[0] == "&" and len(prod_A)>1}
-                            for q in cfg.prods[prod_B[0]]:
-                                cfg.prods[vn] |= {q+prod_B[1:] for p2 in prods if q[0] in first[p2[0]] and q[0] != "&" or (len(prod_B)==1)}
-                                cfg.prods[vn] |= {prod_B[1:] for p2 in prods if q[0] in first[p2[0]] and q[0] == "&" and len(prod_B)>1}
+                    if any(q == p for p in first[prod_B[0]] for q in first[prod_A[0]]):
+                        # Retirar A -> B, A- > C
+                        cfg.prods[vn] -= {prod_A, prod_B} 
+                        for q in cfg.prods[prod_A[0]]:
+                            cfg.prods[vn] |= {q+prod_A[1:] for p in prods if q[0] in first[p[0]] and q[0] != "&" or (len(prod_A)==1)}
+                            cfg.prods[vn] |= {prod_A[1:] for p in prods if q[0] in first[p[0]] and q[0] == "&" and len(prod_A)>1}
+                        for q in cfg.prods[prod_B[0]]:
+                            cfg.prods[vn] |= {q+prod_B[1:] for p in prods if q[0] in first[p[0]] and q[0] != "&" or (len(prod_B)==1)}
+                            cfg.prods[vn] |= {prod_B[1:] for p in prods if q[0] in first[p[0]] and q[0] == "&" and len(prod_B)>1}
 
         """
             Procura determinismo direto
