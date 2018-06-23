@@ -92,26 +92,26 @@ class GUI(QMainWindow, Ui_MainWindow):
             # G sem símbolos inférteis
             sset = str(self.cfg.fertile()) if self.cfg.fertile() else "Ø"
             g = self.cfg.remove_infertile()
-            resultText = "Nf = " + sset + "\n\n    Sem símbolos inférteis:" + '\n' + str(g)
+            resultText = "Nf = " + sset + "\n\n    G' sem símbolos inférteis:\n" + str(g)
             self.resultText_1.setPlainText(resultText)
 
             # G sem símbolos inalcançáveis
             sset = str(g.reachable()) if g.reachable() else "Ø"
             g = g.rm_unreachable()
-            resultText = "\nVi = " + sset + "\n\n    Sem símbolos inalcançáveis:" + '\n' + str(g)
+            resultText = "\nVi = " + sset + "\n\n    G'' sem símbolos inalcançáveis:\n" + str(g)
             self.resultText_1.appendPlainText(resultText)
 
             # G ε-livre
             sset = str(g.nullable()) if g.nullable() else "Ø"
             g = g.epsilon_free()
-            resultText = "\nNe = " + sset + "\n\n    ε-livre:" + '\n' + str(g)
+            resultText = "\nNe = " + sset + "\n\n    G''' ε-livre:\n" + str(g)
             self.resultText_1.appendPlainText(resultText)
 
             # G sem produções simples (sem ciclos?)
 
             na = self.first_string(g._simple_star(), "N")
             g = g.rm_simple()
-            resultText = "\n" + str(na) + "\n     Sem produções simples:\n   G Própria:" + '\n' + str(g)
+            resultText = "\n" + str(na) + "\n     G'''' Sem produções simples:\n" + str(g)
             self.resultText_1.appendPlainText(resultText)
 
             g.name = self.cfg.name + " Própria"
