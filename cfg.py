@@ -310,24 +310,30 @@ class Grammar():
         return result
     
     # Retorna conjunto Vi (símbolos alcançáveis)
-    # TODO: incluir Vt alcançáveis
     def reachable(self):
         reachables = {self.initial}
         next_reach = {self.initial}
+        next_vt_reach = set()
+        reach_vt = set()
+        vn = self.vn()
+        vt = self.vt()
 
         while next_reach:
             prev_reach = set(next_reach)
             next_reach = set()
             for nt in prev_reach:
                 for prod in self.prods[nt]:
-                    new = {c for c in prod if c.isupper() and c not in reachables}
+                    new = {c for c in prod if c in vn and c not in reachables}
+                    new_vt = {c for c in prod if c in vt and c not in reachables}
                     next_reach = next_reach.union(new)
-            reachables = reachables.union(next_reach)
+                    next_vt_reach = next_vt_reach | new_vt
+            reachables = reachables | next_reach | next_vt_reach
+
         return reachables
 
     # Retorna nova gramática sem NTs inalcançáveis.
     def rm_unreachable(self):
-        reachables = self.reachable()
+        reachables = self.reachable() - self.vt()
 
         result = Grammar()
         result.initial = self.initial
@@ -589,7 +595,7 @@ class Grammar():
     # Retorna se G é própria
     def is_proper(self):
         nf = self.fertile() == self.vn()
-        vi = self.reachable() == self.vn()
+        vi = self.reachable() == self.vn() | self.vt()
         ne = len(self.nullable()) == 0 or self.nullable() == {self.initial}
         nx = all(len(na)==1 for na in self._simple_star().values())
         return nf and vi and ne and nx
