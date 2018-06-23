@@ -257,13 +257,20 @@ class Grammar():
 
         return follows
 
+    def _new_non_terminal(self, nt):
+        new_nt = nt
+        vn = self.vn()
+        while(new_nt in vn):
+            new_nt += "'"
+        return new_nt
+
     def epsilon_free(self):
         eprods = {nt: prods - {('&',)} for nt, prods in self.prods.items()}
         nullables = self.nullable()
 
         einitial = self.initial
         if self.initial in nullables:
-            einitial = (self.initial + "'") if not self.is_vn(self.initial + "'") else self.initial + "1"
+            einitial = self._new_non_terminal(self.initial)
             eprods[einitial] = {(self.initial,), ('&',)}
 
         for e in nullables:
@@ -287,6 +294,7 @@ class Grammar():
         gr = Grammar()
         gr.prods = eprods
         gr.initial = einitial
+        
         return gr
 
     # Retorna todas combinações de elementos da lista l
@@ -486,9 +494,9 @@ class Grammar():
                         
                         cfg.prods[vn] -= {prod}                     # Retira A -> α β
                         betas |= {prod[1:]} if prod[1:] else {("&",)}  # Salva β
-
-                cfg.prods[vn] |= {(alpha, vn+"'")}                  # Cria A  -> α A’
-                cfg.prods[vn+"'"] = {(beta) for beta in betas}      # Cria A’ -> β | γ
+                new_nt = self._new_non_terminal(vn)
+                cfg.prods[vn] |= {(alpha, new_nt)}                  # Cria A  -> α A’
+                cfg.prods[new_nt] = {(beta) for beta in betas}      # Cria A’ -> β | γ
         
         return cfg
 
@@ -513,12 +521,12 @@ class Grammar():
         first_nt = self.first_nt()
         for nt, prods in self.prods.items():
             for prod in prods:
-                if nt in prod and prod[0] != nt:
+                if nt in prod and prod[0] != nt:       # Evitar encontrar rec direta
                     i = list(prod).index(nt)
                     if all(other_nt in self.nullable() or other_nt in first_nt[nt] \
                         for other_nt in prod[:i]):
                         rec_nt.add(nt)
-                elif any(x for x in prod if x in first_nt[nt]):
+                elif any(x for x in prod if x in first_nt[nt]) and prod[0] != nt:
                     i = list(prod).index([x for x in prod if x in first_nt[nt]][0])
                     if not i: rec_nt.add(nt)       
                     elif all(other_nt in self.nullable() for other_nt in prod[:i]):
@@ -531,7 +539,7 @@ class Grammar():
         for nt, prods in self.prods.items():
             direct = {x for x in prods if x[0] == nt}
             no_rec = prods - direct
-            new_nt = nt + "'" if nt+"'" not in self.vn() else nt + "''"
+            new_nt = self._new_non_terminal(nt)
             cfg.prods[nt] = {x + (new_nt,) for x in no_rec}
             cfg.prods[new_nt] = {x[1:] + (new_nt,) for x in direct} | {('&',)}
         return cfg
@@ -541,7 +549,7 @@ class Grammar():
         cfg = copy.deepcopy(self)
         direct = {x for x in cfg.prods[nt] if x[0] == nt}
         no_rec = cfg.prods[nt] - direct
-        new_nt = nt + "'"
+        new_nt = self._new_non_terminal(nt)
         cfg.prods[nt] = {x + (new_nt,) for x in no_rec}
         cfg.prods[new_nt] = {x[1:] + (new_nt,) for x in direct} | {('&',)}
         return cfg
@@ -562,9 +570,28 @@ class Grammar():
 
     # Retorna G sem recursão a esquerda
     def remove_left_recursion(self):
-        if self.has_indirect_left_recursion():
-            return self.remove_indirect_left_recursion()
-        elif self.has_direct_left_recursion():
-            return self.remove_direct_left_recursion()
+        if self.is_proper():
+            if self.has_indirect_left_recursion():
+                return self.remove_indirect_left_recursion()
+            elif self.has_direct_left_recursion():
+                return self.remove_direct_left_recursion()
+            else:
+                return self
         else:
-            return self
+            raise ValueError(\
+                "Algoritmo espera gramática própria")
+
+    def proper(self):
+        g = self.remove_infertile()
+        g = g.rm_unreachable()
+        g = g.epsilon_free()
+        g = g.rm_simple()
+        return g
+
+    # Retorna se G é própria
+    def is_proper(self):
+        nf = self.fertile() == self.vn()
+        vi = self.reachable() == self.vn()
+        ne = len(self.nullable()) == 0 or self.nullable() == {self.initial}
+        nx = all(len(na)==1 for na in self._simple_star().values())
+        return nf and vi and ne and nx

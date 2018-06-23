@@ -86,6 +86,9 @@ class GUI(QMainWindow, Ui_MainWindow):
     def proper(self):
         # Transforma em própria e mostra intermediárias e conjuntos
         if self.cfg:
+            if self.cfg.is_proper():
+                self.show_error("Gramática já é Própria.")
+                return
             # G sem símbolos inférteis
             sset = str(self.cfg.fertile()) if self.cfg.fertile() else "Ø"
             g = self.cfg.remove_infertile()
@@ -93,13 +96,13 @@ class GUI(QMainWindow, Ui_MainWindow):
             self.resultText_1.setPlainText(resultText)
 
             # G sem símbolos inalcançáveis
-            sset = str(self.cfg.fertile()) if g.reachable() else "Ø"
+            sset = str(g.reachable()) if g.reachable() else "Ø"
             g = g.rm_unreachable()
             resultText = "\nVi = " + sset + "\n\n    Sem símbolos inalcançáveis:" + '\n' + str(g)
             self.resultText_1.appendPlainText(resultText)
 
             # G ε-livre
-            sset = str(self.cfg.fertile()) if g.nullable() else "Ø"
+            sset = str(g.nullable()) if g.nullable() else "Ø"
             g = g.epsilon_free()
             resultText = "\nNe = " + sset + "\n\n    ε-livre:" + '\n' + str(g)
             self.resultText_1.appendPlainText(resultText)
@@ -155,7 +158,11 @@ class GUI(QMainWindow, Ui_MainWindow):
             direct_rec = self.cfg.has_direct_left_recursion()
             indirect_rec = self.cfg.has_indirect_left_recursion()
 
-            g = self.cfg.remove_left_recursion()
+            try:
+                g = self.cfg.remove_left_recursion()
+            except ValueError:
+                self.show_error("Gramática deve ser própria!")
+                return
 
             # Interface
             self.resultText_1.setPlainText("Não-terminais com rec. a esquerda direta: " + \
