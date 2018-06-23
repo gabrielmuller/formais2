@@ -1,4 +1,4 @@
-from reader import read_cfg
+from model.reader import read_cfg
 
 import copy, itertools
 

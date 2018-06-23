@@ -1,6 +1,6 @@
 import unittest
-from reader import *
-from cfg import Grammar 
+from model.reader import *
+from model.cfg import Grammar 
 
 class TestReader(unittest.TestCase):
     def setUp(self):

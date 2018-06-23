@@ -1,6 +1,6 @@
-from cfg import Grammar
-from reader import *
-from window_ui import Ui_MainWindow
+from model.reader import *
+from model.cfg import Grammar
+from gui.window_ui import Ui_MainWindow
 
 from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import (

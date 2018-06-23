@@ -1,5 +1,5 @@
 import unittest
-from cfg import Grammar
+from model.cfg import Grammar 
 
 class TestGrammar(unittest.TestCase):
     def setUp(self):
