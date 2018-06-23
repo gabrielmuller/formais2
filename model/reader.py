@@ -57,7 +57,7 @@ def read_cfg(string):
 
                 if symbol.isupper():
                     prod.append(symbol)
-                elif symbol[0].isupper() and len(char)>1:
+                elif symbol[0].isupper() and len(symbol)>1:
                     if symbol[1:].isdigit():
                         prod.append(symbol)
                     else:
