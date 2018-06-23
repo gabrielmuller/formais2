@@ -42,6 +42,13 @@ class TestReader(unittest.TestCase):
         self.assertFalse(a.accepts(''))
     """
 
+    #Testes novos
+    def test_read_cfg(self):
+        a = "S1 -> 0 S1 0 | 1 S1 1 | 0 0 | 1 1"
+        r = Grammar(a)
+        prods = {"S1" : {('0', 'S1', '0'), ('1', 'S1', '1'), ('0', '0'), ('1', '1')}}
+        self.assertEqual(r.prods, prods)
+
     def test_read_cfg_error(self):
         with self.assertRaises(SyntaxError):
             a = Grammar("")

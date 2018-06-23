@@ -6,26 +6,27 @@ class TestGrammar(unittest.TestCase):
         print('Running ' + self._testMethodName)
 
     def test_from_to_str(self):
-        a = "S  -> aaaaaS18S18\n\n  S18 - > bbb"
+        # Testes antigos
+        a = "S  -> a a a a a S18 S18\n\n  S18 -> b b b"
         r = Grammar(a)
         c  = str(r)
         b = "S -> a a a a a S18 S18\nS18 -> b b b"
         self.assertEqual(b, c)
 
-        a = "S1->aS1bS45A99\nS45  ->  &"
+        a = "S1->a S1 b S45 A99\nS45  ->  &"
         r = Grammar(a)
         c  = str(r)
         b = "S1 -> a S1 b S45 A99\nS45 -> &"
         self.assertEqual(b, c)
 
-        a = "S1->(*B*)|CbbH\nC->cC|&\nB->bbb"
-        b = "S1 -> C b b H | ( * B  * ) \nC - > & | c C\nB ->bbb"
+        a = "S1->( * B * ) | C b b H\nC-> c C | &\nB->b b b"
+        b = "S1 -> C b b H | ( * B  * ) \nC -> & | c C\nB ->b b b"
         self.assertEqual(Grammar(a), Grammar(b))
 
     def test_first(self):
         # caso com linguagem vazia
         g = """
-        S -> SS | A
+        S -> S S | A
     """
         gr = Grammar(g)
         f = {'S': set(),
@@ -37,10 +38,10 @@ class TestGrammar(unittest.TestCase):
 
         # caso simples
         g = """
-        S -> AC|CeB|Ba
-        A -> aA|BC
-        C -> cC
-        B -> bB
+        S -> A C | C e B | B a
+        A -> a A | B C
+        C -> c C
+        B -> b B
     """
         gr = Grammar(g)
         f = {'S': {'a', 'b', 'c'},
@@ -56,10 +57,10 @@ class TestGrammar(unittest.TestCase):
 
         # caso com NTs sem produções
         g = """
-        S -> AC|CeB|Ba|Za|Z
-        A -> aA|BC
-        C -> cC
-        B -> bB
+        S -> A C | C e B | B a | Z a | Z
+        A -> a A | B C
+        C -> c C
+        B -> b B
     """
         gr = Grammar(g)
         f = {'S': {'a', 'b', 'c'},
@@ -77,10 +78,10 @@ class TestGrammar(unittest.TestCase):
 
         # caso com firsts equivalentes (A e B)
         g = """
-        S -> AC|CeB|Ba
-        A -> aA|BC
-        C -> cC
-        B -> bB|AB
+        S -> A C | C e B | B a
+        A -> a A | B C
+        C -> c C
+        B -> b B | A B
     """
         gr = Grammar(g)
         f = {'S': {'a', 'b', 'c'},
@@ -96,10 +97,10 @@ class TestGrammar(unittest.TestCase):
 
         # caso com &
         g = """
-        S -> AC|CeB|Ba
-        A -> aA|BC
-        C -> cC|&
-        B -> bB|AB|&
+        S -> A C | C e B | B a
+        A -> a A | B C
+        C -> c C | &
+        B -> b B | A B | &
     """
         gr = Grammar(g)
         f = {'S': {'a', 'b', 'c', 'e', '&'},
@@ -114,10 +115,10 @@ class TestGrammar(unittest.TestCase):
         self.assertEqual(gr.first_nt(), fnt)
 
         g = """
-        S -> ABC
-        A -> aA|&
-        B -> bB|ACd
-        C -> cC|&
+        S -> A B C
+        A -> a A | &
+        B -> b B | A C d
+        C -> c C | &
     """
         gr = Grammar(g)
         f = {'S': {'a', 'b', 'c', 'd'},
@@ -132,10 +133,10 @@ class TestGrammar(unittest.TestCase):
         self.assertEqual(gr.first_nt(), fnt)
 
         g = """
-        S -> ABC
-        A -> aA|&
-        B -> bB|ACd|AHAHA
-        C -> cC|&
+        S -> A B C
+        A -> a A | &
+        B -> b B | A C d | A H A H A
+        C -> c C | &
     """
         gr = Grammar(g)
         f = {'S': {'a', 'b', 'c', 'd'},
@@ -153,10 +154,10 @@ class TestGrammar(unittest.TestCase):
 
     def test_follow(self):
         g = """
-        S -> AC|CeB|Ba
-        A -> aA|BC
-        C -> cC|&
-        B -> bB|AB|&
+        S -> A C | C e B | B a
+        A -> a A | B C
+        C -> c C | &
+        B -> b B | A B | &
     """
         gr = Grammar(g)
         f = {'S': {'$'},
@@ -166,9 +167,9 @@ class TestGrammar(unittest.TestCase):
         self.assertEqual(gr.follow(), f)
 
         g = """
-        S -> AB
-        A -> aA | aB
-        B -> bBB
+        S -> A B
+        A -> a A | a B
+        B -> b B B
     """
         gr = Grammar(g)
         f = {'S': {'$'},
@@ -178,10 +179,10 @@ class TestGrammar(unittest.TestCase):
 
         g = """
         E -> T E1
-        E1 -> +T E1|&
+        E1 -> + T E1|&
         T -> F T1
-        T1 -> *F T1 | &
-        F -> (E) | id
+        T1 -> * F T1 | &
+        F -> ( E ) | id
     """
         gr = Grammar(g)
         f = {'E': {'$', ')'},
@@ -193,10 +194,10 @@ class TestGrammar(unittest.TestCase):
         self.assertEqual(gr.follow(), f)
 
         g = """
-            S -> ACB|Cbb|Ba
-            A -> da|BC
-            B-> g|&
-            C-> h| &
+            S -> A C B | C b b | B a
+            A -> d a | B C
+            B-> g | &
+            C-> h | &
     """
         gr = Grammar(g)
         f = {'S': {'$'},
@@ -207,49 +208,49 @@ class TestGrammar(unittest.TestCase):
 
     def test_nullable(self):
         g = """
-        S -> ABC|zz
-        A -> aA|a
-        B -> bB|ACd|H
-        C -> cC|c
+        S -> A B C | z z
+        A -> a A | a
+        B -> b B | A C d | H
+        C -> c C | c
     """
         gr = Grammar(g)
         n = set()
         self.assertEqual(gr.nullable(), n)
 
         g = """
-        S -> ABC|zz
-        A -> aA|a
-        B -> bB|ACd|H
-        C -> cC|&
+        S -> A B C | z z
+        A -> a A | a
+        B -> b B | A C d | H
+        C -> c C | &
     """
         gr = Grammar(g)
         n = {'C'}
         self.assertEqual(gr.nullable(), n)
 
         g = """
-        S -> ABCH|zz
-        A -> aA|&
-        B -> bB|AC|H
-        C -> cC|&
+        S -> A B C H | z z
+        A -> a A | &
+        B -> b B | A C | H
+        C -> c C | &
     """
         gr = Grammar(g)
         n = {'C', 'A', 'B'}
         self.assertEqual(gr.nullable(), n)
 
         g = """
-        S -> ABC|zz
-        A -> aA|&
-        B -> bB|AC|H
-        C -> cC|&
+        S -> A B C| z z
+        A -> a A | &
+        B -> b B | A C | H
+        C -> c C | &
     """
         gr = Grammar(g)
         n = {'S', 'A', 'B', 'C'}
         self.assertEqual(gr.nullable(), n)
         
         g = """
-        X -> abc | Babc
-        A -> BA | &
-        B -> AA | b
+        X -> a b c | B a b c
+        A -> B A | &
+        B -> A A | b
     """
         gr = Grammar(g)
         n = {'A', 'B'}
@@ -271,30 +272,30 @@ class TestGrammar(unittest.TestCase):
 
     def test_epsilon_free(self):
         g = """
-        S -> AB
-        A -> aA | &
-        B -> bB | &
+        S -> A B
+        A -> a A | &
+        B -> b B | &
     """
         gr = Grammar(g)
         e = """
-        S1 -> S | &
-        S -> AB | A | B
-        A -> aA | a
-        B -> bB | b
+        S' -> S | &
+        S -> A B | A | B
+        A -> a A | a
+        B -> b B | b
     """
         er = Grammar(e)
         self.assertEqual(gr.epsilon_free(), er)
 
         g = """
-        S -> AzBzA
-        A -> BB | a
-        B -> bB | &
+        S -> A z B z A
+        A -> B B | a
+        B -> b B | &
     """
         gr = Grammar(g)
         e = """
-        S -> AzBzA | AzBz | AzzA | Azz | zBzA | zBz | zzA | zz
-        A -> BB | B | a
-        B -> bB | b
+        S -> A z B z A | A z B z | A z z A | A z z | z B z A | z B z | z z A | z z
+        A -> B B | B | a
+        B -> b B | b
     """
         er = Grammar(e)
         self.assertEqual(gr.epsilon_free(), er)
@@ -302,11 +303,11 @@ class TestGrammar(unittest.TestCase):
     def test_fertile(self):
         # Caso simples
         g = """
-        S -> aS | BC | BD
-        A -> cC | AB
-        C -> aA | BC
-        B -> bB | &
-        D -> dDd | c
+        S -> a S | B C | B D
+        A -> c C | A B
+        C -> a A | B C
+        B -> b B | &
+        D -> d D d | c
         """
         gr = Grammar(g)
         n = {'S', 'B', 'D'}
@@ -314,10 +315,10 @@ class TestGrammar(unittest.TestCase):
 
         # Caso com G vazia
         g = """
-        S -> AC|CeB|Ba
-        A -> aA|BC
-        C -> cC
-        B -> bB
+        S -> A C|C e B|B a
+        A -> a A | B C
+        C -> c C
+        B -> b B
         """
         gr = Grammar(g)
         n = set()
@@ -325,17 +326,17 @@ class TestGrammar(unittest.TestCase):
 
         # caso com &
         g = """
-        S -> AC|CeB|Ba
-        A -> aA|BC
-        C -> cC|&
-        B -> bB|AB|&
+        S -> A C | C e B | B a
+        A -> a A | B C
+        C -> c C | &
+        B -> b B | A B | &
         """
         gr = Grammar(g)
         n = {'S', 'A', 'C', 'B'}
         self.assertEqual(gr.fertile(), n)
 
         g = """
-        S -> aS
+        S -> a S
         """
         gr = Grammar(g)
         n = set()
@@ -344,11 +345,11 @@ class TestGrammar(unittest.TestCase):
     def test_remove_infertile(self):
         # Caso simples
         g = """
-        S -> aS | BC | BD
-        A -> cC | AB
-        C -> aA | BC
-        B -> bB | &
-        D -> dDd | c
+        S -> a S | B C | B D
+        A -> c C | A B
+        C -> a A | B C
+        B -> b B | &
+        D -> d D d | c
         """
         gr = Grammar(g)
         f = """
@@ -361,20 +362,20 @@ class TestGrammar(unittest.TestCase):
 
         # Caso com G vazia
         g = """
-        S -> AC|CeB|Ba
-        A -> aA|BC
-        C -> cC
-        B -> bB
+        S -> A C | C e B | B a
+        A -> a A | B C
+        C -> c C
+        B -> b B
         """
         gr = Grammar(g)
         self.assertEqual(gr.remove_infertile(), Grammar())
 
         # caso com & e sem infertéis
         g = """
-        S -> AC|CeB|Ba
-        A -> aA|BC
-        C -> cC|&
-        B -> bB|AB|&
+        S -> A C | C e B | B a
+        A -> a A | B C
+        C -> c C | &
+        B -> b B | A B | &
         """
         gr = Grammar(g)
         self.assertEqual(gr.remove_infertile(), gr)
@@ -398,9 +399,9 @@ class TestGrammar(unittest.TestCase):
 
     def test_simple(self):
         g = """
-        S -> FGH
+        S -> F G H
         F -> G | a
-        G -> dG | H | b
+        G -> d G | H | b
         H -> c
     """
         gr = Grammar(g)
@@ -410,9 +411,9 @@ class TestGrammar(unittest.TestCase):
             "G": {'G', 'H'},
             "H": {'H'}}
         f = """
-        S -> FGH
-        F -> a | dG | b | c
-        G -> dG | b | c
+        S -> F G H
+        F -> a | d G | b | c
+        G -> d G | b | c
         H -> c
     """
         self.assertEqual(nset, e)
@@ -445,8 +446,8 @@ class TestGrammar(unittest.TestCase):
     def test_is_factored(self):
         # exemplo de fatoravel
         g = """
-            S -> aS | aB | dS
-            B -> bB | b
+            S -> a S | a B | d S
+            B -> b B | b
             """
         gr = Grammar(g)
 
@@ -454,9 +455,9 @@ class TestGrammar(unittest.TestCase):
 
         # exemplo de fatorada
         g = """
-            S  -> aS' | dS
+            S  -> a S' | d S
             S' -> S | B
-            B  -> bB'
+            B  -> b B'
             B' -> B | & 
             """
         gr = Grammar(g)
@@ -465,8 +466,8 @@ class TestGrammar(unittest.TestCase):
 
         #exemplo de nao fatoravel indireta
         g = """
-            S -> aS | A
-            A -> aAc | &
+            S -> a S | A
+            A -> a A c | &
             """
         gr = Grammar(g)
 
@@ -475,14 +476,14 @@ class TestGrammar(unittest.TestCase):
     def test_factorate(self):
         # exemplo de fatoravel
         g = """
-            S -> aS | aB | dS
-            B -> bB | b
+            S -> a S | a B | d S
+            B -> b B | b
             """
         gr = Grammar(g)
         g = """
-            S  -> aS' | dS
+            S  -> a S' | d S
             S' -> S | B
-            B  -> bB'
+            B  -> b B'
             B' -> B | & 
             """
         gf = Grammar(g)
@@ -505,8 +506,8 @@ class TestGrammar(unittest.TestCase):
 
         #exemplo de não fatoravel indireta
         g = """ 
-        S -> aS | A
-        A -> aAc | &
+        S -> a S | A
+        A -> a A c | &
         """
         gr = Grammar(g)
         g = """

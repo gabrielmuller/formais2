@@ -12,10 +12,10 @@ def read_cfg(string):
         raise SyntaxError(\
             "Símbolo especial '$' não permitido.")
 
-    string = string.replace(' ', '')
     initial = ''
     productions = {}
     lines = string.split('\n')
+    lines = [x for x in lines if x.split() != []]
 
     
     for line in lines:
@@ -29,7 +29,7 @@ def read_cfg(string):
         if i < 0:
             raise SyntaxError("'->' não achado.")
 
-        left = line[:i]
+        left = line[:i].strip()
         right = line[i+2:]
 
         check_left(left, line)
@@ -45,30 +45,24 @@ def read_cfg(string):
             productions[left] = set()
 
         for right in rights:
-            check_right(right)
+            check_right(right,line)
 
-            symbol = ''
+            right = right.split()
+
             prod = []
 
             for char in right:
-                if not symbol:
-                    if char.isupper():
-                        symbol = char
-                    else:
-                        prod.append(char)
-                elif char.islower():
-                    prod.append(symbol)
+                if char.isupper():
                     prod.append(char)
-                    symbol = ''
-                elif char.isdigit() or char == "'":
-                    symbol += char
-                # NT
+                elif char[0].isupper() and len(char)>1:
+                    if char[1:].isdigit():
+                        prod.append(char)
+                    else:
+                        raise SyntaxError(\
+                            "Não terminal deve ser composto apenas de 1 letra capitalizada \
+                                e dígitos" + line)
                 else:
-                    prod.append(symbol)
-                    symbol = char
-
-            if symbol:
-                prod.append(symbol)
+                    prod.append(char)
             productions[left].add(tuple(prod))
 
     return (initial, productions)
@@ -81,7 +75,7 @@ def check_left(left, line):
             "Símbolo não-terminal " + left + " deve ser capitalizado.")
 
 def check_rights(right, line):
-    if not right:
+    if not right.split():
         raise SyntaxError(\
             "Lado direito não encontrado na linha " + line)
     if '|' == right[0]:
@@ -90,12 +84,12 @@ def check_rights(right, line):
     if '|' == right[-1]:
         raise SyntaxError(\
             "'|' é o último símbolo no lado direito da linha " + line)
-    if '||' in right:
-        raise SyntaxError(\
-            "dois '|' consecutivos na linha " + line)
 
-def check_right(right):
-    if '&' in right and right is not '&':
+def check_right(right,line):
+    if '&' in right and right.strip() is not '&':
         raise SyntaxError(\
             "'&' não pode aparecer concatenado")
+    if not right.split():
+        raise SyntaxError(\
+            "dois '|' consecutivos na linha " + line)
 

@@ -245,8 +245,8 @@ class Grammar():
 
         einitial = self.initial
         if self.initial in nullables:
-            einitial = self.initial + "'"
-            eprods[einitial] = {('S',), ('&',)}
+            einitial = (self.initial + "'") if not self.is_vn(self.initial + "'") else self.initial + "1"
+            eprods[einitial] = {(self.initial,), ('&',)}
 
         for e in nullables:
             new_prods = {nt: set() for nt in eprods.keys()}
@@ -381,13 +381,16 @@ class Grammar():
 
     # Retorna se G é fatorável
     def is_factored(self):
-        # Para reconhecer Não-Determinismo Indireto:
-        g = self.epsilon_free()
-        g = g.rm_simple()
+        g = copy.deepcopy(self)
+        first = self.first()
+        vt = self.vt()
 
         for vn, prods in g.prods.items():
             for prod in prods:
-                if any(prod[0] == p[0] for p in prods - {prod}):
+                vtvt = any(prod[0] == p[0] for p in prods - {prod} if prod[0] in vt and p[0] in vt)
+                vnvt = any(prod[0] in first[p[0]] for p in prods - {prod} if prod[0] in vt and p[0].isupper())
+                vnvn = any(first[prod[0]] & first[p[0]] for p in prods - {prod} if prod[0].isupper() and p[0].isupper())
+                if vtvt or vnvt or vnvn:
                     return False
 
         return True
@@ -487,5 +490,9 @@ class Grammar():
                         vt.add(v)
         return vt
 
+    # Retorna se símbolo é não terminal
     def is_vn(self, v):
         return v in self.prods.keys()
+
+    def vn(self):
+        return self.prods.keys()
