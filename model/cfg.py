@@ -515,6 +515,11 @@ class Grammar():
         for i in range(steps):
             if cfg.is_factored(): return cfg
             cfg = cfg.factor()
+        if not cfg.is_factored():
+            stepText = "passos" if steps>1 else "passo"
+            raise ValueError("Gramática não é fatorável em %d %s. \
+                \nGramática após %d %s de fatoração:\n" % (steps, stepText, steps, stepText) \
+                + str(cfg))
         return cfg    
 
     # Retorna conjunto de não-terminais que possuem recursão a esquerda direta
@@ -588,7 +593,7 @@ class Grammar():
             else:
                 return self
         else:
-            raise ValueError(\
+            raise Exception(\
                 "Algoritmo espera gramática própria")
 
     def proper(self):

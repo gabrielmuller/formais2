@@ -62,7 +62,7 @@ def read_cfg(string):
                         prod.append(symbol)
                     else:
                         raise SyntaxError(\
-                            "Não terminal deve ser composto apenas de 1 letra capitalizada \
+                            "Não terminal deve ser composto apenas de 1 letra maiúscula \
                                 e dígitos" + line)
                 else:
                     prod.append(symbol)

@@ -540,7 +540,8 @@ class TestGrammar(unittest.TestCase):
             A -> & | a A c
         """
         gf = Grammar(g)
-        self.assertEqual(gr.factor_in_steps(2), gf)
+        with self.assertRaises(ValueError):
+           gr.factor_in_steps(2)
 
         g = """
             S -> S a | b | c
@@ -551,7 +552,8 @@ class TestGrammar(unittest.TestCase):
             S' -> & | a
         """
         gf = Grammar(g)
-        self.assertEqual(gr.factor_in_steps(1), gf)
+        with self.assertRaises(ValueError):
+            gr.factor_in_steps(1)
 
     def test_has_left_recursion(self):
         # G com recursão direta
