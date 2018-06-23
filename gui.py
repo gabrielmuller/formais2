@@ -152,8 +152,8 @@ class GUI(QMainWindow, Ui_MainWindow):
 
     def leftRecursion(self):
         if self.cfg:
-            direct_rec = self.cfg.direct_left_recursion()
-            indirect_rec = self.cfg.indirect_left_recursion()
+            direct_rec = self.cfg.has_direct_left_recursion()
+            indirect_rec = self.cfg.has_indirect_left_recursion()
 
             g = self.cfg.remove_left_recursion()
 

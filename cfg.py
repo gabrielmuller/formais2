@@ -48,6 +48,24 @@ class Grammar():
         others = not_empty - {self.initial}
         return '\n'.join([pstr(nt) for nt in ([self.initial] + list(others))])
 
+    # Retorna conjunto de terminais (Vt)
+    def vt(self):
+        vt = set()
+        for vn in self.prods.keys():
+            for ld in self.prods[vn]:
+                for v in ld:
+                    if v.islower():
+                        vt.add(v)
+        return vt
+
+    # Retorna conjunto de não-terminais (Vn)
+    def vn(self):
+        return self.prods.keys()
+
+    # Retorna se símbolo é não terminal
+    def is_vn(self, v):
+        return v in self.prods.keys()
+
     def isEmpty(self):
         return self.remove_infertile() == Grammar()
 
@@ -474,8 +492,15 @@ class Grammar():
         
         return cfg
 
+    def factor_in_steps(self, steps):
+        cfg = copy.deepcopy(self)
+        for i in range(steps):
+            if cfg.is_factored(): return cfg
+            cfg = cfg.factor()
+        return cfg    
+
     # Retorna conjunto de não-terminais que possuem recursão a esquerda direta
-    def direct_left_recursion(self):
+    def has_direct_left_recursion(self):
         rec_vn = set()
         for vn, prods in self.prods.items():
             direct = {x for x in prods if x[0] == vn}
@@ -483,7 +508,7 @@ class Grammar():
         return rec_vn
 
     # Retorna conjunto de não-terminais que possuem recursão a esquerda indireta
-    def indirect_left_recursion(self):
+    def has_indirect_left_recursion(self):
         rec_nt = set()
         first_nt = self.first_nt()
         for nt, prods in self.prods.items():
@@ -500,40 +525,46 @@ class Grammar():
                         rec_nt.add(nt)   
         return rec_nt
 
-    def remove_left_recursion(self):
+    # Retorna G sem recursão direta
+    def remove_direct_left_recursion(self):
         cfg = copy.deepcopy(self)
-
-        # Retira recursão direta
-        for vn, prods in self.prods.items():
-            direct = {x for x in prods if x[0] == vn}
+        for nt, prods in self.prods.items():
+            direct = {x for x in prods if x[0] == nt}
             no_rec = prods - direct
-            new_vn = vn + "'"
-            cfg.prods[vn] = {x + (new_vn,) for x in no_rec}
-            cfg.prods[new_vn] = {x[1:] + (new_vn,) for x in direct} | {('&',)}
+            new_nt = nt + "'" if nt+"'" not in self.vn() else nt + "''"
+            cfg.prods[nt] = {x + (new_nt,) for x in no_rec}
+            cfg.prods[new_nt] = {x[1:] + (new_nt,) for x in direct} | {('&',)}
+        return cfg
+
+    # Retorna G sem recursão direta em um não-terminal <nt>
+    def remove_direct_left_recursion_nt(self, nt):
+        cfg = copy.deepcopy(self)
+        direct = {x for x in cfg.prods[nt] if x[0] == nt}
+        no_rec = cfg.prods[nt] - direct
+        new_nt = nt + "'"
+        cfg.prods[nt] = {x + (new_nt,) for x in no_rec}
+        cfg.prods[new_nt] = {x[1:] + (new_nt,) for x in direct} | {('&',)}
+        return cfg
+
+    # Retorna G sem recursão indireta
+    def remove_indirect_left_recursion(self):
+        cfg = copy.deepcopy(self)
+        
+        a = [""] + list(cfg.vn())       # ignorar posição 0
+        for i in range(1,len(a)):       # i = 1, n
+            for j in range(1, i):       # j = 1, i-1
+                prods = {x for x in cfg.prods[a[i]] if x[0] is a[j]}
+                cfg.prods[a[i]] -= prods
+                cfg.prods[a[i]] |= {d+x[1:] for d in cfg.prods[a[j]] for x in prods}
+            cfg = cfg.remove_direct_left_recursion_nt(a[i])
 
         return cfg
 
-    def factor_in_steps(self, steps):
-        cfg = copy.deepcopy(self)
-        cfg = copy.deepcopy(self)
-        for i in range(steps):
-            if cfg.is_factored(): return cfg
-            cfg = cfg.factor()
-        return cfg    
-
-    # Retorna conjunto de terminais (Vt)
-    def vt(self):
-        vt = set()
-        for vn in self.prods.keys():
-            for ld in self.prods[vn]:
-                for v in ld:
-                    if v.islower():
-                        vt.add(v)
-        return vt
-
-    # Retorna se símbolo é não terminal
-    def is_vn(self, v):
-        return v in self.prods.keys()
-
-    def vn(self):
-        return self.prods.keys()
+    # Retorna G sem recursão a esquerda
+    def remove_left_recursion(self):
+        if self.has_indirect_left_recursion():
+            return self.remove_indirect_left_recursion()
+        elif self.has_direct_left_recursion():
+            return self.remove_direct_left_recursion()
+        else:
+            return self
