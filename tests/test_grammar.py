@@ -519,5 +519,76 @@ class TestGrammar(unittest.TestCase):
         gf = Grammar(g)
         self.assertEqual(gr.factor_in_steps(2), gf)
 
+    def test_has_left_recursion(self):
+        # G com recursão direta
+        g = """
+            S -> S a | b | c
+            """
+        gr = Grammar(g)
+        self.assertTrue(gr.has_direct_left_recursion())
+        self.assertFalse(gr.has_indirect_left_recursion())
+        # G com recursão direta e indireta
+        g = """
+            S -> A a | S b
+            A -> S c | d
+            """
+        gr = Grammar(g)
+        self.assertTrue(gr.has_direct_left_recursion())
+        self.assertTrue(gr.has_indirect_left_recursion())
+        # G sem recursão
+        g = """
+            S -> aS | b | c
+            """
+        gr = Grammar(g)
+        self.assertFalse(gr.has_direct_left_recursion())
+        self.assertFalse(gr.has_indirect_left_recursion())
+
+    def test_remove_left_recursion(self):
+        g = """
+            S -> A a | S b
+            A -> S c | d
+            """
+        gr = Grammar(g)
+        g = """
+            S -> A a S'
+            A' -> & | a S' c A'
+            S' -> b S' | &
+            A -> d A'
+            """
+        gf = Grammar(g)
+        self.assertEqual(gr.remove_left_recursion(), gf)
+
+    def test_is_proper(self):
+        g = """
+        S -> S a | b | c
+        """
+        gr = Grammar(g)
+        self.assertTrue(gr.is_proper())
+        # G com produção simples
+        g = """
+        S -> A a | S b
+        A -> S c | d | S
+        """
+        gr = Grammar(g)
+        self.assertFalse(gr.is_proper())
+        # G não &-livre
+        g = """
+        S -> A a | S b
+        A -> S c | d | &
+        """
+        gr = Grammar(g)
+        self.assertFalse(gr.is_proper())
+        # G com símbolos inúteis
+        g = """
+        S -> A a | S b
+        A -> S c | d 
+        B -> bB
+        """
+        gr = Grammar(g)
+        self.assertFalse(gr.is_proper())
+
+
+
+
 if __name__ == "__main__":
     unittest.main()
