@@ -33,7 +33,7 @@ class GUI(QMainWindow, Ui_MainWindow):
         self.firstButton.clicked.connect(self.first)
         
         # Lista
-        self.grammarList.itemClicked.connect(self.select_grammar)
+        self.grammarList.currentItemChanged.connect(self.select_grammar)
 
         # Correspondência entre index do QListWidgetItem e gramática
         self.cfg_list = []
@@ -183,13 +183,12 @@ class GUI(QMainWindow, Ui_MainWindow):
         name = self.nameField.text()
         if name:
             cfg.name = name
-        self.cfg_list.append(cfg)
-        item = QListWidgetItem(cfg.name, self.grammarList)
-        self.grammarList.setCurrentItem(item)
+        self.add_result_grammar_to_list(cfg)
 
     def add_result_grammar_to_list(self, result_cfg):
         self.cfg_list.append(result_cfg)
         item = QListWidgetItem(result_cfg.name, self.grammarList)
+        self.grammarList.setCurrentItem(item)
 
     def update_cfg_text(self):
         self.grammarText.setPlainText(str(self.cfg))
