@@ -8,4 +8,4 @@ OK First
 OK First-NT
 OK Follow
 OK Fatorar
-Eliminar RE
+OK Eliminar RE
