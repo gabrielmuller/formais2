@@ -26,7 +26,7 @@ class GUI(QMainWindow, Ui_MainWindow):
         # Botões
         self.leftRecursionButton.clicked.connect(self.leftRecursion)
         self.saveGrammarButton.clicked.connect(self.create_grammar)
-        self.fatoradaButton.clicked.connect(self.factored)
+        self.factorButton.clicked.connect(self.factored)
         self.firstNtButton.clicked.connect(self.first_nt)
         self.followButton.clicked.connect(self.follow)
         self.properButton.clicked.connect(self.proper)
@@ -117,13 +117,6 @@ class GUI(QMainWindow, Ui_MainWindow):
             self.show_error(UNDEFINED_ERR_MSG)
             return
 
-    def leftRecursion(self):
-        if self.cfg:
-            self.resultText_1.setPlainText("placeholder")
-        else:
-            self.show_error(UNDEFINED_ERR_MSG)
-            return
-
     def factored(self):
         if self.cfg:
             # Caso G não fatorada
@@ -153,6 +146,22 @@ class GUI(QMainWindow, Ui_MainWindow):
                 self.show_error("Gramática já está fatorada.")
             return
 
+        else:
+            self.show_error(UNDEFINED_ERR_MSG)
+            return
+
+    def leftRecursion(self):
+        if self.cfg:
+            direct_rec_vn = self.cfg.direct_left_recursion()
+
+            g = self.cfg.remove_left_recursion()
+
+            # Interface
+            self.resultText_1.setPlainText("Não-terminais com rec. a esquerda direta: " + \
+                str(direct_rec_vn) + '\n')
+            self.resultText_1.appendPlainText(str(g))
+            g.name = self.cfg.name + " sem Rec. a Esquerda"
+            self.add_result_grammar_to_list(g)
         else:
             self.show_error(UNDEFINED_ERR_MSG)
             return

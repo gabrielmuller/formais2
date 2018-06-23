@@ -402,12 +402,12 @@ class Grammar():
         A  -> α A’
         A’ -> β | γ
     """
-    # TODO: refazer com first()
+    # TODO: arrumar caso S -> c | S a | b
     def factor(self):
         cfg = copy.deepcopy(self)
         first = self.first()
 
-        for vn, prods in copy.deepcopy(cfg.prods).items():
+        for vn, prods in self.prods.items():
             # Combinações 2 a 2 de produções
             for prod_A, prod_B in itertools.combinations(prods,2):
 
@@ -474,8 +474,31 @@ class Grammar():
         
         return cfg
 
+    def direct_left_recursion(self):
+        rec_vn = set()
+        for vn, prods in self.prods.items():
+            direct = {x for x in prods if x[0] == vn}
+            if len(direct): rec_vn.add(vn)
+        return rec_vn
+
+    def remove_left_recursion(self):
+        cfg = copy.deepcopy(self)
+
+        # Retira recursão direta
+        for vn, prods in self.prods.items():
+            direct = {x for x in prods if x[0] == vn}
+            no_rec = prods - direct
+            new_vn = vn + "'"
+            cfg.prods[vn] = {x + (new_vn,) for x in no_rec}
+            cfg.prods[new_vn] = {x[1:] + (new_vn,) for x in direct} | {('&',)}
+
+        return cfg
+
+
+
 
     def factor_in_steps(self, steps):
+        cfg = copy.deepcopy(self)
         cfg = copy.deepcopy(self)
         for i in range(steps):
             if cfg.is_factored(): return cfg
