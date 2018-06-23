@@ -37,14 +37,14 @@ Foram implementadas as seguintes transformações sobre G.L.C.s:
 
 Pela interface estão disponíveis as seguintes transformações:
 
-+ GLC Própria:
++ G.L.C. Própria:
     - Exibe gramáticas intermediárias para as transformações 1, 2, 3 e 4.
     - Exibe conjuntos NF, Vi, Ne e NA .
     - Salva a gramática final (em tempo de execução).
-+ Fatoração de G.L.C:
++ Fatoração de G.L.C.:
     - O usuário define o número de passos de fatoração.
-    - Exibe se a gramática final é fatorada, isto é, se G inicial é fatorável no número de passos escolhido.
-    - Salva a gramática final (em tempo de execução).
+    - Exibe se G inicial é fatorável no número de passos escolhido.
+    - Se G for fatorável, salva a gramática final (em tempo de execução).
 + Eliminação de Recursão à Esquerda:
     - Exibe os não-terminais recursivos a esquerda e o tipo das recursões (direta/indireta).
     - Salva a gramática final (em tempo de execução).
