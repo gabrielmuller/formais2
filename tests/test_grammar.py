@@ -496,28 +496,39 @@ class TestGrammar(unittest.TestCase):
         """
         gr = Grammar(g)
         g = """
-        S  -> a S'
-        S' -> A | &
-        A  -> a A'
-        A' -> A | &
+            S  -> a S'
+            S' -> A | &
+            A  -> a A'
+            A' -> A | &
         """
         gf = Grammar(g)
         self.assertEqual(gr.factor_in_steps(1), gf)
 
         #exemplo de não fatoravel indireta
         g = """ 
-        S -> a S | A
-        A -> a A c | &
+            S -> a S | A
+            A -> a A c | &
         """
         gr = Grammar(g)
         g = """
-        S -> a S' | &
-        S' -> & | a S'' | c
-        S'' -> A c c | S'
-        A -> & | a A c
+            S -> a S' | &
+            S' -> & | a S'' | c
+            S'' -> A c c | S'
+            A -> & | a A c
         """
         gf = Grammar(g)
         self.assertEqual(gr.factor_in_steps(2), gf)
+
+        g = """
+            S -> S a | b | c
+        """
+        gr = Grammar(g)
+        g = """
+            S -> b S' | c S' | S a a
+            S' -> & | a
+        """
+        gf = Grammar(g)
+        self.assertEqual(gr.factor_in_steps(1), gf)
 
     def test_has_left_recursion(self):
         # G com recursão direta

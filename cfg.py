@@ -428,36 +428,34 @@ class Grammar():
         A  -> α A’
         A’ -> β | γ
     """
-    # TODO: arrumar caso S -> c | S a | b
     def factor(self):
         cfg = copy.deepcopy(self)
         first = self.first()
 
         for vn, prods in self.prods.items():
+            """ 
+                Procura por não determinismo indireto 
+                A -> α β | B λ
+                B -> α γ | η
+                E faz
+                A -> α β | α γ | η λ
+            """
+            for prod in prods:
+                if self.is_vn(prod[0]) and any(p[0] in first[prod[0]] for p in prods - {prod}):  
+                    # Adiciona A -> α γ λ | η λ
+                    cfg.prods[vn] |= {q+prod[1:] for q in cfg.prods[prod[0]]}
+                    cfg.prods[vn] -= {prod} # Retira A -> B  
+
+
             # Combinações 2 a 2 de produções
             for prod_A, prod_B in itertools.combinations(prods,2):
-
                 """ 
                     Procura por não determinismo indireto 
-                    A -> α β | B λ
-                    B -> α γ | η
-                    E faz
-                    A -> α β | α γ | η λ
-                """
-                for prod in [prod_A, prod_B]:
-                    if self.is_vn(prod[0]) and any(p[0] in first[prod[0]] for p in prods - {prod}):
-                        # Retira A -> B
-                        cfg.prods[vn] -= {prod}     
-                        # Adiciona A -> α γ λ | η λ
-                        cfg.prods[vn] |= {q+prod[1:] for q in cfg.prods[prod[0]]}
-
-                """ 
-                    Procura por não determinismo indireto 
-                    A -> C | B
+                    A -> C λ | B η
                     B -> α γ 
                     C -> α β
                     E faz
-                    A -> α β | α γ
+                    A -> α β λ | α γ η
                 """
                 if self.is_vn(prod_A[0]) and self.is_vn(prod_B[0]):
                     if any(q == p for p in first[prod_B[0]] for q in first[prod_A[0]]):
